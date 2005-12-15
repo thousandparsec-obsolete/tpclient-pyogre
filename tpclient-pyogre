@@ -159,7 +159,7 @@ class GEUIApplication(Framework.Application):
 		login = cegui.WindowManager.getSingleton().loadWindowLayout("login.layout")
 		self.system.guiSheet = login
 
-#		self.schemeManager.setSkyBox(True, 'Examples/SpaceSkyBox')
+		self.sceneManager.setSkyBox(True, 'skybox/SpaceSkyBox')
 
 #		# Load Layout (from media/gui/datafiles/layout)
 #		sheet = cegui.WindowManager.getSingleton().loadWindowLayout("Demo8.layout")
