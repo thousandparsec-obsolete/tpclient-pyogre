@@ -1,0 +1,8 @@
+
+This client requires the following be installed,
+	python-pyogre (+ python-pycegui)	- Graphics Engine
+	python-pygame						- Input Engine
+	libtpproto-py						- Network Library
+	python-numarray (or python-numeric)	- Array Processing Library
+	python-pysco						- Optimisation Library
+
