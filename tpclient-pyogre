@@ -8,7 +8,7 @@
 #	 Events still dont appear to be returning window etc
 #----------------------------------------
 
-import pygame
+import os
 from pyogre import ogre,cegui
 import Framework
 
@@ -20,6 +20,7 @@ class CEGUIFrameListener(Framework.FrameListener):
 	def __init__(self, renderWindow, camera, sceneManager):
 		Framework.FrameListener.__init__(self, renderWindow, camera)
 		self.keepRendering = True   # whether to continue rendering or not
+		self.sceneDetailIndex = 0
 
 	def _setupInput(self):
 		self.eventProcessor = ogre.EventProcessor()
@@ -63,6 +64,23 @@ class CEGUIFrameListener(Framework.FrameListener):
 	def keyPressed(self, evt):
 		if evt.key == ogre.KC_ESCAPE:
 			self.keepRendering = False
+		if evt.key == ogre.KC_SYSRQ:
+			path, next = 'screenshot.png', 1
+			while os.path.exists(path):
+				path = 'screenshot_%d.png' % next
+				next += 1
+			
+			self.renderWindow.writeContentsToFile(path)
+			self.renderWindow.debugText = 'screenshot taken: ' + path
+		if evt.key == ogre.KC_SCROLL:
+			detailsLevel = ("SDL_SOLID", "SDL_WIREFRAME", "SDL_POINTS")
+			self.sceneDetailIndex += 1 
+			self.sceneDetailIndex %= len(detailsLevel)
+			
+			mode = detailsLevel[self.sceneDetailIndex]
+			self.camera.detailLevel = getattr(ogre, mode)
+			self.renderWindow.debugText = 'render mode set to: ' + mode
+
 		system = cegui.System.getSingleton()
 		system.injectKeyDown(evt.key)
 		system.injectChar(evt.keyChar)
@@ -78,8 +96,8 @@ class CEGUIFrameListener(Framework.FrameListener):
 	def _convertOgreButtonToCegui(self,evt):
 		# Convert ogre button to cegui button
 		if (evt.buttonID & ogre.MouseEvent.BUTTON0_MASK):
-			return cegui.LeftButton		
 			print "Left Button"
+			return cegui.LeftButton		
 		elif (evt.buttonID & ogre.MouseEvent.BUTTON1_MASK):
 			return cegui.RightButton		
 		elif (evt.buttonID & ogre.MouseEvent.BUTTON2_MASK):
@@ -88,53 +106,6 @@ class CEGUIFrameListener(Framework.FrameListener):
 			return cegui.X1Button
 		return cegui.LeftButton
 
-
-# Event Handling Add Button
-def onAdd(args):
-	#print `args`
-	
-	# Get the list box / edit box window
-	editBox = cegui.WindowManager.getSingleton().getWindow("Demo8/Window1/Controls/Editbox")
-	listBox = cegui.WindowManager.getSingleton().getWindow("Demo8/Window1/Listbox")
-   
-	# If there's text add to the listbox 
-	txt=editBox.text	
-	if (len(txt)>0):
-		#txt = editBox.text
-		#id = listBox.itemCount  
-		item = cegui.ListboxTextItem(editBox.text,listBox.itemCount)
-
-		# set the item selection colours and image otherwise you wont see the item
-		item.selectionColours = cegui.colour(0.0, 0.0, 1.0, 1.0)
-		item.selectionBrushImage = "TaharezLook", "ListboxSelectionBrush"
-		# add item to list box
-		listBox.addItem(item)
-		item.thisown = 0
-	editBox.text = ""
-
-	
-# Event Handling ColourBar Scroll
-def onScrollUpdate(args):
-	#print `args`
-	# Hack cant seem to get window from event
-	# get the scrollbar positions
-	r = cegui.WindowManager.getSingleton().getWindow("Demo8/Window1/Controls/Red").scrollPosition
-	g = cegui.WindowManager.getSingleton().getWindow("Demo8/Window1/Controls/Green").scrollPosition
-	b = cegui.WindowManager.getSingleton().getWindow("Demo8/Window1/Controls/Blue").scrollPosition
-
-	cegui.WindowManager.getSingleton().getWindow("Demo8/Window2/Tips").textColours = cegui.colour(r, g, b, 1.0)
-
-	# Set the Static image colour
-	cegui.WindowManager.getSingleton().getWindow("Demo8/Window1/Controls/ColourSample" ).imageColours = cegui.colour(r, g, b, 1.0)
-	
-# Event Handling Shows message mouse enters text box
-def onMouseEnters(args):
-	cegui.WindowManager.getSingleton().getWindow("Demo8/Window2/Tips").text="Hello"
-
-def onMouseLeaves(args):
-	cegui.WindowManager.getSingleton().getWindow("Demo8/Window2/Tips").text="Goodbye"
-
-	
 class GEUIApplication(Framework.Application):
 	def __init__(self):
 		Framework.Application.__init__(self)
