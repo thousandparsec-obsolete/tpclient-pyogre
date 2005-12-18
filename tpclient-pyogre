@@ -10,15 +10,19 @@
 
 import os
 from pyogre import ogre,cegui
+
 import Framework
+import Scene
 
 def _PointHack(x, y):
 	return cegui.Vector2(x, y)
 cegui.Point = _PointHack
 
 class CEGUIFrameListener(Framework.FrameListener):
-	def __init__(self, renderWindow, camera, sceneManager):
+	def __init__(self, application, renderWindow, camera):
 		Framework.FrameListener.__init__(self, renderWindow, camera)
+
+		self.application = application
 		self.keepRendering = True   # whether to continue rendering or not
 		self.sceneDetailIndex = 0
 
@@ -33,6 +37,7 @@ class CEGUIFrameListener(Framework.FrameListener):
 		self.eventProcessor.addMouseMotionListener(self)
 
 	def frameStarted(self, evt):
+		self.application.currentScene.update(evt)
 		return self.keepRendering
 
 	def mouseDragged(self, evt):
@@ -62,6 +67,11 @@ class CEGUIFrameListener(Framework.FrameListener):
 							   evt.relY * renderer.height)
 
 	def keyPressed(self, evt):
+		if evt.key == ogre.KC_A:
+			if self.application.currentScene == self.application.login:
+				self.application.changeScene(self.application.ninja)
+			else:
+				self.application.changeScene(self.application.login)
 		if evt.key == ogre.KC_ESCAPE:
 			self.keepRendering = False
 		if evt.key == ogre.KC_SYSRQ:
@@ -106,66 +116,43 @@ class CEGUIFrameListener(Framework.FrameListener):
 			return cegui.X1Button
 		return cegui.LeftButton
 
-class GEUIApplication(Framework.Application):
+class CEUIApplication(Framework.Application):
 	def __init__(self):
 		Framework.Application.__init__(self)
 		self.guiRenderer=0
-		self.system =0
+		self.guiSystem =0
 
-	def _createGUI(self):
+	def _createScene(self):
 		# Initiaslise CEGUI Renderer
 		self.guiRenderer = cegui.OgreCEGUIRenderer(self.renderWindow)
-		self.system = cegui.System(self.guiRenderer)
+		self.guiSystem = cegui.System(self.guiRenderer)
 		cegui.Logger.getSingleton().loggingLevel = cegui.Insane
 
 		# Load Cegui Scheme
 		cegui.SchemeManager.getSingleton().loadScheme("TaharezLook.scheme")
-		self.system.defaultMouseCursor = "TaharezLook", "MouseArrow"
+		self.guiSystem.defaultMouseCursor = "TaharezLook", "MouseArrow"
 		cegui.FontManager.getSingleton().createFont("Tahoma.font")
 
 		wmgr = cegui.WindowManager.getSingleton()
 		root = wmgr.createWindow("DefaultWindow", "root")
-		self.system.guiSheet = root
+		self.guiSystem.guiSheet = root
 
-		login = cegui.WindowManager.getSingleton().loadWindowLayout("login.layout")
-		self.system.guiSheet = login
+		self.login = Scene.LoginScene(self.sceneManager, self.guiSystem)
+		self.ninja = Scene.NinjaScene(self.sceneManager, self.guiSystem)
+		self.changeScene(self.login)
 
-		self.sceneManager.setSkyBox(True, 'skybox/SpaceSkyBox')
-
-#		# Load Layout (from media/gui/datafiles/layout)
-#		sheet = cegui.WindowManager.getSingleton().loadWindowLayout("Demo8.layout")
-#		self.system.guiSheet = sheet
-#
-#		# Get controls
-#		addButton = cegui.WindowManager.getSingleton().getWindow("Demo8/Window1/Controls/Add")
-#		redScroll = cegui.WindowManager.getSingleton().getWindow("Demo8/Window1/Controls/Red")
-#		greenScroll = cegui.WindowManager.getSingleton().getWindow("Demo8/Window1/Controls/Green")
-#		blueScroll = cegui.WindowManager.getSingleton().getWindow("Demo8/Window1/Controls/Blue")
-#		
-#		# Info Panel
-#		cegui.WindowManager.getSingleton().getWindow("Demo8/Window2/Info").text="An example of Text"
-#
-#		# Tips Window
-#		cegui.WindowManager.getSingleton().getWindow("Demo8/Window2/Tips").text="Some Coloured Text"
-#
-#		# Events
-#		ec= addButton.subscribeEvent(addButton.EventClicked, onAdd)
-#		ec2= redScroll.subscribeEvent(redScroll.EventThumbTrackEnded, onScrollUpdate)
-#		ec3= greenScroll.subscribeEvent(greenScroll.EventThumbTrackEnded, onScrollUpdate)
-#		ec4= blueScroll.subscribeEvent(blueScroll.EventThumbTrackEnded, onScrollUpdate)
-		
-	def _createScene(self):
-		sceneManager = self.sceneManager
-		sceneManager.ambientLight = 0.25, 0.25, 0.25
-		self._createGUI()
-
+	def changeScene(self, scene):
+		if hasattr(self, "currentScene"):
+			self.currentScene.hide()
+		self.currentScene = scene
+		self.currentScene.show()
 
 	def _createCamera(self):
 		self.camera = self.sceneManager.createCamera("PlayerCam")
 		self.camera.nearClipDistance = 5
 
 	def _createFrameListener(self):
-		self.frameListener = CEGUIFrameListener(self.renderWindow, self.camera, self.sceneManager)
+		self.frameListener = CEGUIFrameListener(self, self.renderWindow, self.camera)
 		self.root.addFrameListener(self.frameListener)
 		self.frameListener.showDebugOverlay(True)
 
@@ -174,15 +161,54 @@ class GEUIApplication(Framework.Application):
 		del self.camera
 		del self.sceneManager
 		del self.frameListener
-		del self.system
+		del self.guiSystem
 		del self.guiRenderer
 		del self.root
 		del self.renderWindow		
-	 
+	
 
 if __name__ == '__main__':
 	try:
-		ta = GEUIApplication()
+		ta = CEUIApplication()
 		ta.go()
 	except ogre.OgreException, e:
 		print e
+
+class Viewport:
+	def __init__(self):
+		pass
+
+# Code to find a 3d object is clicked on....
+#
+# // Start a new ray query
+# Ogre::Ray cameraRay = root::getSingleton( ).
+#   getCamera( )->getCameraToViewportRay( mouseX, mouseY );
+# Ogre::RaySceneQuery *raySceneQuery = root::getSingleton( ).
+#   getSceneManager( )->createRayQuery( cameraRay );
+#
+# raySceneQuery->execute( );
+# Ogre::RaySceneQueryResult result = raySceneQuery->getLastResults( );
+# Ogre::MovableObject *closestObject = NULL;
+# real closestDistance = LONG_MAX;
+# std::list< Ogre::RaySceneQueryResultEntry >::iterator rayIterator;
+#
+# for ( rayIterator = result.begin( );
+#  rayIterator != result.end( );
+#  rayIterator++ ) {
+#   if ( ( *rayIterator ).movable->getUserObject( ) != NULL ) {
+#     if ( ( *rayIterator ).distance < closestDistance ) {
+#  closestObject = ( *rayIterator ).movable;
+#  closestDistance = ( *rayIterator ).distance;
+#     }
+#   }
+# }
+#
+# // No object clicked
+# if ( closestObject == NULL ) {   
+#   clickedObject = NULL;                         ---- clickedObject is a class scoped variable
+# } else {
+#   clickedObject = static_cast< object* >( closestObject->getUserObject( ) );
+# }
+#
+# raySceneQuery->clearResults( );
+# root::getSingleton( ).getSceneManager( )->destroyQuery( raySceneQuery ); 
