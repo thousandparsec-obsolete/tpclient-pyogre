@@ -51,7 +51,33 @@ class Scene:
 	def update(self, evt):
 		pass
 
-class LoginScene(Scene):
+class MenuScene(Scene):
+	"""
+	Menu Scenes all share a common background. The state of the 
+	background is preserved accross Menu Scenes.
+	"""
+	def setPosition(self, position):
+		MenuScene.position = position
+	position = property(fset=setPosition)
+
+	def setOrientation(self, orientation):
+		MenuScene.orientation = orientation
+	orientation = property(fset=setOrientation)
+	
+	def show(self):
+		Scene.show(self)
+		self.sceneManager.setSkyBox(True, 'skybox/SpaceSkyBox')
+	
+	def hide(self):
+		self.sceneManager.setSkyBox(False, '')
+		Scene.hide(self)
+
+	def update(self, evt):
+		camera = self.sceneManager.getCamera( 'PlayerCam' )
+		camera.pitch(ogre.Radian(ogre.Degree(evt.timeSinceLastFrame*0.25)))
+		camera.yaw(ogre.Radian(ogre.Degree(evt.timeSinceLastFrame*-0.5)))
+
+class LoginScene(MenuScene):
 	def __init__(self, sceneManager, guiSystem):
 		Scene.__init__(self, sceneManager)
 
@@ -68,20 +94,7 @@ class LoginScene(Scene):
 
 		self.hide()
 
-	def show(self):
-		Scene.show(self)
-		self.sceneManager.setSkyBox(True, 'skybox/SpaceSkyBox')
-	
-	def hide(self):
-		self.sceneManager.setSkyBox(False, '')
-		Scene.hide(self)
-
-	def update(self, evt):
-		camera = self.sceneManager.getCamera( 'PlayerCam' )
-		camera.pitch(ogre.Radian(ogre.Degree(evt.timeSinceLastFrame*0.25)))
-		camera.yaw(ogre.Radian(ogre.Degree(evt.timeSinceLastFrame*-0.5)))
-
-class NinjaScene(Scene):
+class NinjaScene(MenuScene):
 	def __init__(self, sceneManager, guiSystem):
 		Scene.__init__(self, sceneManager)
 
