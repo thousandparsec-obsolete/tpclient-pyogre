@@ -1,0 +1,27 @@
+#! /bin/sh
+
+for i in ../../../media/star-small/*.png; do
+	FILE=`basename $i`
+	MATERIAL=`basename $FILE .png`
+	
+	cat > $MATERIAL.material <<EOF
+// Light effects
+material Billboard/$MATERIAL
+{
+  technique
+  {
+    pass
+    {
+      lighting off
+      scene_blend add
+      depth_write off
+      texture_unit
+      {
+        texture $FILE
+      }
+    }
+  }
+}
+EOF
+	cp -vf $i $FILE
+done

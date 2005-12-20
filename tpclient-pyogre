@@ -138,7 +138,7 @@ class CEUIApplication(Framework.Application):
 		self.guiSystem.guiSheet = root
 
 		self.login = Scene.LoginScene(self.sceneManager, self.guiSystem)
-		self.ninja = Scene.NinjaScene(self.sceneManager, self.guiSystem)
+		self.ninja = Scene.StarmapScene(self.sceneManager, self.guiSystem)
 		self.changeScene(self.login)
 
 	def changeScene(self, scene):

@@ -116,6 +116,7 @@ class StarmapScene(MenuScene):
 
 		class o:
 			def __init__(self, x, y, z):
+				self.id = x + y + z
 				self.posx = x
 				self.posy = y
 				self.posz = z
@@ -124,7 +125,7 @@ class StarmapScene(MenuScene):
 			pass
 
 		c= cache()
-		c.objects = {0: o(0, 1000, 0), 1: o(-1000, -1000, 1000), 2:o(1000, 1000, 1000),
+		c.objects = {0: o(0, 1000, 0), 1: o(-100, -100, 100), 2:o(100, 100, 100),
 			4: o(0, 1123, 0), 5: o(-1132, -1123, 1232), 6:o(1136, 8990, 2300),
 			4: o(0, 5623, 0), 5: o(-1532, -1683, 1267), 6:o(2223, 8990, 0000),
 			4: o(0, 1134, 0), 5: o(-1832, -1233, 1232), 6:o(1136, 8000, 2300),
@@ -137,15 +138,19 @@ class StarmapScene(MenuScene):
 		self.hide()
 	
 	def create(self, cache):
-		systems = self.sceneManager.createBillboardSet("Systems", len(cache.objects.keys()));
-		systems.cullIndividually = True
-		systems.defaultDimensions = (1,1)
+		stars = ["blue", "purple-large", "purple-small", "rainbow",  "red",  "yellow"]
 
-		self.rootNode.createChildSceneNode((0, 0, 0)).attachObject(systems)
+		systems = []
+		for star in stars:
+			systems.append(self.sceneManager.createBillboardSet("Systems-%s" % star))
+			systems[-1].cullIndividually = True
+			systems[-1].defaultDimensions = (1,1)
+			systems[-1].materialName = "Billboard/%s" % star
+
+			self.rootNode.createChildSceneNode((0, 0, 0)).attachObject(systems[-1])
 
 		for object in cache.objects.values():
-			object_board = systems.createBillboard((object.posx, object.posy, object.posz))
+			system = systems[object.id % len(systems)]
+			object_board = system.createBillboard((object.posx, object.posy, object.posz))
 			object_board.colour = ogre.ColourValue.White
 
-
-		
