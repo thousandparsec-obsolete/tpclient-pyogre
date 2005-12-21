@@ -51,7 +51,29 @@ class Scene:
 		self.sceneManager.rootSceneNode.removeChild(self.rootNode)
 
 	def update(self, evt):
-		pass
+		return True
+	
+	# Note, the GUI system always gets fed before the Scene does
+	def mouseDragged(self, evt):
+		return False
+
+	def mousePressed(self, evt):
+		return False
+
+	def mouseReleased(self, evt):
+		return False
+	
+	def mouseDragged(self, evt):
+		return False
+	
+	def mouseMoved(self, evt):
+		return False
+
+	def keyPressed(self, evt):
+		return False
+
+	def keyReleased(self, evt):
+		return False
 
 class MenuScene(Scene):
 	"""
@@ -78,6 +100,12 @@ class MenuScene(Scene):
 		camera = self.sceneManager.getCamera( 'PlayerCam' )
 		camera.pitch(ogre.Radian(ogre.Degree(evt.timeSinceLastFrame*25)))
 		camera.yaw(ogre.Radian(ogre.Degree(evt.timeSinceLastFrame*-5)))
+
+		return True
+
+	def keyPressed(self, evt):
+		if evt.key == ogre.KC_A:
+			print "A!"
 
 class LoginScene(MenuScene):
 	def __init__(self, sceneManager, guiSystem):
