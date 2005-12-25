@@ -106,7 +106,6 @@ class CEGUIFrameListener(Framework.FrameListener):
 	def _convertOgreButtonToCegui(self,evt):
 		# Convert ogre button to cegui button
 		if (evt.buttonID & ogre.MouseEvent.BUTTON0_MASK):
-			print "Left Button"
 			return cegui.LeftButton		
 		elif (evt.buttonID & ogre.MouseEvent.BUTTON1_MASK):
 			return cegui.RightButton		
@@ -137,9 +136,9 @@ class CEUIApplication(Framework.Application):
 		root = wmgr.createWindow("DefaultWindow", "root")
 		self.guiSystem.guiSheet = root
 
-		self.login = Scene.LoginScene(self.sceneManager, self.guiSystem)
-		self.ninja = Scene.StarmapScene(self.sceneManager, self.guiSystem)
-		self.changeScene(self.login)
+		self.login = Scene.LoginScene(self, self.sceneManager)
+		self.starmap = Scene.StarmapScene(self, self.sceneManager)
+		self.changeScene(self.starmap)
 
 	def changeScene(self, scene):
 		if hasattr(self, "currentScene"):
@@ -174,41 +173,3 @@ if __name__ == '__main__':
 	except ogre.OgreException, e:
 		print e
 
-class Viewport:
-	def __init__(self):
-		pass
-
-# Code to find a 3d object is clicked on....
-#
-# // Start a new ray query
-# Ogre::Ray cameraRay = root::getSingleton( ).
-#   getCamera( )->getCameraToViewportRay( mouseX, mouseY );
-# Ogre::RaySceneQuery *raySceneQuery = root::getSingleton( ).
-#   getSceneManager( )->createRayQuery( cameraRay );
-#
-# raySceneQuery->execute( );
-# Ogre::RaySceneQueryResult result = raySceneQuery->getLastResults( );
-# Ogre::MovableObject *closestObject = NULL;
-# real closestDistance = LONG_MAX;
-# std::list< Ogre::RaySceneQueryResultEntry >::iterator rayIterator;
-#
-# for ( rayIterator = result.begin( );
-#  rayIterator != result.end( );
-#  rayIterator++ ) {
-#   if ( ( *rayIterator ).movable->getUserObject( ) != NULL ) {
-#     if ( ( *rayIterator ).distance < closestDistance ) {
-#  closestObject = ( *rayIterator ).movable;
-#  closestDistance = ( *rayIterator ).distance;
-#     }
-#   }
-# }
-#
-# // No object clicked
-# if ( closestObject == NULL ) {   
-#   clickedObject = NULL;                         ---- clickedObject is a class scoped variable
-# } else {
-#   clickedObject = static_cast< object* >( closestObject->getUserObject( ) );
-# }
-#
-# raySceneQuery->clearResults( );
-# root::getSingleton( ).getSceneManager( )->destroyQuery( raySceneQuery ); 

@@ -3,7 +3,9 @@ from pyogre import cegui, ogre
 import Mesh
 
 class Scene:
-	def __init__(self, sceneManager):
+	def __init__(self, application, sceneManager):
+		self.application = application
+		self.guiSystem = application.guiSystem
 		self.sceneManager = sceneManager
 		
 		# Create the root for this Scene
@@ -105,41 +107,45 @@ class MenuScene(Scene):
 
 	def keyPressed(self, evt):
 		if evt.key == ogre.KC_A:
+			
 			print "A!"
 
 class LoginScene(MenuScene):
-	def __init__(self, sceneManager, guiSystem):
-		Scene.__init__(self, sceneManager)
-
-		#Mesh.createSphere('Testing', 10)
+	def __init__(self, application, sceneManager):
+		Scene.__init__(self, application, sceneManager)
 
 		#entity = sceneManager.createEntity('LoginRobot', 'Testing')
 		#entity.setMaterialName("Core/OgreText");
 		#self.rootNode.createChildSceneNode((15, 15, 0)).attachObject(entity)
 	
 		login = cegui.WindowManager.getSingleton().loadWindowLayout("login.layout")
-		guiSystem.guiSheet.addChildWindow(login)
+		self.guiSystem.guiSheet.addChildWindow(login)
 		self.windows.append(login)
 
 		self.hide()
 
 class ConfigScene(MenuScene):
-	def __init__(self, sceneManager, guiSystem):
-		Scene.__init__(self, sceneManager)
+	def __init__(self, application, sceneManager):
+		Scene.__init__(self, application, sceneManager)
 
 		#login = cegui.WindowManager.getSingleton().loadWindowLayout("config.layout")
-		#guiSystem.guiSheet.addChildWindow(login)
+		#self.guiSystem.guiSheet.addChildWindow(login)
 		#self.windows.append(login)
 
 		self.hide()
 
 class StarmapScene(MenuScene):
-	def __init__(self, sceneManager, guiSystem):
-		Scene.__init__(self, sceneManager)
+	panSpeed = 5000
+	rotateSpeed = 250
+
+	def __init__(self, application, sceneManager):
+		Scene.__init__(self, application, sceneManager)
+
+		self.mouseState = 0
 
 		# Quick-selection
 		#system = cegui.WindowManager.getSingleton().loadWindowLayout("system.layout")
-		#guiSystem.guiSheet.addChildWindow(system)
+		#self.guiSystem.guiSheet.addChildWindow(system)
 		#self.windows.append(system)
 
 		class o:
@@ -162,7 +168,6 @@ class StarmapScene(MenuScene):
 
 
 		self.create(c)
-
 		self.hide()
 	
 	def create(self, cache):
@@ -173,6 +178,59 @@ class StarmapScene(MenuScene):
 			entity = self.sceneManager.createEntity(str(object.id), 'sphere.mesh')
 			node.attachObject(entity)
 	
+	def update(self, evt):
+		return True
+
+	def mousePressed(self, evt):
+		print self, "mousePressed"
+	   	if evt.buttonID & ogre.MouseEvent.BUTTON0_MASK:
+		   self.mouseState |= ogre.MouseEvent.BUTTON0_MASK
+		
+		if evt.buttonID & ogre.MouseEvent.BUTTON2_MASK:
+		   self.mouseState |= ogre.MouseEvent.BUTTON2_MASK
+	
+		print evt.buttonID, self.mouseState
+	
+		if self.mouseState != 0:
+			cegui.MouseCursor.getSingleton().hide()
+	
+	def mouseDragged(self, evt):
+		"""
+		If the right mouse is down roll/pitch for camera changes.
+		If the left mouse button is down pan the screen
+		"""
+		print self, "mouseDragged"
+		camera = self.sceneManager.getCamera( 'PlayerCam' )
+
+		if self.mouseState & ogre.MouseEvent.BUTTON2_MASK:
+			print "Rotating", evt.relX, evt.relY
+
+			# FIXME: This introduces roll? Recommended to use two SceneNodes
+			camera.yaw(ogre.Radian(ogre.Degree(-evt.relX * self.rotateSpeed)))
+			camera.pitch(ogre.Radian(ogre.Degree(-evt.relY * self.rotateSpeed)))
+		
+		if self.mouseState & ogre.MouseEvent.BUTTON0_MASK:
+			print "Panning", evt.relX, evt.relY
+
+			# FIXME: This doesn't go in the direction the camera is pointing
+			camera.position = camera.position \
+				+ ogre.Vector3(-evt.relX * self.panSpeed, -evt.relY * self.panSpeed, 0)
+		
+		return False
+
+	def mouseReleased(self, evt):
+		print self, "mouseReleased"
+	   	if evt.buttonID & ogre.MouseEvent.BUTTON0_MASK:
+		   self.mouseState &= ~ogre.MouseEvent.BUTTON0_MASK
+		
+		if evt.buttonID & ogre.MouseEvent.BUTTON2_MASK:
+		   self.mouseState &= ~ogre.MouseEvent.BUTTON2_MASK
+
+		if self.mouseState == 0:
+			cegui.MouseCursor.getSingleton().show()
+
+		return False
+
 #		stars = ["blue", "purple-large", "purple-small", "rainbow",  "red",  "yellow"]
 #
 #		systems = []
