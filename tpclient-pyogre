@@ -149,6 +149,7 @@ class CEUIApplication(Framework.Application):
 	def _createCamera(self):
 		self.camera = self.sceneManager.createCamera("PlayerCam")
 		self.camera.nearClipDistance = 5
+		self.camera.setFixedYawAxis(False, ogre.Vector3.UNIT_Y)
 
 	def _createFrameListener(self):
 		self.frameListener = CEGUIFrameListener(self, self.renderWindow, self.camera)

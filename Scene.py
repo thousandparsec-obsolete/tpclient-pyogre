@@ -142,6 +142,11 @@ class StarmapScene(MenuScene):
 		Scene.__init__(self, application, sceneManager)
 
 		self.mouseState = 0
+		self.currentObject = None
+	
+		self.raySceneQuery = self.sceneManager.createRayQuery( ogre.Ray() )
+		self.raySceneQuery.sortByDistance = True
+		self.raySceneQuery.maxResults = 10
 
 		# Quick-selection
 		#system = cegui.WindowManager.getSingleton().loadWindowLayout("system.layout")
@@ -166,7 +171,6 @@ class StarmapScene(MenuScene):
 			13: o(13, 0, 1222, 0), 14: o(14, -2322, -1193, 1289), 15:o(15,1178, 8990, 2000),
 		}
 
-
 		self.create(c)
 		self.hide()
 	
@@ -183,11 +187,37 @@ class StarmapScene(MenuScene):
 
 	def mousePressed(self, evt):
 		print self, "mousePressed"
-	   	if evt.buttonID & ogre.MouseEvent.BUTTON0_MASK:
-		   self.mouseState |= ogre.MouseEvent.BUTTON0_MASK
+
+		# Is the person clicking on something?
+		mouseRay = self.sceneManager.getCamera( 'PlayerCam' ).getCameraToViewportRay( evt.x, evt.y )
+		self.raySceneQuery.ray = mouseRay
+		result = self.raySceneQuery.execute()
+
+		print result
+
+		for o in result:
+			if o.worldFragment:
+				print "WorldFragment:", o.worldFragment.singleIntersection
+
+			if o.movable:
+				# Check there is actually a collision
+				print o.movable.worldBoundingSphere.getCenter(), o.movable.worldBoundingSphere.getRadius()
+				if not mouseRay.intersects(o.movable.worldBoundingSphere):
+					print "False Collision with MovableObject: ", o.movable.name, o.movable.mesh.name
+					continue
+			
+				print "MovableObject: ", o.movable.name, o.movable.mesh.name
+				if self.currentObject:
+					self.currentObject.parentSceneNode.showBoundingBox = False
+				self.currentObject = o.movable
+				self.currentObject.parentSceneNode.showBoundingBox = True
+				break
+		
+		if evt.buttonID & ogre.MouseEvent.BUTTON0_MASK:
+			self.mouseState |= ogre.MouseEvent.BUTTON0_MASK
 		
 		if evt.buttonID & ogre.MouseEvent.BUTTON2_MASK:
-		   self.mouseState |= ogre.MouseEvent.BUTTON2_MASK
+			self.mouseState |= ogre.MouseEvent.BUTTON2_MASK
 	
 		print evt.buttonID, self.mouseState
 	
@@ -212,19 +242,18 @@ class StarmapScene(MenuScene):
 		if self.mouseState & ogre.MouseEvent.BUTTON0_MASK:
 			print "Panning", evt.relX, evt.relY
 
-			# FIXME: This doesn't go in the direction the camera is pointing
-			camera.position = camera.position \
-				+ ogre.Vector3(-evt.relX * self.panSpeed, -evt.relY * self.panSpeed, 0)
+			camera.moveRelative(
+				ogre.Vector3(evt.relX * self.panSpeed, 0, -evt.relY * self.panSpeed))
 		
 		return False
 
 	def mouseReleased(self, evt):
 		print self, "mouseReleased"
-	   	if evt.buttonID & ogre.MouseEvent.BUTTON0_MASK:
-		   self.mouseState &= ~ogre.MouseEvent.BUTTON0_MASK
+		if evt.buttonID & ogre.MouseEvent.BUTTON0_MASK:
+			self.mouseState &= ~ogre.MouseEvent.BUTTON0_MASK
 		
 		if evt.buttonID & ogre.MouseEvent.BUTTON2_MASK:
-		   self.mouseState &= ~ogre.MouseEvent.BUTTON2_MASK
+			self.mouseState &= ~ogre.MouseEvent.BUTTON2_MASK
 
 		if self.mouseState == 0:
 			cegui.MouseCursor.getSingleton().show()
