@@ -135,6 +135,8 @@ class ConfigScene(MenuScene):
 		self.hide()
 
 class StarmapScene(MenuScene):
+	SELECTABLE = 2
+
 	panSpeed = 5000
 	rotateSpeed = 250
 
@@ -147,6 +149,18 @@ class StarmapScene(MenuScene):
 		self.raySceneQuery = self.sceneManager.createRayQuery( ogre.Ray() )
 		self.raySceneQuery.sortByDistance = True
 		self.raySceneQuery.maxResults = 10
+		self.raySceneQuery.queryMask = self.SELECTABLE
+
+		# Load all the billboards
+		self.flareBillboardSets = []
+		for i in xrange(1, 12):
+			billboard = self.sceneManager.createBillboardSet("flare%i" % i)
+			billboard.materialName = "Billboards/Flares/flare%i" % i
+			billboard.cullIndividually = True
+			billboard.defaultDimensions = (20, 20)
+			
+			self.rootNode.attachObject(billboard)
+			self.flareBillboardSets.append(billboard)
 
 		# Quick-selection
 		#system = cegui.WindowManager.getSingleton().loadWindowLayout("system.layout")
@@ -177,10 +191,18 @@ class StarmapScene(MenuScene):
 	def create(self, cache):
 
 		for object in cache.objects.values():
-			node = self.rootNode.createChildSceneNode((object.posx, object.posy, object.posz))
+			pos = ogre.Vector3(object.posx, object.posy, object.posz)
+			node = self.rootNode.createChildSceneNode(pos)
 
 			entity = self.sceneManager.createEntity(str(object.id), 'sphere.mesh')
+			entity.queryFlags = self.SELECTABLE
+
+			scale = 10/entity.mesh.boundingSphereRadius
+			node.scale = ogre.Vector3(scale,scale,scale)
 			node.attachObject(entity)
+	
+			billboardSet = self.flareBillboardSets[object.id % len(self.flareBillboardSets)]
+			billboard = billboardSet.createBillboard(pos, ogre.ColourValue.White)
 	
 	def update(self, evt):
 		return True
@@ -200,8 +222,12 @@ class StarmapScene(MenuScene):
 				print "WorldFragment:", o.worldFragment.singleIntersection
 
 			if o.movable:
+				if isinstance(o.movable, ogre.BillboardSet):
+					print "Got a BillboardSet!?"
+					continue
+			
 				# Check there is actually a collision
-				print o.movable.worldBoundingSphere.getCenter(), o.movable.worldBoundingSphere.getRadius()
+				print o.movable.worldBoundingSphere
 				if not mouseRay.intersects(o.movable.worldBoundingSphere):
 					print "False Collision with MovableObject: ", o.movable.name, o.movable.mesh.name
 					continue
@@ -229,19 +255,14 @@ class StarmapScene(MenuScene):
 		If the right mouse is down roll/pitch for camera changes.
 		If the left mouse button is down pan the screen
 		"""
-		print self, "mouseDragged"
 		camera = self.sceneManager.getCamera( 'PlayerCam' )
 
 		if self.mouseState & ogre.MouseEvent.BUTTON2_MASK:
-			print "Rotating", evt.relX, evt.relY
-
-			# FIXME: This introduces roll? Recommended to use two SceneNodes
+			# This won't introduce roll as setFixedYawAxis is True
 			camera.yaw(ogre.Radian(ogre.Degree(-evt.relX * self.rotateSpeed)))
 			camera.pitch(ogre.Radian(ogre.Degree(-evt.relY * self.rotateSpeed)))
 		
 		if self.mouseState & ogre.MouseEvent.BUTTON0_MASK:
-			print "Panning", evt.relX, evt.relY
-
 			camera.moveRelative(
 				ogre.Vector3(evt.relX * self.panSpeed, 0, -evt.relY * self.panSpeed))
 		
