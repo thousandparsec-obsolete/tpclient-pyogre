@@ -135,7 +135,8 @@ class ConfigScene(MenuScene):
 		self.hide()
 
 class StarmapScene(MenuScene):
-	SELECTABLE = 2
+	SELECTABLE = 2**1
+	UNSELECTABLE = 2**2
 
 	panSpeed = 5000
 	rotateSpeed = 250
@@ -149,18 +150,19 @@ class StarmapScene(MenuScene):
 		self.raySceneQuery = self.sceneManager.createRayQuery( ogre.Ray() )
 		self.raySceneQuery.sortByDistance = True
 		self.raySceneQuery.maxResults = 10
-		self.raySceneQuery.queryMask = self.SELECTABLE
+		self.raySceneQuery.queryMask = self.SELECTABLE & ~ self.UNSELECTABLE
 
 		# Load all the billboards
 		self.flareBillboardSets = []
 		for i in xrange(1, 12):
-			billboard = self.sceneManager.createBillboardSet("flare%i" % i)
-			billboard.materialName = "Billboards/Flares/flare%i" % i
-			billboard.cullIndividually = True
-			billboard.defaultDimensions = (20, 20)
+			billboardSet = self.sceneManager.createBillboardSet("flare%i" % i)
+			billboardSet.materialName = "Billboards/Flares/flare%i" % i
+			billboardSet.cullIndividually = True
+			billboardSet.defaultDimensions = (20, 20)
+			billboardSet.queryFlags = self.UNSELECTABLE
 			
-			self.rootNode.attachObject(billboard)
-			self.flareBillboardSets.append(billboard)
+			self.rootNode.attachObject(billboardSet)
+			self.flareBillboardSets.append(billboardSet)
 
 		# Quick-selection
 		#system = cegui.WindowManager.getSingleton().loadWindowLayout("system.layout")
@@ -189,18 +191,19 @@ class StarmapScene(MenuScene):
 		self.hide()
 	
 	def create(self, cache):
-
 		for object in cache.objects.values():
 			pos = ogre.Vector3(object.posx, object.posy, object.posz)
 			node = self.rootNode.createChildSceneNode(pos)
 
+			# Selectable entity
+			entityNode = node.createChildSceneNode(ogre.Vector3(0, 0, 0))
 			entity = self.sceneManager.createEntity(str(object.id), 'sphere.mesh')
 			entity.queryFlags = self.SELECTABLE
-
 			scale = 10/entity.mesh.boundingSphereRadius
-			node.scale = ogre.Vector3(scale,scale,scale)
-			node.attachObject(entity)
+			entityNode.scale = ogre.Vector3(scale,scale,scale)
+			entityNode.attachObject(entity)
 	
+			# Lense flare
 			billboardSet = self.flareBillboardSets[object.id % len(self.flareBillboardSets)]
 			billboard = billboardSet.createBillboard(pos, ogre.ColourValue.White)
 	
@@ -280,20 +283,3 @@ class StarmapScene(MenuScene):
 			cegui.MouseCursor.getSingleton().show()
 
 		return False
-
-#		stars = ["blue", "purple-large", "purple-small", "rainbow",  "red",  "yellow"]
-#
-#		systems = []
-#		for star in stars:
-#			systems.append(self.sceneManager.createBillboardSet("Systems-%s" % star))
-#			systems[-1].cullIndividually = True
-#			systems[-1].defaultDimensions = (1,1)
-#			systems[-1].materialName = "Billboard/%s" % star
-#
-#			self.rootNode.createChildSceneNode((0, 0, 0)).attachObject(systems[-1])
-#
-#		for object in cache.objects.values():
-#			system = systems[object.id % len(systems)]
-#			object_board = system.createBillboard((object.posx, object.posy, object.posz))
-#			object_board.colour = ogre.ColourValue.White
-#
