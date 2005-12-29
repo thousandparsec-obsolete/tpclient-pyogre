@@ -1,6 +1,4 @@
-from pyogre import cegui, ogre
-
-import Mesh
+from pyogre import cegui, ogre, ogreaddons
 
 class Scene:
 	def __init__(self, application, sceneManager):
@@ -206,7 +204,13 @@ class StarmapScene(MenuScene):
 			# Lense flare
 			billboardSet = self.flareBillboardSets[object.id % len(self.flareBillboardSets)]
 			billboard = billboardSet.createBillboard(pos, ogre.ColourValue.White)
-	
+
+			# Text to go below the object
+#			textNode = node.createChildSceneNode(ogre.Vector3(0, 0, 0))
+#			text = ogreaddons.MovableText(str(object.id), "Hello!", "Tahoma-12", 10, ogre.ColourValue.White)
+#			text.queryFlags = self.UNSELECTABLE
+#			textNode.attachObject(text)
+
 	def update(self, evt):
 		return True
 
