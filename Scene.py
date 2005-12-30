@@ -132,6 +132,70 @@ class ConfigScene(MenuScene):
 
 		self.hide()
 
+
+class ObjectOverlay:
+	def __init__(self, node, object):
+		self.node = node
+		self.entity = "Object%i" % object.id
+		self.active = []
+
+		overlayManager = ogre.OverlayManager.getSingleton()
+		panel = overlayManager.createOverlayElement("Panel", "Panel%i" % object.id)
+		panel.metricsMode = ogre.GMM_PIXELS
+		# FIXME: This should be calculated...
+		panel.dimensions = (100, 100)
+		self.panel = panel
+	
+		name = overlayManager.createOverlayElement("TextArea", "Name%i" % object.id)
+		name.metricsMode = ogre.GMM_PIXELS
+		name.charHeight = 16
+		name.fontName = "Tahoma-12"
+		name.caption = str(object.id)
+		self.name = name
+
+		position = overlayManager.createOverlayElement("TextArea", "Position%i" % object.id)
+		position.metricsMode = ogre.GMM_PIXELS
+		position.setPosition(0, 16)
+		position.charHeight = 16
+		position.fontName = "Tahoma-12"
+		position.caption = "%i, %i, %i" % (object.posx, object.posy, object.posz)
+		self.position = position
+
+		self.overlay = overlayManager.create("Overlay%i" % object.id)
+		self.overlay.add2D(self.panel)
+
+		# WARN: This needs to happen after the panel is added to an overlay
+		panel.addChild(name)
+		panel.addChild(position)
+
+	def show(self, *which):
+		for text in self.active:
+			text.hide()
+
+		self.active = which
+
+		for text in self.active:
+			text.show()
+
+	def update(self, camera):
+		entity = self.node.getAttachedObject(0)
+	
+		pos = self.node.worldPosition
+		pos = camera.viewMatrix*pos
+		pos = camera.projectionMatrix*pos
+		
+		if abs(pos[0]) < 1 and abs(pos[1]) < 1 and entity.visible:
+			if not self.overlay.isVisible():
+				self.overlay.show()
+
+			pos /= 2
+
+			pos = ((0.5 + pos.x)*camera.viewport.actualWidth, (0.5 - pos.y)*camera.viewport.actualHeight)
+			self.panel.setPosition(pos[0], pos[1])
+		else:
+			if self.overlay.isVisible():
+				self.overlay.hide()
+
 class StarmapScene(MenuScene):
 	SELECTABLE = 2**1
 	UNSELECTABLE = 2**2
@@ -142,13 +206,15 @@ class StarmapScene(MenuScene):
 	def __init__(self, application, sceneManager):
 		Scene.__init__(self, application, sceneManager)
 
+		ogre.FontManager.getSingleton().load("Tahoma-12","General")
+
 		self.mouseState = 0
 		self.currentObject = None
 	
 		self.raySceneQuery = self.sceneManager.createRayQuery( ogre.Ray() )
 		self.raySceneQuery.sortByDistance = True
 		self.raySceneQuery.maxResults = 10
-		self.raySceneQuery.queryMask = self.SELECTABLE & ~ self.UNSELECTABLE
+		self.raySceneQuery.queryMask = self.SELECTABLE & ~self.UNSELECTABLE
 
 		# Load all the billboards
 		self.flareBillboardSets = []
@@ -189,13 +255,18 @@ class StarmapScene(MenuScene):
 		self.hide()
 	
 	def create(self, cache):
+		self.nodes = {}
+		self.overlays = {}
+
 		for object in cache.objects.values():
 			pos = ogre.Vector3(object.posx, object.posy, object.posz)
+			
 			node = self.rootNode.createChildSceneNode(pos)
+			self.nodes[object.id] = node
 
 			# Selectable entity
 			entityNode = node.createChildSceneNode(ogre.Vector3(0, 0, 0))
-			entity = self.sceneManager.createEntity(str(object.id), 'sphere.mesh')
+			entity = self.sceneManager.createEntity("Object%i" % object.id, 'sphere.mesh')
 			entity.queryFlags = self.SELECTABLE
 			scale = 10/entity.mesh.boundingSphereRadius
 			entityNode.scale = ogre.Vector3(scale,scale,scale)
@@ -204,14 +275,16 @@ class StarmapScene(MenuScene):
 			# Lense flare
 			billboardSet = self.flareBillboardSets[object.id % len(self.flareBillboardSets)]
 			billboard = billboardSet.createBillboard(pos, ogre.ColourValue.White)
-
-			# Text to go below the object
-#			textNode = node.createChildSceneNode(ogre.Vector3(0, 0, 0))
-#			text = ogreaddons.MovableText(str(object.id), "Hello!", "Tahoma-12", 10, ogre.ColourValue.White)
-#			text.queryFlags = self.UNSELECTABLE
-#			textNode.attachObject(text)
+	
+			# Text overlays
+			overlay = ObjectOverlay(entityNode, object)
+			overlay.show(overlay.name, overlay.position)
+			self.overlays[object.id] = overlay
 
 	def update(self, evt):
+		camera = self.sceneManager.getCamera( 'PlayerCam' )
+		for overlay in self.overlays.values():
+			overlay.update(camera)
 		return True
 
 	def mousePressed(self, evt):
