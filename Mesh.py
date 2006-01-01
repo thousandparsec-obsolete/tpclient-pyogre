@@ -5,7 +5,7 @@ class MovableText(ogre.MovableObject, ogre.Renderable):
 	POS_TEX_BINDING = 0
 	COLOUR_BINDING = 1
 	
-	def __init__(self, name, caption, fontName="Tahoma-12", color)
+	def __init__(self, name, caption, fontName="Tahoma-12", color=ogre.ColourValue.White):
 		self.name = name
 		self.caption = caption
 		self.fontName = fontName
@@ -28,16 +28,16 @@ class MovableText(ogre.MovableObject, ogre.Renderable):
 
 	def setFontName(self, fontName):
 		self._fontName = fontName
-		self._font = ogre.FontManager::getSingleton().getByName(mFontName);
+		self._font = ogre.FontManager.getSingleton().getByName(mFontName);
 		if self._font is None:
-			raise new ogre.Exception(ogre.Exception.ERR_ITEM_NOT_FOUND, "Could not find font " + fontName)
+			raise ogre.Exception(ogre.Exception.ERR_ITEM_NOT_FOUND, "Could not find font " + fontName)
 
 		self._font.load()
 		
 		self._material = self._font.material.clone(self.name + "Material");
-		if (!self._material.isLoaded())
+		if not self._material.isLoaded():
 			self._material.load()
-		self._material.setDepthCheckEnabled(!self.onTop)
+		self._material.setDepthCheckEnabled(not self.onTop)
 		self._material.setLightingEnabled(False)
 		self._needUpdate = True
 		
@@ -161,7 +161,7 @@ class MovableText(ogre.MovableObject, ogre.Renderable):
 				# Just leave a gap, no tris
 				left += self.spaceWidth
 				# Also reduce tri count
-				self.renderOp.vertexData-.vertexCount -= 6;
+				self.renderOp.vertexData.vertexCount -= 6;
 				continue
 
 			horiz_height = self.font.getGlyphAspectRatio( self.caption[i] )
@@ -180,16 +180,16 @@ class MovableText(ogre.MovableObject, ogre.Renderable):
 
 			# Deal with bounds
 			currPos = Ogre.Vector3(left, top, -1.0)
-			if (first)
+			if first:
 				min = max = currPos
 				maxSquaredRadius = currPos.squaredLength();
 				first = False
-			else
+			else:
 				min.makeFloor(currPos)
 				max.makeCeil(currPos)
 				maxSquaredRadius = math.max(maxSquaredRadius, currPos.squaredLength())
 
-			top -= mCharHeight * 2.0;
+			top -= mCharHeight * 2.0
 
 			# Bottom left
 			pPCBuff.setFloat(pPCIndex, lef);		pPCIndex += 1
@@ -272,13 +272,13 @@ class MovableText(ogre.MovableObject, ogre.Renderable):
 			currentWidth = (left + 1)/2 - 0
 		
 		# Unlock vertex buffer
-		ptbuf->unlock()
+		ptbuf.unlock()
 
 		# update AABB/Sphere radius
 		mAABB = Ogre.AxisAlignedBox(min, max)
 		mRadius = Ogre.Math.Sqrt(maxSquaredRadius)
 
-		if (self.updateColors)
+		if (self.updateColors):
 			self._updateColors()
 
 		self.needUpdate = False
@@ -291,7 +291,7 @@ class MovableText(ogre.MovableObject, ogre.Renderable):
 		pDest = vbuf.lock(ogre.HardwareBuffer.HBL_DISCARD)
 
 		for i in range(0, self.renderOp.vertexData.vertexCount):
-			*pDest++ = color;
+			pDest.setFloat(i, color)
 		
 		vbuf.unlock()
 		
