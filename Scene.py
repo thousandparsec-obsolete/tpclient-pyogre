@@ -344,7 +344,7 @@ class StarmapScene(MenuScene):
 		
 		if self.mouseState & ogre.MouseEvent.BUTTON0_MASK:
 			camera.moveRelative(
-				ogre.Vector3(evt.relX * self.panSpeed, 0, -evt.relY * self.panSpeed))
+				ogre.Vector3(evt.relX * self.panSpeed, 0, evt.relY * self.panSpeed))
 		
 		return False
 
