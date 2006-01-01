@@ -1,5 +1,4 @@
-# This code is in the Public Domain
-import pyogre.ogre as ogre
+from pyogre import ogre, cegui
 
 class Application(object):
     "This class is the base for an Ogre application."
@@ -164,3 +163,101 @@ class FrameListener(ogre.CombinedListener):
     def _setGuiCaption(self, elementName, text):
         element = ogre.OverlayManager.getSingleton().getOverlayElement(elementName, False)
         element.caption = text
+
+class CEGUIFrameListener(FrameListener):
+	def __init__(self, application, renderWindow, camera):
+		FrameListener.__init__(self, renderWindow, camera)
+
+		self.application = application
+		self.keepRendering = True   # whether to continue rendering or not
+		self.sceneDetailIndex = 0
+
+	def _setupInput(self):
+		self.eventProcessor = ogre.EventProcessor()
+		self.eventProcessor.initialise(self.renderWindow)
+		self.eventProcessor.startProcessingEvents()
+
+		# register as a listener for events
+		self.eventProcessor.addKeyListener(self)
+		self.eventProcessor.addMouseListener(self)
+		self.eventProcessor.addMouseMotionListener(self)
+
+	def frameStarted(self, evt):
+		self.application.frameStarted(evt)
+		return self.application.currentScene.update(evt) and self.keepRendering
+
+	def mouseDragged(self, evt):
+		system = cegui.System.getSingleton()
+		system.injectMouseMove(evt.relX * system.renderer.width, evt.relY * system.renderer.height) \
+			or self.application.currentScene.mouseDragged(evt)
+
+	def mousePressed(self, evt):
+		button = self._convertOgreButtonToCegui(evt)
+		cegui.System.getSingleton().injectMouseButtonDown(button) \
+			or self.application.currentScene.mousePressed(evt)
+
+	def mouseReleased(self, evt):
+		button = self._convertOgreButtonToCegui(evt)
+		cegui.System.getSingleton().injectMouseButtonUp(button) \
+			or self.application.currentScene.mouseReleased(evt)
+
+	def mouseMoved(self, evt):
+		system = cegui.System.getSingleton()
+		system.injectMouseMove(evt.relX * system.renderer.width, evt.relY * system.renderer.height) \
+			or self.application.currentScene.mouseMoved(evt)
+
+	def keyPressed(self, evt):
+		# Quick escape? Maybe it should be removed
+		if evt.key == ogre.KC_ESCAPE:
+			self.keepRendering = False
+		
+		if evt.key == ogre.KC_SYSRQ:
+			path, next = 'screenshot.png', 1
+			while os.path.exists(path):
+				path = 'screenshot_%d.png' % next
+				next += 1
+			
+			self.renderWindow.writeContentsToFile(path)
+			self.renderWindow.debugText = 'screenshot taken: ' + path
+
+		# Debugging functions
+		if evt.key == ogre.KC_SCROLL:
+			detailsLevel = ("SDL_SOLID", "SDL_WIREFRAME", "SDL_POINTS")
+			self.sceneDetailIndex += 1 
+			self.sceneDetailIndex %= len(detailsLevel)
+			
+			mode = detailsLevel[self.sceneDetailIndex]
+			self.camera.detailLevel = getattr(ogre, mode)
+			self.renderWindow.debugText = 'render mode set to: ' + mode
+
+		system = cegui.System.getSingleton()
+		(system.injectKeyDown(evt.key) or system.injectChar(evt.keyChar)) \
+			or self.application.currentScene.keyPressed(evt)
+		evt.consume()
+
+	def keyReleased(self, evt):
+		system = cegui.System.getSingleton()
+		system.injectKeyUp(evt.key) \
+			or self.application.currentScene.keyReleased(evt)
+
+	# These are useless handlers that we need to have	
+	def mouseClicked(self, evt):
+		pass
+	def mouseEntered(self, evt):
+		pass
+	def mouseExited(self, evt):
+		pass
+	def keyClicked(self, evt):
+		pass
+
+	def _convertOgreButtonToCegui(self,evt):
+		# Convert ogre button to cegui button
+		if (evt.buttonID & ogre.MouseEvent.BUTTON0_MASK):
+			return cegui.LeftButton		
+		elif (evt.buttonID & ogre.MouseEvent.BUTTON1_MASK):
+			return cegui.RightButton		
+		elif (evt.buttonID & ogre.MouseEvent.BUTTON2_MASK):
+			return cegui.MiddleButton
+		elif (evt.buttonID & ogre.MouseEvent.BUTTON3_MASK):
+			return cegui.X1Button
+		return cegui.LeftButton

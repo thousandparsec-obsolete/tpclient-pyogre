@@ -1,9 +1,9 @@
 from pyogre import cegui, ogre, ogreaddons
 
 class Scene:
-	def __init__(self, application, sceneManager):
-		self.application = application
-		self.guiSystem = application.guiSystem
+	def __init__(self, parent, sceneManager):
+		self.parent = parent
+		self.guiSystem = parent.guiSystem
 		self.sceneManager = sceneManager
 		
 		# Create the root for this Scene
@@ -111,29 +111,55 @@ class MenuScene(Scene):
 			print "A!"
 
 class LoginScene(MenuScene):
-	def __init__(self, application, sceneManager):
-		Scene.__init__(self, application, sceneManager)
+	def __init__(self, parent, sceneManager):
+		Scene.__init__(self, parent, sceneManager)
+
+		wm = cegui.WindowManager.getSingleton()
 
 		#entity = sceneManager.createEntity('LoginRobot', 'Testing')
 		#entity.setMaterialName("Core/OgreText");
 		#self.rootNode.createChildSceneNode((15, 15, 0)).attachObject(entity)
 	
-		login = cegui.WindowManager.getSingleton().loadWindowLayout("login.layout")
+		login = wm.loadWindowLayout("login.layout")
 		self.guiSystem.guiSheet.addChildWindow(login)
 		self.windows.append(login)
 
+		loginButton = wm.getWindow("Login/LoginButton")
+		configButton = wm.getWindow("Login/ConfigButton")
+		quitButton = wm.getWindow("Login/QuitButton")
+		
+		loginButton.subscribeEvent(loginButton.EventClicked, self.onConnect)
+		configButton.subscribeEvent(configButton.EventClicked, self.onConfig)
+		quitButton.subscribeEvent(quitButton.EventClicked, self.onQuit)
+
 		self.hide()
 
+	def onConnect(self, evt):
+		wm = cegui.WindowManager.getSingleton()
+		
+		host = wm.getWindow("Login/Server").text
+		username = wm.getWindow("Login/Username").text
+		password = wm.getWindow("Login/Password").text
+		
+		print "onConnect", host, username, password
+		self.parent.application.network.Call( \
+			self.parent.application.network.ConnectTo, host, username, password, True)
+
+	def onConfig(self, evt):
+		print "onConfig"
+
+	def onQuit(self, evt):
+		print "onQuit"
+
 class ConfigScene(MenuScene):
-	def __init__(self, application, sceneManager):
-		Scene.__init__(self, application, sceneManager)
+	def __init__(self, parent, sceneManager):
+		Scene.__init__(self, parent, sceneManager)
 
 		#login = cegui.WindowManager.getSingleton().loadWindowLayout("config.layout")
 		#self.guiSystem.guiSheet.addChildWindow(login)
 		#self.windows.append(login)
 
 		self.hide()
-
 
 class ObjectOverlay:
 	def __init__(self, node, object):
@@ -152,7 +178,7 @@ class ObjectOverlay:
 		name.metricsMode = ogre.GMM_PIXELS
 		name.charHeight = 16
 		name.fontName = "Tahoma-12"
-		name.caption = str(object.id)
+		name.caption = object.name
 		self.name = name
 
 		position = overlayManager.createOverlayElement("TextArea", "Position%i" % object.id)
@@ -160,7 +186,7 @@ class ObjectOverlay:
 		position.setPosition(0, 16)
 		position.charHeight = 16
 		position.fontName = "Tahoma-12"
-		position.caption = "%i, %i, %i" % (object.posx, object.posy, object.posz)
+		position.caption = "%i, %i, %i" % object.pos
 		self.position = position
 
 		self.overlay = overlayManager.create("Overlay%i" % object.id)
@@ -198,6 +224,13 @@ class ObjectOverlay:
 			if self.overlay.isVisible():
 				self.overlay.hide()
 
+	def setColour(self, ColourValue):
+		for overlay in (self.name, self.position):
+			overlay.colour = ColourValue
+	def getColour(self):
+		return self.name.ColourValue
+	colour = property(getColour, setColour)
+
 class StarmapScene(MenuScene):
 	SELECTABLE = 2**1
 	UNSELECTABLE = 2**2
@@ -206,8 +239,8 @@ class StarmapScene(MenuScene):
 	rotateSpeed = 250
 	toleranceDelta = 0.001
 
-	def __init__(self, application, sceneManager):
-		Scene.__init__(self, application, sceneManager)
+	def __init__(self, parent, sceneManager):
+		Scene.__init__(self, parent, sceneManager)
 
 		ogre.FontManager.getSingleton().load("Tahoma-12","General")
 
@@ -232,38 +265,29 @@ class StarmapScene(MenuScene):
 			self.rootNode.attachObject(billboardSet)
 			self.flareBillboardSets.append(billboardSet)
 
+		self.nodes = {}
+		self.overlays = {}
+
 		# Quick-selection
 		#system = cegui.WindowManager.getSingleton().loadWindowLayout("system.layout")
 		#self.guiSystem.guiSheet.addChildWindow(system)
 		#self.windows.append(system)
-
-		class o:
-			def __init__(self, id, x, y, z):
-				self.id = id
-				self.posx = x
-				self.posy = y
-				self.posz = z
-
-		class cache:
-			pass
-
-		c= cache()
-		c.objects = {0: o(0, 0, 1000, 0), 1: o(1, -100, -100, 100), 2:o(2, 100, 100, 100),
-			4: o(4, 0, 1123, 0), 5: o(5,-1132, -1123, 1232), 6:o(6, 1136, 8990, 2300),
-			7: o(7, 0, 5623, 0), 8: o(8, -1532, -1683, 1267), 9:o(9, 2223, 8990, 0000),
-			10: o(10, 0, 1134, 0), 11: o(11, -1832, -1233, 1232), 12:o(12, 1136, 8000, 2300),
-			13: o(13, 0, 1222, 0), 14: o(14, -2322, -1193, 1289), 15:o(15,1178, 8990, 2000),
-		}
-
-		self.create(c)
 		self.hide()
 	
+	def onCacheUpdate(self, evt):
+		print "onCacheUpdate"
+		if evt.what is None:
+			self.create(self.parent.application.cache)
+	
 	def create(self, cache):
+		print "creating the starmap"
+		self.objects = cache.objects
 		self.nodes = {}
 		self.overlays = {}
 
-		for object in cache.objects.values():
-			pos = ogre.Vector3(object.posx, object.posy, object.posz)
+		for object in self.objects.values():
+			pos = ogre.Vector3(*object.pos)
+			print "creating", object.id, object.name, "at", pos
 			
 			node = self.rootNode.createChildSceneNode(pos)
 			self.nodes[object.id] = node
@@ -369,4 +393,12 @@ class StarmapScene(MenuScene):
 	def mouseSelectObject(self, id):
 		print "SelectObject", id
 		pass
-	
+
+	def mode(self, modes):
+		if self.OWNERS in modes:
+			for id, object in self.objects.items():
+				if object.owner in (0, -1):
+					self.overlays[id].colour = ogre.ColorValue.Blue
+				else:
+					self.overlays[id].colour = ogre.ColorValue.Yellow
+		

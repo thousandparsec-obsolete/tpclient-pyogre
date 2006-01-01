@@ -1,125 +1,42 @@
 #! /usr/bin/env python
 
-#-----------------------------------------
-#  Demo loading a TaharezLayout (Demo8.LAYOUT from gui\datafiles\layouts)
-#
-#  Same comments on :  
-#	 adding list items from within an event, cant see anyother way of doing it
-#	 Events still dont appear to be returning window etc
-#----------------------------------------
+import requirements
 
-import os
+import os, time
 from pyogre import ogre,cegui
+
+from tp.client.threads import NetworkThread, Application
 
 import Framework
 import Scene
+
+def traceback():
+	import sys, traceback, string
+	type, val, tb = sys.exc_info()
+	sys.stderr.write(string.join(traceback.format_exception(type, val, tb), ''))
+	sys.stderr.flush()
 
 def _PointHack(x, y):
 	return cegui.Vector2(x, y)
 cegui.Point = _PointHack
 
-class CEGUIFrameListener(Framework.FrameListener):
-	def __init__(self, application, renderWindow, camera):
-		Framework.FrameListener.__init__(self, renderWindow, camera)
-
-		self.application = application
-		self.keepRendering = True   # whether to continue rendering or not
-		self.sceneDetailIndex = 0
-
-	def _setupInput(self):
-		self.eventProcessor = ogre.EventProcessor()
-		self.eventProcessor.initialise(self.renderWindow)
-		self.eventProcessor.startProcessingEvents()
-
-		# register as a listener for events
-		self.eventProcessor.addKeyListener(self)
-		self.eventProcessor.addMouseListener(self)
-		self.eventProcessor.addMouseMotionListener(self)
-
-	def frameStarted(self, evt):
-		return self.application.currentScene.update(evt) and self.keepRendering
-
-	def mouseDragged(self, evt):
-		system = cegui.System.getSingleton()
-		system.injectMouseMove(evt.relX * system.renderer.width, evt.relY * system.renderer.height) \
-			or self.application.currentScene.mouseDragged(evt)
-
-	def mousePressed(self, evt):
-		button = self._convertOgreButtonToCegui(evt)
-		cegui.System.getSingleton().injectMouseButtonDown(button) \
-			or self.application.currentScene.mousePressed(evt)
-
-	def mouseReleased(self, evt):
-		button = self._convertOgreButtonToCegui(evt)
-		cegui.System.getSingleton().injectMouseButtonUp(button) \
-			or self.application.currentScene.mouseReleased(evt)
-
-	def mouseMoved(self, evt):
-		system = cegui.System.getSingleton()
-		system.injectMouseMove(evt.relX * system.renderer.width, evt.relY * system.renderer.height) \
-			or self.application.currentScene.mouseMoved(evt)
-
-	def keyPressed(self, evt):
-		# Quick escape? Maybe it should be removed
-		if evt.key == ogre.KC_ESCAPE:
-			self.keepRendering = False
-		
-		if evt.key == ogre.KC_SYSRQ:
-			path, next = 'screenshot.png', 1
-			while os.path.exists(path):
-				path = 'screenshot_%d.png' % next
-				next += 1
-			
-			self.renderWindow.writeContentsToFile(path)
-			self.renderWindow.debugText = 'screenshot taken: ' + path
-
-		# Debugging functions
-		if evt.key == ogre.KC_SCROLL:
-			detailsLevel = ("SDL_SOLID", "SDL_WIREFRAME", "SDL_POINTS")
-			self.sceneDetailIndex += 1 
-			self.sceneDetailIndex %= len(detailsLevel)
-			
-			mode = detailsLevel[self.sceneDetailIndex]
-			self.camera.detailLevel = getattr(ogre, mode)
-			self.renderWindow.debugText = 'render mode set to: ' + mode
-
-		system = cegui.System.getSingleton()
-		(system.injectKeyDown(evt.key) or system.injectChar(evt.keyChar)) \
-			or self.application.currentScene.keyPressed(evt)
-		evt.consume()
-
-	def keyReleased(self, evt):
-		system = cegui.System.getSingleton()
-		system.injectKeyUp(evt.key) \
-			or self.application.currentScene.keyReleased(evt)
-
-	# These are useless handlers that we need to have	
-	def mouseClicked(self, evt):
-		pass
-	def mouseEntered(self, evt):
-		pass
-	def mouseExited(self, evt):
-		pass
-	def keyClicked(self, evt):
-		pass
-
-	def _convertOgreButtonToCegui(self,evt):
-		# Convert ogre button to cegui button
-		if (evt.buttonID & ogre.MouseEvent.BUTTON0_MASK):
-			return cegui.LeftButton		
-		elif (evt.buttonID & ogre.MouseEvent.BUTTON1_MASK):
-			return cegui.RightButton		
-		elif (evt.buttonID & ogre.MouseEvent.BUTTON2_MASK):
-			return cegui.MiddleButton
-		elif (evt.buttonID & ogre.MouseEvent.BUTTON3_MASK):
-			return cegui.X1Button
-		return cegui.LeftButton
-
-class CEUIApplication(Framework.Application):
-	def __init__(self):
+class GUI(Framework.Application):
+	def __init__(self, application):
 		Framework.Application.__init__(self)
+		
+		self.application = application
 		self.guiRenderer=0
 		self.guiSystem =0
+
+		self.tocall = []
+		self.start = self.go
+
+	def start(self):
+		try:
+			self.go()
+			print "Go finished!"
+		finally:
+			self.application.Exit()
 
 	def _createScene(self):
 		# Initiaslise CEGUI Renderer
@@ -138,13 +55,7 @@ class CEUIApplication(Framework.Application):
 
 		self.login = Scene.LoginScene(self, self.sceneManager)
 		self.starmap = Scene.StarmapScene(self, self.sceneManager)
-		self.changeScene(self.starmap)
-
-	def changeScene(self, scene):
-		if hasattr(self, "currentScene"):
-			self.currentScene.hide()
-		self.currentScene = scene
-		self.currentScene.show()
+		self.changeScene(self.login)
 
 	def _createCamera(self):
 		self.camera = self.sceneManager.createCamera("PlayerCam")
@@ -152,7 +63,7 @@ class CEUIApplication(Framework.Application):
 		self.camera.setFixedYawAxis(False, ogre.Vector3.UNIT_Y)
 
 	def _createFrameListener(self):
-		self.frameListener = CEGUIFrameListener(self, self.renderWindow, self.camera)
+		self.frameListener = Framework.CEGUIFrameListener(self, self.renderWindow, self.camera)
 		self.root.addFrameListener(self.frameListener)
 		self.frameListener.showDebugOverlay(True)
 
@@ -165,12 +76,90 @@ class CEUIApplication(Framework.Application):
 		del self.guiRenderer
 		del self.root
 		del self.renderWindow		
+
+	def frameStarted(self, evt):
+		if not self.frameListener.keepRendering:
+			self.application.Exit()
+
+		if len(self.tocall) <= 0:
+			return
+			
+		method, args, kw = self.tocall.pop(0)
+		method(*args, **kw)
+
+	def Call(self, method, *args, **kw):
+		"""\
+		Call a method in this thread.
+		"""
+		self.tocall.append((method, args, kw))
+
+	def ConfigLoad(self, config):
+		return
 	
+	def Post(self, event):
+		"""
+		Post an Event the current window.
+		"""
+		func = 'on' + event.__class__.__name__[:-5]
+		if hasattr(self.currentScene, func):
+			try:
+				getattr(self.currentScene, func)(event)
+			except Exception, e:
+				traceback()
+		else:
+			print "scene", self.currentScene, "does not handle", func, "events"
+		
+	def ConfigSave(self):
+		return {}
+
+	def Cleanup(self):
+		self.frameListener.keepRendering == False
+
+
+	def changeScene(self, scene):
+		"""\
+		Function to change to a different scene.
+		"""
+		if hasattr(self, "currentScene"):
+			self.currentScene.hide()
+		self.currentScene = scene
+		self.currentScene.show()
+
+class Network(NetworkThread):
+	## These are network events
+	class NetworkFailureEvent(Exception):
+		"""\
+		Raised when the network connection fails for what ever reason.
+		"""
+		pass
+
+	def ConnectTo(self, host, username, password, debug=False):
+		"""\
+		Connect to a given host using a certain username and password.
+		"""
+		def callback(*args, **kw):
+			print args, kw
+		NetworkThread.ConnectTo(self, host, username, password, debug, callback)
+		self.CacheUpdate()
+	
+	def CacheUpdate(self):
+		def callback(*args, **kw):
+			print args, kw
+		
+		gui = self.application.gui
+		gui.Call(gui.changeScene, gui.login)
+		NetworkThread.CacheUpdate(self, callback)
+		gui.Call(gui.changeScene, gui.starmap)
+		self.application.Post(self.application.cache.CacheUpdateEvent(None))
+		return
+
+Application.GUIClass = GUI
+Application.NetworkClass = Network
+Application.ConfigFile = "pyogre_preferences"
 
 if __name__ == '__main__':
 	try:
-		ta = CEUIApplication()
-		ta.go()
-	except ogre.OgreException, e:
-		print e
-
+		app = Application()
+		app.Run()
+	finally:
+		traceback()
