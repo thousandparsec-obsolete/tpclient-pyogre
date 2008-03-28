@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GUILayout>
+<Window Type="DefaultWindow" Name="Root" >
+	<Window Type="TaharezLook/FrameWindow" Name="Login" >
+		<Property Name="TitlebarEnabled" Value="False" />
+		<Property Name="CloseButtonEnabled" Value="False" />
+		<Property Name="SizingEnabled" Value="False" />
+		<Property Name="MetricsMode" Value="Relative" />
+
+		<Property Name="UnifiedPosition" Value="{{0.02,0},{0.02,0}}" />
+		<Property Name="UnifiedSize" Value="{{0.5,0},{0.333333,0}}" />
+		
+		<Window Type="TaharezLook/StaticText" Name="Login/ServerText" >
+			<Property Name="Text" Value="Server:" />
+			<Property Name="UnifiedPosition" Value="{{0,0},{0,0},}" />
+			<Property Name="UnifiedSize" Value="{{0.25,0},{0.25,0}}" />
+		</Window>
+		<Window Type="TaharezLook/ComboDropList" Name="Login/Server" >
+			<Property Name="DistributeCapturedInputs" Value="True" />
+			<Property Name="Text" Value="tps://localhost" />
+			<Property Name="UnifiedPosition" Value="{{0.25,0},{0,0}}" />
+			<Property Name="UnifiedSize" Value="{{0.75,0},{0.25,0}}" />
+		</Window>
+		
+		<Window Type="TaharezLook/StaticText" Name="Login/UsernameText" >
+			<Property Name="Text" Value="Username:" />
+			<Property Name="UnifiedPosition" Value="{{0,0},{0.25,0}}" />
+			<Property Name="UnifiedSize" Value="{{0.25,0},{0.25,0}}" />
+		</Window>
+		<Window Type="TaharezLook/Editbox" Name="Login/Username" >
+			<Property Name="MaxTextLength" Value="255" />
+			<Property Name="UnifiedPosition" Value="{{0.25,0},{0.25,0}}" />
+			<Property Name="UnifiedSize" Value="{{0.75,0},{0.25,0}}" />
+		</Window>
+		
+		<Window Type="TaharezLook/StaticText" Name="Login/PasswordText" >
+			<Property Name="Text" Value="Password:" />
+			<Property Name="UnifiedPosition" Value="{{0,0},{0.50,0}}" />
+			<Property Name="UnifiedSize" Value="{{0.25,0},{0.25,0}}" />
+		</Window>
+		<Window Type="TaharezLook/Editbox" Name="Login/Password" >
+			<Property Name="MaxTextLength" Value="1073741823" />
+			<Property Name="UnifiedPosition" Value="{{0.25,0},{0.50,0}}" />
+			<Property Name="UnifiedSize" Value="{{0.75,0},{0.25,0}}" />
+		</Window>
+		<Window Type="TaharezLook/Button" Name="Login/LoginButton" >
+			<Property Name="Text" Value="Login" />
+			<Property Name="UnifiedPosition" Value="{{0.25,0},{0.75,0}}" />
+			<Property Name="UnifiedSize" Value="{{0.25,0},{0.25,0}}" />
+		</Window>
+		<Window Type="TaharezLook/Button" Name="Login/ConfigButton" >
+			<Property Name="Text" Value="Config" />
+			<Property Name="UnifiedPosition" Value="{{0.50,0},{0.75,0}}" />
+			<Property Name="UnifiedSize" Value="{{0.25,0},{0.25,0}}" />
+		</Window>
+		<Window Type="TaharezLook/Button" Name="Login/QuitButton" >
+			<Property Name="Text" Value="Quit" />
+			<Property Name="UnifiedPosition" Value="{{0.75,0},{0.75,0}}" />
+			<Property Name="UnifiedSize" Value="{{0.25,0},{0.25,0}}" />
+		</Window>
+	</Window>
+</Window>
+</GUILayout>
