@@ -146,7 +146,7 @@ class LoginScene(MenuScene):
 		#host = wm.getWindow("Login/Server").text
 		#username = wm.getWindow("Login/Username").text
 		#password = wm.getWindow("Login/Password").text
-		#host = "demo1.thousandparsec.net"
+		#host = "demo2.thousandparsec.net"
 		host = "192.168.1.108"
 		username = "test"
 		password = "12345"
@@ -247,8 +247,8 @@ class StarmapScene(MenuScene):
 	SELECTABLE = 2**1
 	UNSELECTABLE = 2**2
 
-	panSpeed = 2000
-	rotateSpeed = 250
+	panSpeed = 500
+	rotateSpeed = 50
 	toleranceDelta = 0.001
 
 	def __init__(self, parent, sceneManager):
@@ -285,6 +285,9 @@ class StarmapScene(MenuScene):
 		#self.windows.append(system)
 		self.hide()
 	
+	def onNetworkRemaining(self, evt):
+		print "onNetworkRemaining"
+
 	def onCacheUpdate(self, evt):
 		print "onCacheUpdate"
 		if evt.what is None:
