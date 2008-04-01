@@ -147,7 +147,7 @@ class LoginScene(MenuScene):
 		#username = wm.getWindow("Login/Username").text
 		#password = wm.getWindow("Login/Password").text
 		#host = "demo2.thousandparsec.net"
-		host = "192.168.1.108"
+		host = "localhost"
 		username = "test"
 		password = "12345"
 		
@@ -248,7 +248,7 @@ class StarmapScene(MenuScene):
 	UNSELECTABLE = 2**2
 
 	panSpeed = 500
-	rotateSpeed = 50
+	rotateSpeed = 5
 	toleranceDelta = 0.001
 
 	def __init__(self, parent, sceneManager):
@@ -300,7 +300,9 @@ class StarmapScene(MenuScene):
 		self.overlays = {}
 
 		for object in self.objects.values():
-			pos = ogre.Vector3(*object.pos)
+			#pos = ogre.Vector3(*object.pos)
+			scale = 1000000
+			pos = ogre.Vector3(object.pos[0]/scale, object.pos[1]/scale, object.pos[2]/scale)
 			print "creating", object.id, object.name, "at", pos
 			
 			node = self.rootNode.createChildSceneNode(pos)
