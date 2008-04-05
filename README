@@ -1,0 +1,8 @@
+Client can connect to a server, display the starmap and look around.
+
+Unable to connect to servers which do not have "autoadd_players" enabled,
+unless existing username and password given.
+
+ESC - Quit
+Left Click and Hold - Panning
+Right Click and Hold - Rotate to look around
