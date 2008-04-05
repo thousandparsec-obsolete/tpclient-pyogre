@@ -1,8 +1,17 @@
+Python-Ogre client for Thousand Parsec
+
+To run: execute tpclient-pyogre in the src/ folder
+
 Client can connect to a server, display the starmap and look around.
+
+Problems
+--------
 
 Unable to connect to servers which do not have "autoadd_players" enabled,
 unless existing username and password given.
 
+Controls
+--------
 ESC - Quit
 Left Click and Hold - Panning
 Right Click and Hold - Rotate to look around

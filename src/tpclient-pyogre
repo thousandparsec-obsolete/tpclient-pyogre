@@ -83,7 +83,8 @@ class GUI(Framework.Application):
 
 	def frameStarted(self, evt):
 		if not self.frameListener.keepRendering:
-			print "No longer rending!"
+			print "destroying"
+			self.frameListener.destroy()
 			self.application.Exit()
 
 		if len(self.tocall) <= 0:
@@ -119,7 +120,7 @@ class GUI(Framework.Application):
 
 	def Cleanup(self):
 		self.frameListener.keepRendering = False
-
+		self.frameListener.destroy()
 
 	def changeScene(self, scene):
 		"""\

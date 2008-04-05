@@ -205,15 +205,29 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 			state.width = 1024
 			state.height = 768
 
+	def destroy(self):
+		try:
+			if self.inputManager != None:
+				if self.enableKeyboard:
+					self.inputManager.destroyInputObjectKeyboard(self.keyboard)
+				if self.enableMouse:
+					self.inputManager.destroyInputObjectMouse(self.mouse)
+				ois.InputManager.destroyInputSystem(self.inputManager)
+				self.keyboard = None
+				self.mouse = None
+				self.inputManager = None
+		except AttributeError:
+			pass
+
 	def frameStarted(self, evt):
 		self.application.frameStarted(evt)
 		if self.renderWindow.isClosed():
 			self.keepRendering = False
 
-		if self.enableMouse:
+		if self.enableMouse and self.mouse != None:
 			self.mouse.capture()
 
-		if self.enableKeyboard:
+		if self.enableKeyboard and self.keyboard != None:
 			self.keyboard.capture()
 		
 		return self.application.currentScene.update(evt) and self.keepRendering
