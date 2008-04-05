@@ -118,6 +118,9 @@ class LoginScene(MenuScene):
 
 		wm = cegui.WindowManager.getSingleton()
 
+		# when populating a cegui list, must keep the references, otherwise segfault
+		self.servers = []
+
 		#entity = sceneManager.createEntity('LoginRobot', 'Testing')
 		#entity.setMaterialName("Core/OgreText");
 		#self.rootNode.createChildSceneNode((15, 15, 0)).attachObject(entity)
@@ -138,30 +141,36 @@ class LoginScene(MenuScene):
 
 	def onFoundRemoteGame(self, evt):
 		print "found remote game"
-		print type(evt)
+		location = evt.game.locations["tp"][0][0]
+		print location
+		wm = cegui.WindowManager.getSingleton()
+		combobox = wm.getWindow("Login/Server")
+		item = cegui.ListboxTextItem(location)
+		self.servers.append(item)
+		combobox.addItem(item)
 
 	def onConnect(self, evt):
 		wm = cegui.WindowManager.getSingleton()
 		
-		#host = wm.getWindow("Login/Server").text
-		#username = wm.getWindow("Login/Username").text
-		#password = wm.getWindow("Login/Password").text
+		host = wm.getWindow("Login/Server").getText().c_str()
+		username = wm.getWindow("Login/Username").getText().c_str()
+		password = wm.getWindow("Login/Password").getText().c_str()
 		#host = "demo2.thousandparsec.net"
-		host = "localhost"
-		username = "test"
-		password = "12345"
+		#host = "localhost"
+		#username = "test"
+		#password = "12345"
 		
 		print "onConnect", host, username, password
 		self.parent.application.network.Call( \
-			self.parent.application.network.ConnectTo, host, username, password, True)
+				self.parent.application.network.ConnectTo, host, username, password, True)
 
 	def onConfig(self, evt):
 		print "onConfig"
+		wm = cegui.WindowManager.getSingleton()
 
 	def onQuit(self, evt):
 		print "onQuit"
-		import sys
-		sys.exit() # lazy
+		self.parent.Cleanup()
 
 class ConfigScene(MenuScene):
 	def __init__(self, parent, sceneManager):

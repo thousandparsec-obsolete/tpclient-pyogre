@@ -15,11 +15,11 @@
 			<Property Name="UnifiedPosition" Value="{{0,0},{0,0},}" />
 			<Property Name="UnifiedSize" Value="{{0.25,0},{0.25,0}}" />
 		</Window>
-		<Window Type="TaharezLook/ComboDropList" Name="Login/Server" >
+		<Window Type="TaharezLook/Combobox" Name="Login/Server" >
 			<Property Name="DistributeCapturedInputs" Value="True" />
-			<Property Name="Text" Value="tps://localhost" />
+			<Property Name="Text" Value="localhost" />
 			<Property Name="UnifiedPosition" Value="{{0.25,0},{0,0}}" />
-			<Property Name="UnifiedSize" Value="{{0.75,0},{0.25,0}}" />
+			<Property Name="UnifiedSize" Value="{{0.74,0},{0.35,0}}" />
 		</Window>
 		
 		<Window Type="TaharezLook/StaticText" Name="Login/UsernameText" >
@@ -28,6 +28,7 @@
 			<Property Name="UnifiedSize" Value="{{0.25,0},{0.25,0}}" />
 		</Window>
 		<Window Type="TaharezLook/Editbox" Name="Login/Username" >
+			<Property Name="Text" Value="test" />
 			<Property Name="MaxTextLength" Value="255" />
 			<Property Name="UnifiedPosition" Value="{{0.25,0},{0.25,0}}" />
 			<Property Name="UnifiedSize" Value="{{0.75,0},{0.25,0}}" />
@@ -39,6 +40,7 @@
 			<Property Name="UnifiedSize" Value="{{0.25,0},{0.25,0}}" />
 		</Window>
 		<Window Type="TaharezLook/Editbox" Name="Login/Password" >
+			<Property Name="Text" Value="12345" />
 			<Property Name="MaxTextLength" Value="1073741823" />
 			<Property Name="UnifiedPosition" Value="{{0.25,0},{0.50,0}}" />
 			<Property Name="UnifiedSize" Value="{{0.75,0},{0.25,0}}" />

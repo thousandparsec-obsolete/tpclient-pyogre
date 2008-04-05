@@ -58,13 +58,13 @@ class GUI(Framework.Application):
 		self.login = Scene.LoginScene(self, self.sceneManager)
 		self.starmap = Scene.StarmapScene(self, self.sceneManager)
 
-		self.guiSystem.injectMousePosition(25, 25)
+		self.guiSystem.injectMousePosition(0, 0)
 		self.changeScene(self.login)
 
 	def _createCamera(self):
 		self.camera = self.sceneManager.createCamera("PlayerCam")
 		self.camera.nearClipDistance = 5
-		self.camera.setFixedYawAxis(False, ogre.Vector3.UNIT_Y)
+		self.camera.setFixedYawAxis(True, ogre.Vector3.UNIT_Y)
 
 	def _createFrameListener(self):
 		self.frameListener = Framework.CEGUIFrameListener(self, self.renderWindow, self.camera)
@@ -83,6 +83,7 @@ class GUI(Framework.Application):
 
 	def frameStarted(self, evt):
 		if not self.frameListener.keepRendering:
+			print "No longer rending!"
 			self.application.Exit()
 
 		if len(self.tocall) <= 0:
@@ -117,7 +118,7 @@ class GUI(Framework.Application):
 		return {}
 
 	def Cleanup(self):
-		self.frameListener.keepRendering == False
+		self.frameListener.keepRendering = False
 
 
 	def changeScene(self, scene):
@@ -168,5 +169,7 @@ if __name__ == '__main__':
 	try:
 		app = Application()
 		app.Run()
+		app.Exit()
 	finally:
-		traceback()
+		pass
+		#traceback()

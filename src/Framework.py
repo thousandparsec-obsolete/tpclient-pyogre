@@ -188,7 +188,7 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 			[("WINDOW", str(self.renderWindow.getCustomAttributeInt("WINDOW"))) ] 
 			)
 
-		self.enableKeyboard = False
+		self.enableKeyboard = True
 		self.enableMouse = True
 	
 		if self.enableKeyboard:
@@ -208,9 +208,8 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 	def frameStarted(self, evt):
 		self.application.frameStarted(evt)
 		if self.renderWindow.isClosed():
-			import sys
-			sys.exit()
-			
+			self.keepRendering = False
+
 		if self.enableMouse:
 			self.mouse.capture()
 
