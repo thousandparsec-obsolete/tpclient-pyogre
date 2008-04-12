@@ -1,8 +1,18 @@
 Python-Ogre client for Thousand Parsec
+======================================
 
-To run: execute tpclient-pyogre in the src/ folder
+Pre-requisites: 
+	Python-Ogre (http://www.python-ogre.org)
 
-Client can connect to a server, display the starmap and look around.
+Setup: 
+	look for plugins.cfg in either the src/ or bin/ directory
+	edit plugins.cfg to point to the plugins/ folder within your Python-Ogre directory
+
+To run: 
+	execute tpclient-pyogre in the src/ folder
+
+Description:
+	Client can connect to a server, display the starmap and look around.
 
 Problems
 --------
@@ -15,3 +25,22 @@ Controls
 ESC - Quit
 Left Click and Hold - Panning
 Right Click and Hold - Rotate to look around
+
+Compiling py2exe
+----------------
+To compile an exe on windows, several dlls are needed
+
+	boost_python-vc80-mt-1_35.dll - found in PythonOgre/packages_2.5/ogre/renderer/OGRE
+	msvcp80.dll - found from dll-files.com
+	msvcr80.dll - found from dll-files.com
+	OgreMain.dll - found in PythonOgre/packages_2.5/ogre/renderer/OGRE
+
+
+After the compilation step, several dlls need to be copied into the bin/ folder
+
+	CEGUIExpatParser.dll - found in PythonOgre/packages_2.5/ogre/gui/CEGUI
+	CEGUIFalagardWRBase.dll - found in PythonOgre/packages_2.5/ogre/gui/CEGUI
+	CEGUITinyXMLParser.dll - found in PythonOgre/packages_2.5/ogre/gui/CEGUI
+
+To ease this entire process, all the dlls must be copied into the dlls/ folder 
+within the root directory (same level as src/, media/, etc)

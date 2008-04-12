@@ -223,12 +223,13 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 		self.application.frameStarted(evt)
 		if self.renderWindow.isClosed():
 			self.keepRendering = False
+		
+		if self.keepRendering:
+			if self.enableMouse and self.mouse != None:
+				self.mouse.capture()
 
-		if self.enableMouse and self.mouse != None:
-			self.mouse.capture()
-
-		if self.enableKeyboard and self.keyboard != None:
-			self.keyboard.capture()
+			if self.enableKeyboard and self.keyboard != None:
+				self.keyboard.capture()
 		
 		return self.application.currentScene.update(evt) and self.keepRendering
 
@@ -258,6 +259,7 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 		# Quick escape? Maybe it should be removed
 		if evt.key == ois.KC_ESCAPE:
 			self.keepRendering = False
+			return True
 		
 		if evt.key == ois.KC_SYSRQ:
 			path, next = 'screenshot.png', 1

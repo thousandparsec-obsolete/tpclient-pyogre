@@ -4,11 +4,6 @@
 notfound = []
 
 try:
-	import numarray
-except ImportError:
-	notfound.append("numarray")
-
-try:
 	import ogre.renderer.OGRE as ogre
 except ImportError:
 	notfound.append("python-ogre")
@@ -32,7 +27,7 @@ except ImportError:
 try:
 	import tp.client
 except ImportError:
-	notfound.append("tp.netlib")
+	notfound.append("tp.client")
 
 import __builtin__
 try:
