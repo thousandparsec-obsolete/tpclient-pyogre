@@ -184,10 +184,16 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 		self.sceneDetailIndex = 0
 
 	def _setupInput(self):
-		self.inputManager = ois.createPythonInputSystem(
-			[("WINDOW", str(self.renderWindow.getCustomAttributeInt("WINDOW"))) ] 
-			)
+		options = [("WINDOW", str(self.renderWindow.getCustomAttributeInt("WINDOW")))]
 
+		import os
+		if os.name.startswith("posix"):
+			options.append(("x11_mouse_grab", str("false")))
+		elif os.name.startswith("nt"):
+			options.append(("w32_mouse", str("DISCL_FOREGROUND")))
+			options.append(("w32_mouse", str("DISCL_NONEXCLUSIVE")))
+
+		self.inputManager = ois.createPythonInputSystem(options)
 		self.enableKeyboard = True
 		self.enableMouse = True
 	
