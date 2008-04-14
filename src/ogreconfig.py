@@ -8,8 +8,10 @@ plugins = [
 		"Plugin_CgProgramManager"
 	]
 
+default_windows_drive = "c:/"
+
 def generate_config():
-	"""Generates a set of ogre config files"""
+	"Generates a set of ogre config files"
 	if os.name.startswith("posix"):
 		posix_config()
 	elif os.name.startswith("nt"):
@@ -27,14 +29,24 @@ def posix_config():
 		f.close()
 
 def nt_config():
+	"Checks for Python-Ogre in default drive, else checks current drive"
 	try:
 		f = open("plugins.cfg", "w")
-		drive = os.path.splitdrive(os.getcwd())[0]
-		f.write("PluginFolder=" + os.path.join(drive, "PythonOgre", "plugins"))
-		f.write("\n")
-		for plugin in plugins:
-			f.write("Plugin="+plugin+".dll")
+		drive = default_windows_drive
+		path = os.path.join(drive, "PythonOgre", "plugins")
+
+		if not os.path.exists(path):
+			drive = os.path.splitdrive(os.getcwd())[0] + "/"
+			path = os.path.join(drive, "PythonOgre", "plugins")
+
+		if os.path.exists(path):
+			f.write("PluginFolder=" + path)
 			f.write("\n")
+			for plugin in plugins:
+				f.write("Plugin="+plugin+".dll")
+				f.write("\n")
+		else:
+			print "Python Ogre not found"
 	finally:
 		f.close()
 
