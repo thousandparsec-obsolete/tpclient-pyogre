@@ -202,20 +202,20 @@ class ObjectOverlay:
 		name.caption = object.name
 		self.name = name
 
-		position = overlayManager.createOverlayElement("TextArea", "Position%i" % object.id)
-		position.metricsMode = ogre.GMM_PIXELS
-		position.setPosition(0, 16)
-		position.charHeight = 16
-		position.fontName = "Tahoma-12"
-		position.caption = "%i, %i, %i" % object.pos
-		self.position = position
+		#position = overlayManager.createOverlayElement("TextArea", "Position%i" % object.id)
+		#position.metricsMode = ogre.GMM_PIXELS
+		#position.setPosition(0, 16)
+		#position.charHeight = 16
+		#position.fontName = "Tahoma-12"
+		#position.caption = "%i, %i, %i" % object.pos
+		#self.position = position
 
 		self.overlay = overlayManager.create("Overlay%i" % object.id)
 		self.overlay.add2D(self.panel)
 
 		# WARN: This needs to happen after the panel is added to an overlay
 		panel.addChild(name)
-		panel.addChild(position)
+		#panel.addChild(position)
 
 	def show(self, *which):
 		for text in self.active:
@@ -310,31 +310,33 @@ class StarmapScene(MenuScene):
 
 		for object in self.objects.values():
 			#pos = ogre.Vector3(*object.pos)
-			scale = 1000000
+			scale = 900000
 			pos = ogre.Vector3(object.pos[0]/scale, object.pos[1]/scale, object.pos[2]/scale)
+			print object._subtype
 			print "creating", object.id, object.name, "at", pos
 			
-			node = self.rootNode.createChildSceneNode(pos)
-			self.nodes[object.id] = node
+			if object._subtype is 2:
+				node = self.rootNode.createChildSceneNode(pos)
+				self.nodes[object.id] = node
 
-			# Selectable entity
-			entityNode = node.createChildSceneNode(ogre.Vector3(0, 0, 0))
-			entity = self.sceneManager.createEntity("Object%i" % object.id, 'sphere.mesh')
-			entity.queryFlags = self.SELECTABLE
-			scale = 10/entity.mesh.boundingSphereRadius
-			entityNode.scale = ogre.Vector3(scale,scale,scale)
-			entityNode.attachObject(entity)
-	
-			# Lense flare
-			billboardSet = self.flareBillboardSets[object.id % len(self.flareBillboardSets)]
-			billboard = billboardSet.createBillboard(pos, ogre.ColourValue.White)
-	
-			# Text overlays
-			overlay = ObjectOverlay(entityNode, object)
-			overlay.show(overlay.name, overlay.position)
-			self.overlays[object.id] = overlay
+				# Selectable entity
+				entityNode = node.createChildSceneNode(ogre.Vector3(0, 0, 0))
+				entity = self.sceneManager.createEntity("Object%i" % object.id, 'sphere.mesh')
+				entity.queryFlags = self.SELECTABLE
+				scale = 50/entity.mesh.boundingSphereRadius
+				entityNode.setScale(ogre.Vector3(scale,scale,scale))
+				entityNode.attachObject(entity)
+		
+				# Lens flare
+				billboardSet = self.flareBillboardSets[object.id % len(self.flareBillboardSets)]
+				billboard = billboardSet.createBillboard(pos, ogre.ColourValue.White)
+		
+				# Text overlays
+				overlay = ObjectOverlay(entityNode, object)
+				overlay.show(overlay.name)
+				self.overlays[object.id] = overlay
 
-		self.autofit()
+		#self.autofit()
 	
 	def autofit(self):
 		fit = False
