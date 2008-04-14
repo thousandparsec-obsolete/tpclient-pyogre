@@ -1,4 +1,4 @@
-# This file checks you have installed the requirements for tpclient-pywx 
+# This file checks you have installed the requirements for tpclient-pyogre 
 # It can be run as standalone but is also run by the client at startup
 
 notfound = []
@@ -39,6 +39,15 @@ except ImportError:
 	def _(s):
 		return s
 	__builtin__._ = _
+
+try:
+	import os
+	if not os.path.exists("./plugins.cfg"):
+		import ogreconfig
+		ogreconfig.generate_config()
+except Exception, e:
+	print e
+	notfound.append("local config files")
 
 if len(notfound) > 0:
 	print "The following requirements where not met"
