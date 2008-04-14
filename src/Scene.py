@@ -334,6 +334,20 @@ class StarmapScene(MenuScene):
 			overlay.show(overlay.name, overlay.position)
 			self.overlays[object.id] = overlay
 
+		self.autofit()
+	
+	def autofit(self):
+		fit = False
+		self.camera.setPosition(ogre.Vector3(0,0,0))
+		while not fit:
+			self.camera.moveRelative(ogre.Vector3(0, 0, 500))
+
+			fit = True
+			for key in self.nodes:
+				object = self.nodes[key]
+				if not self.camera.isVisible(object.getPosition()):
+					fit = False
+
 	def update(self, evt):
 		camera = self.sceneManager.getCamera( 'PlayerCam' )
 		for overlay in self.overlays.values():
@@ -433,6 +447,10 @@ class StarmapScene(MenuScene):
 	def mouseSelectObject(self, id):
 		print "SelectObject", id
 		pass
+
+	def keyPressed(self, evt):
+		if evt.key == ois.KC_A:
+			self.autofit()
 
 	def mode(self, modes):
 		if self.OWNERS in modes:
