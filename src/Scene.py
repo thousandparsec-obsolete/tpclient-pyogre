@@ -382,11 +382,12 @@ class StarmapScene(MenuScene):
 
 		if state.buttonDown(ois.MB_Right):
 			# This won't introduce roll as setFixedYawAxis is True
-			self.camera.yaw(ogre.Radian(ogre.Degree(-state.X.rel * self.rotateSpeed)))
-			self.camera.pitch(ogre.Radian(ogre.Degree(-state.Y.rel * self.rotateSpeed)))
+			#self.camera.yaw(ogre.Radian(ogre.Degree(-state.X.rel * self.rotateSpeed)))
+			#self.camera.pitch(ogre.Radian(ogre.Degree(-state.Y.rel * self.rotateSpeed)))
+			self.camera.moveRelative(
+				ogre.Vector3(state.X.rel * self.panSpeed, -state.Y.rel * self.panSpeed, 0))
 		
 		elif state.buttonDown(ois.MB_Left):
-			print "Panning..."
 			self.camera.moveRelative(
 				ogre.Vector3(state.X.rel * self.panSpeed, 0, state.Y.rel * self.panSpeed))
 
