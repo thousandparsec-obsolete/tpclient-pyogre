@@ -383,10 +383,20 @@ class StarmapScene(MenuScene):
 			self.camera.yaw(ogre.Radian(ogre.Degree(-state.X.rel * self.rotateSpeed)))
 			self.camera.pitch(ogre.Radian(ogre.Degree(-state.Y.rel * self.rotateSpeed)))
 		
-		if state.buttonDown(ois.MB_Left):
+		elif state.buttonDown(ois.MB_Left):
 			print "Panning..."
 			self.camera.moveRelative(
 				ogre.Vector3(state.X.rel * self.panSpeed, 0, state.Y.rel * self.panSpeed))
+
+		else:
+			x = float(state.X.abs) / float(state.width)
+			y = float(state.Y.abs) / float(state.height)
+			mouseRay = self.camera.getCameraToViewportRay( x, y )
+			self.raySceneQuery.setRay(mouseRay)
+			for o in self.raySceneQuery.execute():
+				if o.movable:
+					self.mouseover = o.movable
+					break
 		
 		return False
 
