@@ -75,8 +75,12 @@ class Application(object):
 
 	def _configure(self):
 		"""This shows the config dialog and creates the renderWindow."""
-		#carryOn = self.root.showConfigDialog()
-		carryOn = self.root.restoreConfig()
+		import os
+		if os.path.exists("ogre.cfg"):
+			carryOn = self.root.restoreConfig()
+		else:
+			carryOn = self.root.showConfigDialog()
+
 		if carryOn:
 			self.renderWindow = self.root.initialise(True)
 		return carryOn
