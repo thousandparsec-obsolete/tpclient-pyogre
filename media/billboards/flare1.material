@@ -1,0 +1,17 @@
+// Light effects
+material Billboards/Flares/flare1
+{
+  technique
+  {
+    pass
+    {
+      lighting off
+      scene_blend add
+      depth_write off
+      texture_unit
+      {
+        texture flare1.png
+      }
+    }
+  }
+}
