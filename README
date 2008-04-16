@@ -2,7 +2,9 @@ Python-Ogre client for Thousand Parsec
 ======================================
 
 Pre-requisites: 
-	Python-Ogre (http://www.python-ogre.org)
+	Python-Ogre							- Graphics and Input 
+	libtpproto-py						- Network Library
+	libtpclient-py						- Client Support Library
 
 Setup: 
 	look for plugins.cfg in either the src/ or bin/ directory
