@@ -19,8 +19,12 @@ def generate_config():
 
 def posix_config():
 	try:
+		import ogre
+		folder = ogre.__file__.partition('lib')
+		folder = os.path.join(folder[0], 'lib', 'OGRE')
+
 		f = open("plugins.cfg", "w")
-		f.write("PluginFolder="+os.path.expanduser("~")+"/development/root/usr/lib/OGRE")
+		f.write("PluginFolder="+folder)
 		f.write("\n")
 		for plugin in plugins:
 			f.write("Plugin="+plugin)
