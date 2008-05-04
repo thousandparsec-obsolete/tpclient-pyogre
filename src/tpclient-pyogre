@@ -47,9 +47,8 @@ class GUI(Framework.Application):
 		cegui.Logger.getSingleton().loggingLevel = cegui.Insane
 
 		# Load Cegui Scheme
-		cegui.SchemeManager.getSingleton().loadScheme("TaharezLookSkin.scheme")
-		self.guiSystem.setDefaultMouseCursor("TaharezLook", "MouseArrow")
-		cegui.FontManager.getSingleton().createFont("Tahoma.font")
+		cegui.SchemeManager.getSingleton().loadScheme("SleekSpace.scheme")
+		self.guiSystem.setDefaultMouseCursor("SleekSpace", "MouseArrow")
 
 		wmgr = cegui.WindowManager.getSingleton()
 		root = wmgr.createWindow("DefaultWindow", "root")
