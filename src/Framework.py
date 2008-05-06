@@ -1,3 +1,4 @@
+import os
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
 import ogre.io.OIS as ois
@@ -75,7 +76,6 @@ class Application(object):
 
 	def _configure(self):
 		"""This shows the config dialog and creates the renderWindow."""
-		import os
 		if os.path.exists("ogre.cfg"):
 			carryOn = self.root.restoreConfig()
 		else:
@@ -142,6 +142,7 @@ class FrameListener(ogre.FrameListener):
 		self.showDebugOverlay(True)
 		self.moveSpeed = 100.0
 		self.rotationSpeed = 8.0
+		self.renderWindow.debugText = ""
 
 		self._setupInput()
 
@@ -156,7 +157,7 @@ class FrameListener(ogre.FrameListener):
 		"""Turns the debug overlay (frame statistics) on or off."""
 		overlay = ogre.OverlayManager.getSingleton().getByName('Core/DebugOverlay')
 		if overlay is None:
-			raise ogre.Exception(111, "Could not find overlay Core/DebugOverlay", "SampleFramework.py")
+			raise ogre.Exception(111, "Could not find overlay Core/DebugOverlay", "Framework.py")
 		if show:
 			overlay.show()
 		else:
@@ -171,7 +172,7 @@ class FrameListener(ogre.FrameListener):
 		self._setGuiCaption('Core/WorstFps',
 							 'Worst FPS: %f %d ms' % (statistics.worstFPS, statistics.worstFrameTime))
 		self._setGuiCaption('Core/NumTris', 'Triangle Count: %d' % statistics.triangleCount)
-		#self._setGuiCaption('Core/DebugText', self.renderWindow.debugText)
+		self._setGuiCaption('Core/DebugText', statistics.debugText)
 
 	def _setGuiCaption(self, elementName, text):
 		element = ogre.OverlayManager.getSingleton().getOverlayElement(elementName, False)
@@ -190,10 +191,10 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 	def _setupInput(self):
 		options = [("WINDOW", str(self.renderWindow.getCustomAttributeInt("WINDOW")))]
 
-		import os
 		if os.name.startswith("posix"):
 			options.append(("x11_mouse_grab", str("false")))
 		elif os.name.startswith("nt"):
+			# TOFIX - mouse problems in windows
 			options.append(("w32_mouse", str("DISCL_FOREGROUND")))
 			options.append(("w32_mouse", str("DISCL_NONEXCLUSIVE")))
 
@@ -212,6 +213,7 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 			
 			self.mouse.setEventCallback(self)
 			state = self.mouse.getMouseState()
+			# TOFIX - get actual values
 			state.width = 1024
 			state.height = 768
 
@@ -260,7 +262,6 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 
 	def mouseMoved(self, evt):
 		system = cegui.System.getSingleton()
-		#system.injectMouseMove(evt.X * system.renderer.width, evt.Y * system.renderer.height) \
 		system.injectMouseMove( evt.get_state().X.rel, evt.get_state().Y.rel ) \
 			or self.application.currentScene.mouseMoved(evt)
 		return True
@@ -271,7 +272,7 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 			self.keepRendering = False
 			return True
 		
-		if evt.key == ois.KC_SYSRQ:
+		if evt.key == ois.KC_F12:
 			path, next = 'screenshot.png', 1
 			while os.path.exists(path):
 				path = 'screenshot_%d.png' % next
@@ -300,16 +301,6 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 		system = cegui.System.getSingleton()
 		system.injectKeyUp(evt.key) \
 			or self.application.currentScene.keyReleased(evt)
-
-	# These are useless handlers that we need to have	
-	def mouseClicked(self, evt):
-		pass
-	def mouseEntered(self, evt):
-		pass
-	def mouseExited(self, evt):
-		pass
-	def keyClicked(self, evt):
-		pass
 
 	def _convertOgreButtonToCegui(self, buttonID):
 		# Convert ogre button to cegui button

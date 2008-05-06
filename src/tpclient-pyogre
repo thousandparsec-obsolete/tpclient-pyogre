@@ -171,5 +171,4 @@ if __name__ == '__main__':
 		app.Run()
 		app.Exit()
 	finally:
-		pass
-		#traceback()
+		traceback()
