@@ -121,10 +121,6 @@ class LoginScene(MenuScene):
 		# when populating a cegui list, must keep the references, otherwise segfault
 		self.servers = []
 
-		#entity = sceneManager.createEntity('LoginRobot', 'Testing')
-		#entity.setMaterialName("Core/OgreText");
-		#self.rootNode.createChildSceneNode((15, 15, 0)).attachObject(entity)
-	
 		login = wm.loadWindowLayout("login.layout")
 		self.guiSystem.getGUISheet().addChildWindow(login)
 		self.windows.append(login)
@@ -265,7 +261,6 @@ class StarmapScene(MenuScene):
 
 		ogre.FontManager.getSingleton().load("Tahoma-12","General")
 
-		#self.mouseState = 0
 		self.mouseDelta = ogre.Vector2(0, 0)
 		self.currentObject = None
 	
@@ -289,9 +284,9 @@ class StarmapScene(MenuScene):
 		self.overlays = {}
 
 		# Quick-selection
-		#system = cegui.WindowManager.getSingleton().loadWindowLayout("system.layout")
-		#self.guiSystem.guiSheet.addChildWindow(system)
-		#self.windows.append(system)
+		system = cegui.WindowManager.getSingleton().loadWindowLayout("system.layout")
+		self.guiSystem.getGUISheet().addChildWindow(system)
+		self.windows.append(system)
 		self.hide()
 	
 	def onNetworkRemaining(self, evt):

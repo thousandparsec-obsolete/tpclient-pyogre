@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout >
+    <Window Type="DefaultWindow" Name="Starmap" >
+        <Property Name="InheritsAlpha" Value="False" />
+        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+        <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+        <Window Type="SleekSpace/FrameWindow" Name="Orders" >
+            <Property Name="Font" Value="BlueHighway-10" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="TitlebarEnabled" Value="True" />
+            <Property Name="UnifiedAreaRect" Value="{{0.017187,0},{0.020833,0},{0.231249,0},{0.620837,0}}" />
+        </Window>
+        <Window Type="SleekSpace/FrameWindow" Name="Windows" >
+            <Property Name="Font" Value="BlueHighway-10" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="TitlebarEnabled" Value="False" />
+            <Property Name="UnifiedAreaRect" Value="{{-0.00156248,0},{0.918752,0},{0.7125,0},{0.995834,0}}" />
+            <Property Name="CloseButtonEnabled" Value="False" />
+            <Window Type="SleekSpace/Button" Name="Windows/Orders" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0288841,0},{0.230262,0},{0.208862,0},{0.722693,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Windows/Information" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.210175,0},{0.230262,0},{0.390153,0},{0.722693,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Windows/System" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.391466,0},{0.230262,0},{0.571444,0},{0.722693,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Windows/Messages" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.572757,0},{0.230262,0},{0.752735,0},{0.722693,0}}" />
+            </Window>
+        </Window>
+        <Window Type="SleekSpace/FrameWindow" Name="System" >
+            <Property Name="Font" Value="BlueHighway-10" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="TitlebarEnabled" Value="True" />
+            <Property Name="UnifiedAreaRect" Value="{{0.749999,0},{0.0270833,0},{0.974999,0},{0.539583,0}}" />
+        </Window>
+        <Window Type="SleekSpace/FrameWindow" Name="Messages" >
+            <Property Name="Font" Value="BlueHighway-10" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="TitlebarEnabled" Value="True" />
+            <Property Name="UnifiedAreaRect" Value="{{0.0124993,0},{0.658334,0},{0.378124,0},{0.908333,0}}" />
+        </Window>
+        <Window Type="SleekSpace/FrameWindow" Name="Information" >
+            <Property Name="Font" Value="BlueHighway-10" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="TitlebarEnabled" Value="True" />
+            <Property Name="UnifiedAreaRect" Value="{{0.515623,0},{0.662502,0},{0.973435,0},{0.912502,0}}" />
+        </Window>
+    </Window>
+</GUILayout>
