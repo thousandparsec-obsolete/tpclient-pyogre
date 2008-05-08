@@ -218,9 +218,8 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 			
 			self.mouse.setEventCallback(self)
 			state = self.mouse.getMouseState()
-			# FIXME: get actual values
-			state.width = 1024
-			state.height = 768
+			state.width = self.renderWindow.getWidth()
+			state.height = self.renderWindow.getHeight()
 
 	def destroy(self):
 		try:
