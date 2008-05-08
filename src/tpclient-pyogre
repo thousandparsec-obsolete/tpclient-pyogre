@@ -2,11 +2,10 @@
 
 import requirements
 
-import os, time
+import os
+import sys
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
-
-from tp.client.threads import NetworkThread, Application
 
 import Framework
 import Scene
@@ -59,6 +58,9 @@ class GUI(Framework.Application):
 
 		self.guiSystem.injectMousePosition(0, 0)
 		self.changeScene(self.login)
+
+		if self.application.url != None:
+			self.login.setServer(self.application.url)
 
 	def _createCamera(self):
 		self.camera = self.sceneManager.createCamera("PlayerCam")
@@ -130,6 +132,10 @@ class GUI(Framework.Application):
 		self.currentScene = scene
 		self.currentScene.show()
 
+from tp.client.threads import NetworkThread
+from tp.client.threads import MediaThread, FinderThread
+from tp.client.threads import Application as ClientApplication
+
 class Network(NetworkThread):
 	## These are network events
 	class NetworkFailureEvent(Exception):
@@ -158,16 +164,24 @@ class Network(NetworkThread):
 		self.application.Post(self.application.cache.CacheUpdateEvent(None))
 		return
 
-from tp.client.threads import MediaThread, FinderThread
-Application.GUIClass = GUI
-Application.NetworkClass = Network
-Application.MediaClass = MediaThread
-Application.FinderClass = FinderThread
-Application.ConfigFile = "pyogre_preferences"
+class Application(ClientApplication):
+	GUIClass = GUI
+	NetworkClass = Network
+	MediaClass = MediaThread
+	FinderClass = FinderThread
+	ConfigFile = "pyogre_preferences"
+
+	def __init__(self, url=None):
+		ClientApplication.__init__(self)
+		self.url = url
 
 if __name__ == '__main__':
 	try:
-		app = Application()
+		url = name = passwd = None
+		if len(sys.argv) > 1:
+			url = sys.argv[1]
+
+		app = Application(url)
 		app.Run()
 		app.Exit()
 	finally:

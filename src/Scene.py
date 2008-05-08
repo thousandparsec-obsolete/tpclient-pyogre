@@ -2,6 +2,10 @@ import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
 import ogre.io.OIS as ois
 
+def setWidgetText(name, text):
+	wm = cegui.WindowManager.getSingleton()
+	wm.getWindow(name).setText(text)
+
 class Scene:
 	def __init__(self, parent, sceneManager):
 		self.parent = parent
@@ -167,6 +171,9 @@ class LoginScene(MenuScene):
 	def onQuit(self, evt):
 		print "onQuit"
 		self.parent.Cleanup()
+
+	def setServer(self, host):
+		setWidgetText("Login/Server", host)
 
 class ConfigScene(MenuScene):
 	def __init__(self, parent, sceneManager):
