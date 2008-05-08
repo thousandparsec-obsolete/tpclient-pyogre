@@ -6,6 +6,10 @@ def setWidgetText(name, text):
 	wm = cegui.WindowManager.getSingleton()
 	wm.getWindow(name).setText(text)
 
+def bindButtonEvent(name, object, method):
+	wm = cegui.WindowManager.getSingleton()
+	wm.getWindow(name).subscribeEvent(cegui.PushButton.EventClicked, object, method)
+
 class Scene:
 	def __init__(self, parent, sceneManager):
 		self.parent = parent
@@ -129,13 +133,9 @@ class LoginScene(MenuScene):
 		self.guiSystem.getGUISheet().addChildWindow(login)
 		self.windows.append(login)
 
-		loginButton = wm.getWindow("Login/LoginButton")
-		configButton = wm.getWindow("Login/ConfigButton")
-		quitButton = wm.getWindow("Login/QuitButton")
-		
-		loginButton.subscribeEvent(loginButton.EventClicked, self, "onConnect")
-		configButton.subscribeEvent(configButton.EventClicked, self, "onConfig")
-		quitButton.subscribeEvent(quitButton.EventClicked, self, "onQuit")
+		bindButtonEvent("Login/LoginButton", self, "onConnect")
+		bindButtonEvent("Login/ConfigButton", self, "onConfig")
+		bindButtonEvent("Login/QuitButton", self, "onQuit")
 
 		self.hide()
 
@@ -290,12 +290,28 @@ class StarmapScene(MenuScene):
 		self.nodes = {}
 		self.overlays = {}
 
-		# Quick-selection
-		system = cegui.WindowManager.getSingleton().loadWindowLayout("system.layout")
+		wm = cegui.WindowManager.getSingleton()
+
+		system = wm.loadWindowLayout("system.layout")
 		self.guiSystem.getGUISheet().addChildWindow(system)
 		self.windows.append(system)
+
+		# Bind gui events
+		bindButtonEvent("Windows/Information", self, "onWindowToggle")
+		bindButtonEvent("Windows/Orders", self, "onWindowToggle")
+		bindButtonEvent("Windows/Messages", self, "onWindowToggle")
+		bindButtonEvent("Windows/System", self, "onWindowToggle")
+
 		self.hide()
 	
+	def onWindowToggle(self, evt):
+		wm = cegui.WindowManager.getSingleton()
+		# assume buttons and windows have the same name, minus prefix
+		name = evt.window.getName().c_str().split("/")[1]
+		if name != None:
+			window = wm.getWindow(name)
+			window.setVisible(not window.isVisible())
+
 	def onNetworkRemaining(self, evt):
 		print "onNetworkRemaining"
 
