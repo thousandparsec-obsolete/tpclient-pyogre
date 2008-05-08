@@ -2,6 +2,7 @@ import os
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
 import ogre.io.OIS as ois
+import console
 
 class Application(object):
 	"This class is the base for an Ogre application."
@@ -188,13 +189,17 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 		self.keepRendering = True   # whether to continue rendering or not
 		self.sceneDetailIndex = 0
 
+		root = self.application.root
+		self.console = console.Console(root)
+		self.console.addLocals({'root':root})
+
 	def _setupInput(self):
 		options = [("WINDOW", str(self.renderWindow.getCustomAttributeInt("WINDOW")))]
 
 		if os.name.startswith("posix"):
 			options.append(("x11_mouse_grab", str("false")))
 		elif os.name.startswith("nt"):
-			# TOFIX - mouse problems in windows
+			# FIXME: mouse problems in windows
 			options.append(("w32_mouse", str("DISCL_FOREGROUND")))
 			options.append(("w32_mouse", str("DISCL_NONEXCLUSIVE")))
 
@@ -213,7 +218,7 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 			
 			self.mouse.setEventCallback(self)
 			state = self.mouse.getMouseState()
-			# TOFIX - get actual values
+			# FIXME: get actual values
 			state.width = 1024
 			state.height = 768
 
@@ -267,12 +272,14 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 		return True
 
 	def keyPressed(self, evt):
+		self.console.keyPressed(evt)
+
 		# Quick escape? Maybe it should be removed
 		if evt.key == ois.KC_ESCAPE:
 			self.keepRendering = False
 			return True
 		
-		if evt.key == ois.KC_F12:
+		elif evt.key == ois.KC_F12:
 			path, next = 'screenshot.png', 1
 			while os.path.exists(path):
 				path = 'screenshot_%d.png' % next
@@ -282,7 +289,7 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 			self.renderWindow.debugText = 'screenshot taken: ' + path
 
 		# Debugging functions
-		if evt.key == ois.KC_SCROLL:
+		elif evt.key == ois.KC_SCROLL:
 			detailsLevel = ("SDL_SOLID", "SDL_WIREFRAME", "SDL_POINTS")
 			self.sceneDetailIndex += 1 
 			self.sceneDetailIndex %= len(detailsLevel)
@@ -291,9 +298,10 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 			self.camera.detailLevel = getattr(ogre, mode)
 			self.renderWindow.debugText = 'render mode set to: ' + mode
 
-		system = cegui.System.getSingleton()
-		(system.injectKeyDown(evt.key) or system.injectChar(evt.text)) \
-			or self.application.currentScene.keyPressed(evt)
+		else:
+			system = cegui.System.getSingleton()
+			(system.injectKeyDown(evt.key) or system.injectChar(evt.text)) \
+				or self.application.currentScene.keyPressed(evt)
 		
 		return True
 
