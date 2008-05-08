@@ -42,7 +42,7 @@ class GUI(Framework.Application):
 	def _createScene(self):
 		# Initiaslise CEGUI Renderer
 		self.guiRenderer = cegui.OgreCEGUIRenderer(self.renderWindow,
-				   ogre.RENDER_QUEUE_OVERLAY, False, 0, self.sceneManager)
+				   ogre.RENDER_QUEUE_OVERLAY, True, 0, self.sceneManager)
 		self.guiSystem = cegui.System(self.guiRenderer)
 		cegui.Logger.getSingleton().loggingLevel = cegui.Insane
 
