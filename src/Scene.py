@@ -327,11 +327,10 @@ class StarmapScene(MenuScene):
 		self.overlays = {}
 
 		for object in self.objects.values():
-			#pos = ogre.Vector3(*object.pos)
 			scale = 900000
 			pos = ogre.Vector3(object.pos[0]/scale, object.pos[1]/scale, object.pos[2]/scale)
 			print object._subtype
-			print "creating", object.id, object.name, "at", pos
+			#print "creating", object.id, object.name, "at", pos
 			
 			if object._subtype is 2:
 				node = self.rootNode.createChildSceneNode(pos)
@@ -438,9 +437,9 @@ class StarmapScene(MenuScene):
 		#if self.mouseDelta.length < self.toleranceDelta:
 		if True:
 			# Unselect the current object
-			if self.currentObject:
-				self.currentObject.getParentSceneNode().showBoundingBox(False)
-				self.currentObject = None
+			#if self.currentObject:
+				#self.currentObject.getParentSceneNode().showBoundingBox(False)
+				#self.currentObject = None
 
 			# The mouse hasn't moved much check if the person is clicking on something.
 			x = float(state.X.abs) / float(state.width)
@@ -467,6 +466,11 @@ class StarmapScene(MenuScene):
 					# We are clicking on something!
 					found = True
 					
+					# Unselect the current object
+					if self.currentObject:
+						self.currentObject.getParentSceneNode().showBoundingBox(False)
+						self.currentObject = None
+
 					print "MovableObject: ", o.movable.getName()
 					self.currentObject = o.movable
 					self.currentObject.getParentSceneNode().showBoundingBox(True)
@@ -477,7 +481,18 @@ class StarmapScene(MenuScene):
 	
 	def mouseSelectObject(self, id):
 		print "SelectObject", id
-		pass
+		if id != None:
+			object = self.objects[id]
+			wm = cegui.WindowManager.getSingleton()
+			infobox = wm.getWindow("Information/Text")
+			text = "modify time: " + object.modify_time.ctime() + "\n"
+			text += "name: " + object.name + "\n"
+			text += "parent: " + str(object.parent) + "\n"
+			text += "position: " + str(object.pos) + "\n"
+			text += "velocity: " + str(object.vel) + "\n"
+			text += "id: " + str(object.id) + "\n"
+			text += "size: " + str(object.size) + "\n"
+			infobox.setText(text)
 
 	def keyPressed(self, evt):
 		if evt.key == ois.KC_A:
