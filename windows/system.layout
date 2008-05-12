@@ -58,7 +58,27 @@
             <Property Name="Visible" Value="False" />
             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
             <Property Name="TitlebarEnabled" Value="True" />
-            <Property Name="UnifiedAreaRect" Value="{{0.0124993,0},{0.658334,0},{0.378124,0},{0.908333,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.0124993,0},{0.635308,0},{0.451136,0},{0.908333,0}}" />
+            <Window Type="SleekSpace/MultiLineEditbox" Name="Messages/Message" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" >
+</Property>
+                <Property Name="MaxTextLength" Value="1073741823" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.043565,0},{0.203946,0},{0.756,0},{0.881579,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Messages/Next" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Next" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.761631,0},{0.219737,0},{0.957736,0},{0.430263,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Messages/Prev" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Prev" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.761631,0},{0.460527,0},{0.957737,0},{0.671053,0}}" />
+            </Window>
         </Window>
         <Window Type="SleekSpace/FrameWindow" Name="Information" >
             <Property Name="Font" Value="BlueHighway-10" />
@@ -69,6 +89,8 @@
             <Property Name="UnifiedAreaRect" Value="{{0.515623,0},{0.662502,0},{0.973435,0},{0.912502,0}}" />
             <Window Type="SleekSpace/MultiLineEditbox" Name="Information/Text" >
                 <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" >
+</Property>
                 <Property Name="MaxTextLength" Value="1073741823" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.0358,0},{0.217105,0},{0.955045,0},{0.901315,0}}" />

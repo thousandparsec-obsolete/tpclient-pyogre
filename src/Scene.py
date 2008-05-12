@@ -289,6 +289,8 @@ class StarmapScene(MenuScene):
 
 		self.nodes = {}
 		self.overlays = {}
+		self.messages = []
+		self.message_index = 0
 
 		wm = cegui.WindowManager.getSingleton()
 
@@ -301,9 +303,21 @@ class StarmapScene(MenuScene):
 		bindButtonEvent("Windows/Orders", self, "onWindowToggle")
 		bindButtonEvent("Windows/Messages", self, "onWindowToggle")
 		bindButtonEvent("Windows/System", self, "onWindowToggle")
+		bindButtonEvent("Messages/Next", self, "onNextMessage")
+		bindButtonEvent("Messages/Prev", self, "onPrevMessage")
 
 		self.hide()
 	
+	def onNextMessage(self, evt):
+		if self.message_index < len(self.messages) - 1:
+			self.message_index += 1
+			self.setCurrentMessage(self.messages[self.message_index])
+
+	def onPrevMessage(self, evt):
+		if self.message_index > 0:
+			self.message_index -= 1
+			self.setCurrentMessage(self.messages[self.message_index])
+
 	def onWindowToggle(self, evt):
 		wm = cegui.WindowManager.getSingleton()
 		# assume buttons and windows have the same name, minus prefix
@@ -325,12 +339,14 @@ class StarmapScene(MenuScene):
 		self.objects = cache.objects
 		self.nodes = {}
 		self.overlays = {}
+		self.messages = []
+		self.message_index = 0
 
 		for object in self.objects.values():
 			scale = 900000
 			pos = ogre.Vector3(object.pos[0]/scale, object.pos[1]/scale, object.pos[2]/scale)
-			print object._subtype
-			#print "creating", object.id, object.name, "at", pos
+			#print object._subtype
+			print "creating", object.id, object.name, "at", pos
 			
 			if object._subtype is 2:
 				node = self.rootNode.createChildSceneNode(pos)
@@ -353,8 +369,23 @@ class StarmapScene(MenuScene):
 				overlay.show(overlay.name)
 				self.overlays[object.id] = overlay
 
+		for val in cache.messages[0]:
+			message = val.CurrentOrder
+			self.messages.append(message)
+
+		if len(self.messages) > 0:
+			self.setCurrentMessage(self.messages[self.message_index])
+
 		#self.autofit()
 	
+	def setCurrentMessage(self, message):
+		wm = cegui.WindowManager.getSingleton()
+		msgbox = wm.getWindow("Messages/Message")
+		text = "Subject: " + message.subject + "\n"
+		text += "\n"
+		text += message.body
+		msgbox.setText(text)
+
 	def autofit(self):
 		fit = False
 		self.camera.setPosition(ogre.Vector3(0,0,0))
