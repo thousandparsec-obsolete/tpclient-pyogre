@@ -6,9 +6,12 @@ def setWidgetText(name, text):
 	wm = cegui.WindowManager.getSingleton()
 	wm.getWindow(name).setText(text)
 
-def bindButtonEvent(name, object, method):
+def bindEvent(name, object, method, event):
 	wm = cegui.WindowManager.getSingleton()
-	wm.getWindow(name).subscribeEvent(cegui.PushButton.EventClicked, object, method)
+	wm.getWindow(name).subscribeEvent(event, object, method)
+
+def bindButtonEvent(name, object, method):
+	bindEvent(name, object, method, cegui.PushButton.EventClicked)
 
 class Scene:
 	def __init__(self, parent, sceneManager):
@@ -306,6 +309,8 @@ class StarmapScene(MenuScene):
 		bindButtonEvent("Messages/Next", self, "onNextMessage")
 		bindButtonEvent("Messages/Prev", self, "onPrevMessage")
 
+		bindEvent("System/SystemList", self, "onSystemSelected", cegui.Listbox.EventSelectionChanged)
+
 		self.hide()
 	
 	def onNextMessage(self, evt):
@@ -317,6 +322,15 @@ class StarmapScene(MenuScene):
 		if self.message_index > 0:
 			self.message_index -= 1
 			self.setCurrentMessage(self.messages[self.message_index])
+
+	def onSystemSelected(self, evt):
+		wm = cegui.WindowManager.getSingleton()
+		listbox = wm.getWindow("System/SystemList")
+		selected = listbox.getFirstSelectedItem()
+		for obj in self.objects.values():
+			if obj.name == selected.text:
+				self.updateInformation(obj)
+				break
 
 	def onWindowToggle(self, evt):
 		wm = cegui.WindowManager.getSingleton()
@@ -341,6 +355,9 @@ class StarmapScene(MenuScene):
 		self.overlays = {}
 		self.messages = []
 		self.message_index = 0
+		self.system_list = []
+
+		listbox = cegui.WindowManager.getSingleton().getWindow("System/SystemList")
 
 		for object in self.objects.values():
 			scale = 900000
@@ -368,6 +385,13 @@ class StarmapScene(MenuScene):
 				overlay = ObjectOverlay(entityNode, object)
 				overlay.show(overlay.name)
 				self.overlays[object.id] = overlay
+
+				# Add to system list
+				item = cegui.ListboxTextItem(object.name)
+				item.setSelectionBrushImage("SleekSpace", "ClientBrush")
+				item.setSelectionColours(cegui.colour(0.9, 0.9, 0.9))
+				self.system_list.append(item)
+				listbox.addItem(item)
 
 		for val in cache.messages[0]:
 			message = val.CurrentOrder
@@ -513,17 +537,19 @@ class StarmapScene(MenuScene):
 	def mouseSelectObject(self, id):
 		print "SelectObject", id
 		if id != None:
-			object = self.objects[id]
-			wm = cegui.WindowManager.getSingleton()
-			infobox = wm.getWindow("Information/Text")
-			text = "modify time: " + object.modify_time.ctime() + "\n"
-			text += "name: " + object.name + "\n"
-			text += "parent: " + str(object.parent) + "\n"
-			text += "position: " + str(object.pos) + "\n"
-			text += "velocity: " + str(object.vel) + "\n"
-			text += "id: " + str(object.id) + "\n"
-			text += "size: " + str(object.size) + "\n"
-			infobox.setText(text)
+			self.updateInformation(self.objects[id])
+
+	def updateInformation(self, object):
+		wm = cegui.WindowManager.getSingleton()
+		infobox = wm.getWindow("Information/Text")
+		text = "modify time: " + object.modify_time.ctime() + "\n"
+		text += "name: " + object.name + "\n"
+		text += "parent: " + str(object.parent) + "\n"
+		text += "position: " + str(object.pos) + "\n"
+		text += "velocity: " + str(object.vel) + "\n"
+		text += "id: " + str(object.id) + "\n"
+		text += "size: " + str(object.size) + "\n"
+		infobox.setText(text)
 
 	def keyPressed(self, evt):
 		if evt.key == ois.KC_A:

@@ -51,6 +51,11 @@
             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
             <Property Name="TitlebarEnabled" Value="True" />
             <Property Name="UnifiedAreaRect" Value="{{0.749999,0},{0.0270833,0},{0.974999,0},{0.539583,0}}" />
+            <Window Type="SleekSpace/Listbox" Name="System/SystemList" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0827899,0},{0.0988445,0},{0.918043,0},{0.942554,0}}" />
+            </Window>
         </Window>
         <Window Type="SleekSpace/FrameWindow" Name="Messages" >
             <Property Name="Font" Value="BlueHighway-10" />
@@ -61,8 +66,7 @@
             <Property Name="UnifiedAreaRect" Value="{{0.0124993,0},{0.635308,0},{0.451136,0},{0.908333,0}}" />
             <Window Type="SleekSpace/MultiLineEditbox" Name="Messages/Message" >
                 <Property Name="Font" Value="BlueHighway-10" />
-                <Property Name="Text" >
-</Property>
+                <Property Name="ReadOnly" Value="True" />
                 <Property Name="MaxTextLength" Value="1073741823" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.043565,0},{0.203946,0},{0.756,0},{0.881579,0}}" />
@@ -89,8 +93,7 @@
             <Property Name="UnifiedAreaRect" Value="{{0.515623,0},{0.662502,0},{0.973435,0},{0.912502,0}}" />
             <Window Type="SleekSpace/MultiLineEditbox" Name="Information/Text" >
                 <Property Name="Font" Value="BlueHighway-10" />
-                <Property Name="Text" >
-</Property>
+                <Property Name="ReadOnly" Value="True" />
                 <Property Name="MaxTextLength" Value="1073741823" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.0358,0},{0.217105,0},{0.955045,0},{0.901315,0}}" />
