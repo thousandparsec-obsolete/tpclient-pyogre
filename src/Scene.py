@@ -1,6 +1,7 @@
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
 import ogre.io.OIS as ois
+import math
 
 def setWidgetText(name, text):
 	wm = cegui.WindowManager.getSingleton()
@@ -365,7 +366,7 @@ class StarmapScene(MenuScene):
 			scale = 900000
 			pos = ogre.Vector3(object.pos[0]/scale, object.pos[1]/scale, object.pos[2]/scale)
 			#print object._subtype
-			print "creating", object.id, object.name, "at", pos
+			print "creating", object.id, object.name, object._subtype, "at", pos
 			
 			if object._subtype is 2:
 				node = self.rootNode.createChildSceneNode(pos)
@@ -378,6 +379,7 @@ class StarmapScene(MenuScene):
 				scale = 200/entity.mesh.boundingSphereRadius
 				entityNode.setScale(ogre.Vector3(scale,scale,scale))
 				entityNode.attachObject(entity)
+				#entityNode.setVisible(False)
 		
 				# Lens flare
 				billboardSet = self.flareBillboardSets[object.id % len(self.flareBillboardSets)]
@@ -395,6 +397,35 @@ class StarmapScene(MenuScene):
 				item.setSelectionColours(cegui.colour(0.9, 0.9, 0.9))
 				self.system_list.append(item)
 				listbox.addItem(item)
+
+			if object._subtype is 3:
+				# Get parent system and number of other planets
+				parent = self.objects[object.parent]
+				if not hasattr(parent, "children"):
+					parent.children = 0
+					index = 1
+					for i in self.objects.values():
+						if i._subtype is 3 and i.parent == object.parent:
+							i.index = index
+							index += 1
+							parent.children += 1
+
+				radius = 250
+				interval = (360 / parent.children) * object.index
+				x = radius * math.cos(interval)
+				y = radius * math.sin(interval)
+				pos.x += x
+				pos.y += y
+
+				node = self.rootNode.createChildSceneNode(pos)
+				self.nodes[object.id] = node
+				entityNode = node.createChildSceneNode(ogre.Vector3(0, 0, 0))
+				entity = self.sceneManager.createEntity("Object%i" % object.id, 'sphere.mesh')
+				entity.setMaterialName("Starmap/Planet")
+				entity.queryFlags = self.SELECTABLE
+				scale = 50/entity.mesh.boundingSphereRadius
+				entityNode.setScale(ogre.Vector3(scale,scale,scale))
+				entityNode.attachObject(entity)
 
 		for val in cache.messages[0]:
 			message = val.CurrentOrder

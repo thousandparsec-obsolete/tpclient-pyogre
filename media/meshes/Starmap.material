@@ -1,0 +1,13 @@
+material Starmap/Planet
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture terr_rock-dirt.jpg
+			}
+		}
+	}
+}
