@@ -235,7 +235,8 @@ class ObjectOverlay:
 	def update(self, camera):
 		entity = self.node.getAttachedObject(0)
 	
-		pos = self.node.worldPosition
+		#pos = self.node.worldPosition
+		pos =  self.node._getWorldAABB().getMaximum()
 		pos = camera.viewMatrix*pos
 		pos = camera.projectionMatrix*pos
 	
@@ -245,15 +246,16 @@ class ObjectOverlay:
 
 			pos /= 2
 
-			pos = ((0.5 + pos.x)*camera.viewport.actualWidth, (0.5 - pos.y)*camera.viewport.actualHeight)
+			pos = ((0.5 + pos.x)*(camera.viewport.actualWidth), (0.5 - pos.y)*camera.viewport.actualHeight)
 			self.panel.setPosition(pos[0], pos[1])
 		else:
 			if self.overlay.isVisible():
 				self.overlay.hide()
 
 	def setColour(self, ColourValue):
-		for overlay in (self.name, self.position):
-			overlay.colour = ColourValue
+		#for overlay in (self.name, self.position):
+			#overlay.colour = ColourValue
+		self.name.colour = ColourValue
 	def getColour(self):
 		return self.name.ColourValue
 	colour = property(getColour, setColour)
@@ -373,7 +375,7 @@ class StarmapScene(MenuScene):
 				entityNode = node.createChildSceneNode(ogre.Vector3(0, 0, 0))
 				entity = self.sceneManager.createEntity("Object%i" % object.id, 'sphere.mesh')
 				entity.queryFlags = self.SELECTABLE
-				scale = 50/entity.mesh.boundingSphereRadius
+				scale = 200/entity.mesh.boundingSphereRadius
 				entityNode.setScale(ogre.Vector3(scale,scale,scale))
 				entityNode.attachObject(entity)
 		
@@ -384,6 +386,7 @@ class StarmapScene(MenuScene):
 				# Text overlays
 				overlay = ObjectOverlay(entityNode, object)
 				overlay.show(overlay.name)
+				overlay.setColour(ogre.ColourValue(0.7, 0.9, 0.7))
 				self.overlays[object.id] = overlay
 
 				# Add to system list
