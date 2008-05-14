@@ -1,18 +1,25 @@
+import math
+
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
 import ogre.io.OIS as ois
-import math
 
 def setWidgetText(name, text):
+	"""Shortcut for setting CEGUI widget text.
+
+	Examples of widget text are window titles, edit box text and button captions.
+	"""
 	wm = cegui.WindowManager.getSingleton()
 	wm.getWindow(name).setText(text)
 
 def bindEvent(name, object, method, event):
+	"""Shortcut for binding a CEGUI widget event to a method"""
 	wm = cegui.WindowManager.getSingleton()
 	wm.getWindow(name).subscribeEvent(event, object, method)
 
 def bindButtonEvent(name, object, method):
 	bindEvent(name, object, method, cegui.PushButton.EventClicked)
+
 
 class Scene:
 	def __init__(self, parent, sceneManager):
@@ -379,7 +386,6 @@ class StarmapScene(MenuScene):
 				scale = 200/entity.mesh.boundingSphereRadius
 				entityNode.setScale(ogre.Vector3(scale,scale,scale))
 				entityNode.attachObject(entity)
-				#entityNode.setVisible(False)
 		
 				# Lens flare
 				billboardSet = self.flareBillboardSets[object.id % len(self.flareBillboardSets)]
@@ -399,19 +405,19 @@ class StarmapScene(MenuScene):
 				listbox.addItem(item)
 
 			if object._subtype is 3:
-				# Get parent system and number of other planets
+				# Get parent system and the number of other planets
 				parent = self.objects[object.parent]
-				if not hasattr(parent, "children"):
-					parent.children = 0
+				if not hasattr(parent, "planets"):
+					parent.planets = 0
 					index = 1
 					for i in self.objects.values():
 						if i._subtype is 3 and i.parent == object.parent:
 							i.index = index
 							index += 1
-							parent.children += 1
+							parent.planets += 1
 
 				radius = 250
-				interval = (360 / parent.children) * object.index
+				interval = (720 / parent.planets) * object.index
 				x = radius * math.cos(interval)
 				y = radius * math.sin(interval)
 				pos.x += x
@@ -427,6 +433,36 @@ class StarmapScene(MenuScene):
 				entityNode.setScale(ogre.Vector3(scale,scale,scale))
 				entityNode.attachObject(entity)
 
+			if object._subtype is 4:
+				# Get parent system and the number of other fleets
+				parent = self.objects[object.parent]
+				if not hasattr(parent, "fleets"):
+					parent.fleets = 0
+					index = 1
+					for i in self.objects.values():
+						if i._subtype is 4 and i.parent == object.parent:
+							i.index = index
+							index += 1
+							parent.fleets += 1
+
+				radius = 300
+				interval = (360 / parent.fleets) * object.index
+				x = radius * math.cos(interval)
+				y = radius * math.sin(interval)
+				pos.x += x
+				pos.y += y
+
+				node = self.rootNode.createChildSceneNode(pos)
+				self.nodes[object.id] = node
+				entityNode = node.createChildSceneNode(ogre.Vector3(0, 0, 0))
+				entity = self.sceneManager.createEntity("Object%i" % object.id, 'ship.mesh')
+				entity.queryFlags = self.SELECTABLE
+				scale = 50/entity.mesh.boundingSphereRadius
+				entityNode.setScale(ogre.Vector3(scale,scale,scale))
+				entityNode.attachObject(entity)
+				entityNode.yaw(ogre.Radian(1.57))
+				entityNode.roll(ogre.Radian(1.57))
+
 		for val in cache.messages[0]:
 			message = val.CurrentOrder
 			self.messages.append(message)
@@ -435,7 +471,7 @@ class StarmapScene(MenuScene):
 			self.setCurrentMessage(self.messages[self.message_index])
 
 		#self.autofit()
-	
+
 	def setCurrentMessage(self, message):
 		wm = cegui.WindowManager.getSingleton()
 		msgbox = wm.getWindow("Messages/Message")
