@@ -1,24 +1,25 @@
 #! /usr/bin/env python
 
+# Importing requirements automatically checks prerequisites
 import requirements
 
 import os
 import sys
+
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
 
 import Framework
 import Scene
+from tp.client.threads import NetworkThread
+from tp.client.threads import MediaThread, FinderThread
+from tp.client.threads import Application as ClientApplication
 
 def traceback():
 	import sys, traceback, string
 	type, val, tb = sys.exc_info()
 	sys.stderr.write(string.join(traceback.format_exception(type, val, tb), ''))
 	sys.stderr.flush()
-
-def _PointHack(x, y):
-	return cegui.Vector2(x, y)
-cegui.Point = _PointHack
 
 class GUI(Framework.Application):
 	def __init__(self, application):
@@ -70,7 +71,7 @@ class GUI(Framework.Application):
 	def _createFrameListener(self):
 		self.frameListener = Framework.CEGUIFrameListener(self, self.renderWindow, self.camera)
 		self.root.addFrameListener(self.frameListener)
-		self.frameListener.showDebugOverlay(True)
+		self.frameListener.showDebugOverlay(False)
 
 	def __del__(self):
 		"Clear variables, this is needed to ensure the correct order of deletion"
@@ -132,10 +133,6 @@ class GUI(Framework.Application):
 		self.currentScene = scene
 		self.currentScene.show()
 
-from tp.client.threads import NetworkThread
-from tp.client.threads import MediaThread, FinderThread
-from tp.client.threads import Application as ClientApplication
-
 class Network(NetworkThread):
 	## These are network events
 	class NetworkFailureEvent(Exception):
@@ -158,7 +155,6 @@ class Network(NetworkThread):
 			print args, kw
 		
 		gui = self.application.gui
-		gui.Call(gui.changeScene, gui.login)
 		NetworkThread.CacheUpdate(self, callback)
 		gui.Call(gui.changeScene, gui.starmap)
 		self.application.Post(self.application.cache.CacheUpdateEvent(None))

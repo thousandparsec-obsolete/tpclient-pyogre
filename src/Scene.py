@@ -437,11 +437,42 @@ class StarmapScene(MenuScene):
 		self.autofit()
 
 	def recreate(self, cache):
-		"""If scene is already created then just update objects"""
+		"""Update locations of objects
+		
+		Assumes stars and planet locations do not change.
+		"""
 		print "Updating starmap"
+		self.objects = cache.objects
 
 		for object in cache.objects.values():
-			pass
+			pos = ogre.Vector3(object.pos[0]/self.distance_scale, 
+					object.pos[1]/self.distance_scale, 
+					object.pos[2]/self.distance_scale)
+
+			print "updating", object.id, object.name, object._subtype, "at", pos
+
+			if object._subtype is 4:
+				# Get parent system and the number of other fleets
+				# FIXME: What if a fleet is destroyed
+				parent = self.objects[object.parent]
+				if not hasattr(parent, "fleets") or not hasattr(object, "index"):
+					parent.fleets = 0
+					index = 1
+					for i in self.objects.values():
+						if i._subtype is 4 and i.parent == object.parent:
+							i.index = index
+							index += 1
+							parent.fleets += 1
+
+				radius = 200
+				interval = (360 / parent.fleets) * object.index
+				x = radius * math.cos(interval)
+				y = radius * math.sin(interval)
+				pos.x += x
+				pos.y += y
+
+				node = self.nodes[object.id]
+				node.setPosition(pos)
 
 	def setCurrentMessage(self, message):
 		"""Sets message text inside message window"""
