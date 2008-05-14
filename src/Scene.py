@@ -577,8 +577,8 @@ class StarmapScene(MenuScene):
 	
 	def mouseMoved(self, evt):
 		"""
-		If the right mouse is down roll/pitch for camera changes.
-		If the left mouse button is down pan the screen
+		If the middle mouse button is down pan the screen.
+		Scrolling the mousewheel will zoom in and out.
 		"""
 		state = evt.get_state()
 
@@ -586,16 +586,17 @@ class StarmapScene(MenuScene):
 		#if self.mouseDelta.length > self.toleranceDelta:
 			#cegui.MouseCursor.getSingleton().hide()
 
-		if state.buttonDown(ois.MB_Right):
-			# This won't introduce roll as setFixedYawAxis is True
-			#self.camera.yaw(ogre.Radian(ogre.Degree(-state.X.rel * self.rotateSpeed)))
-			#self.camera.pitch(ogre.Radian(ogre.Degree(-state.Y.rel * self.rotateSpeed)))
+		if state.buttonDown(ois.MB_Middle):
 			self.camera.moveRelative(
 				ogre.Vector3(state.X.rel * self.panSpeed, -state.Y.rel * self.panSpeed, 0))
 		
-		elif state.buttonDown(ois.MB_Left):
+		elif state.Z.rel < 0:
 			self.camera.moveRelative(
-				ogre.Vector3(state.X.rel * self.panSpeed, 0, state.Y.rel * self.panSpeed))
+				ogre.Vector3(0, 0, 2 * self.panSpeed))
+
+		elif state.Z.rel > 0:
+			self.camera.moveRelative(
+				ogre.Vector3(0, 0, -2 * self.panSpeed))
 
 		else:
 			x = float(state.X.abs) / float(state.width)
