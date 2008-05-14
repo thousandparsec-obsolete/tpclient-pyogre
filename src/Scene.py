@@ -17,9 +17,6 @@ def bindEvent(name, object, method, event):
 	wm = cegui.WindowManager.getSingleton()
 	wm.getWindow(name).subscribeEvent(event, object, method)
 
-def bindButtonEvent(name, object, method):
-	bindEvent(name, object, method, cegui.PushButton.EventClicked)
-
 
 class Scene:
 	def __init__(self, parent, sceneManager):
@@ -144,9 +141,9 @@ class LoginScene(MenuScene):
 		self.guiSystem.getGUISheet().addChildWindow(login)
 		self.windows.append(login)
 
-		bindButtonEvent("Login/LoginButton", self, "onConnect")
-		bindButtonEvent("Login/ConfigButton", self, "onConfig")
-		bindButtonEvent("Login/QuitButton", self, "onQuit")
+		bindEvent("Login/LoginButton", self, "onConnect", cegui.PushButton.EventClicked)
+		bindEvent("Login/ConfigButton", self, "onConfig", cegui.PushButton.EventClicked)
+		bindEvent("Login/QuitButton", self, "onQuit", cegui.PushButton.EventClicked)
 
 		self.hide()
 
@@ -166,10 +163,6 @@ class LoginScene(MenuScene):
 		host = wm.getWindow("Login/Server").getText().c_str()
 		username = wm.getWindow("Login/Username").getText().c_str()
 		password = wm.getWindow("Login/Password").getText().c_str()
-		#host = "demo2.thousandparsec.net"
-		#host = "localhost"
-		#username = "test"
-		#password = "12345"
 		
 		print "onConnect", host, username, password
 		self.parent.application.network.Call( \
@@ -275,6 +268,7 @@ class StarmapScene(MenuScene):
 	panSpeed = 500
 	rotateSpeed = 5
 	toleranceDelta = 0.001
+	distance_scale = 900000
 
 	def __init__(self, parent, sceneManager):
 		Scene.__init__(self, parent, sceneManager)
@@ -304,6 +298,7 @@ class StarmapScene(MenuScene):
 		self.overlays = {}
 		self.messages = []
 		self.message_index = 0
+		self.created = False
 
 		wm = cegui.WindowManager.getSingleton()
 
@@ -312,53 +307,19 @@ class StarmapScene(MenuScene):
 		self.windows.append(system)
 
 		# Bind gui events
-		bindButtonEvent("Windows/Information", self, "onWindowToggle")
-		bindButtonEvent("Windows/Orders", self, "onWindowToggle")
-		bindButtonEvent("Windows/Messages", self, "onWindowToggle")
-		bindButtonEvent("Windows/System", self, "onWindowToggle")
-		bindButtonEvent("Messages/Next", self, "onNextMessage")
-		bindButtonEvent("Messages/Prev", self, "onPrevMessage")
+		bindEvent("Windows/Information", self, "onWindowToggle", cegui.PushButton.EventClicked)
+		bindEvent("Windows/Orders", self, "onWindowToggle", cegui.PushButton.EventClicked)
+		bindEvent("Windows/Messages", self, "onWindowToggle", cegui.PushButton.EventClicked)
+		bindEvent("Windows/System", self, "onWindowToggle", cegui.PushButton.EventClicked)
+		bindEvent("Messages/Next", self, "onNextMessage", cegui.PushButton.EventClicked)
+		bindEvent("Messages/Prev", self, "onPrevMessage", cegui.PushButton.EventClicked)
 
 		bindEvent("System/SystemList", self, "onSystemSelected", cegui.Listbox.EventSelectionChanged)
 
 		self.hide()
 	
-	def onNextMessage(self, evt):
-		if self.message_index < len(self.messages) - 1:
-			self.message_index += 1
-			self.setCurrentMessage(self.messages[self.message_index])
-
-	def onPrevMessage(self, evt):
-		if self.message_index > 0:
-			self.message_index -= 1
-			self.setCurrentMessage(self.messages[self.message_index])
-
-	def onSystemSelected(self, evt):
-		wm = cegui.WindowManager.getSingleton()
-		listbox = wm.getWindow("System/SystemList")
-		selected = listbox.getFirstSelectedItem()
-		for obj in self.objects.values():
-			if obj.name == selected.text:
-				self.updateInformation(obj)
-				break
-
-	def onWindowToggle(self, evt):
-		wm = cegui.WindowManager.getSingleton()
-		# assume buttons and windows have the same name, minus prefix
-		name = evt.window.getName().c_str().split("/")[1]
-		if name != None:
-			window = wm.getWindow(name)
-			window.setVisible(not window.isVisible())
-
-	def onNetworkRemaining(self, evt):
-		print "onNetworkRemaining"
-
-	def onCacheUpdate(self, evt):
-		print "onCacheUpdate"
-		if evt.what is None:
-			self.create(self.parent.application.cache)
-	
 	def create(self, cache):
+		"""Creates list of objects from cache"""
 		print "creating the starmap"
 		self.objects = cache.objects
 		self.nodes = {}
@@ -370,9 +331,10 @@ class StarmapScene(MenuScene):
 		listbox = cegui.WindowManager.getSingleton().getWindow("System/SystemList")
 
 		for object in self.objects.values():
-			scale = 900000
-			pos = ogre.Vector3(object.pos[0]/scale, object.pos[1]/scale, object.pos[2]/scale)
-			#print object._subtype
+			pos = ogre.Vector3(object.pos[0]/self.distance_scale, 
+					object.pos[1]/self.distance_scale, 
+					object.pos[2]/self.distance_scale)
+
 			print "creating", object.id, object.name, object._subtype, "at", pos
 			
 			if object._subtype is 2:
@@ -383,8 +345,8 @@ class StarmapScene(MenuScene):
 				entityNode = node.createChildSceneNode(ogre.Vector3(0, 0, 0))
 				entity = self.sceneManager.createEntity("Object%i" % object.id, 'sphere.mesh')
 				entity.queryFlags = self.SELECTABLE
-				scale = 200/entity.mesh.boundingSphereRadius
-				entityNode.setScale(ogre.Vector3(scale,scale,scale))
+				obj_scale = 100/entity.mesh.boundingSphereRadius
+				entityNode.setScale(ogre.Vector3(obj_scale,obj_scale,obj_scale))
 				entityNode.attachObject(entity)
 		
 				# Lens flare
@@ -416,7 +378,7 @@ class StarmapScene(MenuScene):
 							index += 1
 							parent.planets += 1
 
-				radius = 250
+				radius = 100
 				interval = (720 / parent.planets) * object.index
 				x = radius * math.cos(interval)
 				y = radius * math.sin(interval)
@@ -429,14 +391,14 @@ class StarmapScene(MenuScene):
 				entity = self.sceneManager.createEntity("Object%i" % object.id, 'sphere.mesh')
 				entity.setMaterialName("Starmap/Planet")
 				entity.queryFlags = self.SELECTABLE
-				scale = 50/entity.mesh.boundingSphereRadius
-				entityNode.setScale(ogre.Vector3(scale,scale,scale))
+				obj_scale = 50/entity.mesh.boundingSphereRadius
+				entityNode.setScale(ogre.Vector3(obj_scale,obj_scale,obj_scale))
 				entityNode.attachObject(entity)
 
 			if object._subtype is 4:
 				# Get parent system and the number of other fleets
 				parent = self.objects[object.parent]
-				if not hasattr(parent, "fleets"):
+				if not hasattr(parent, "fleets") or not hasattr(object, "index"):
 					parent.fleets = 0
 					index = 1
 					for i in self.objects.values():
@@ -445,7 +407,7 @@ class StarmapScene(MenuScene):
 							index += 1
 							parent.fleets += 1
 
-				radius = 300
+				radius = 200
 				interval = (360 / parent.fleets) * object.index
 				x = radius * math.cos(interval)
 				y = radius * math.sin(interval)
@@ -457,8 +419,8 @@ class StarmapScene(MenuScene):
 				entityNode = node.createChildSceneNode(ogre.Vector3(0, 0, 0))
 				entity = self.sceneManager.createEntity("Object%i" % object.id, 'ship.mesh')
 				entity.queryFlags = self.SELECTABLE
-				scale = 50/entity.mesh.boundingSphereRadius
-				entityNode.setScale(ogre.Vector3(scale,scale,scale))
+				obj_scale = 50/entity.mesh.boundingSphereRadius
+				entityNode.setScale(ogre.Vector3(obj_scale,obj_scale,obj_scale))
 				entityNode.attachObject(entity)
 				entityNode.yaw(ogre.Radian(1.57))
 				entityNode.roll(ogre.Radian(1.57))
@@ -470,9 +432,19 @@ class StarmapScene(MenuScene):
 		if len(self.messages) > 0:
 			self.setCurrentMessage(self.messages[self.message_index])
 
-		#self.autofit()
+		self.created = True
+
+		self.autofit()
+
+	def recreate(self, cache):
+		"""If scene is already created then just update objects"""
+		print "Updating starmap"
+
+		for object in cache.objects.values():
+			pass
 
 	def setCurrentMessage(self, message):
+		"""Sets message text inside message window"""
 		wm = cegui.WindowManager.getSingleton()
 		msgbox = wm.getWindow("Messages/Message")
 		text = "Subject: " + message.subject + "\n"
@@ -481,6 +453,7 @@ class StarmapScene(MenuScene):
 		msgbox.setText(text)
 
 	def autofit(self):
+		"""Zooms out until all stars are visible"""
 		fit = False
 		self.camera.setPosition(ogre.Vector3(0,0,0))
 		while not fit:
@@ -497,6 +470,66 @@ class StarmapScene(MenuScene):
 		for overlay in self.overlays.values():
 			overlay.update(camera)
 		return True
+
+	def setInformationText(self, object):
+		"""Sets text inside information window"""
+		wm = cegui.WindowManager.getSingleton()
+		infobox = wm.getWindow("Information/Text")
+		text = "modify time: " + object.modify_time.ctime() + "\n"
+		text += "name: " + object.name + "\n"
+		text += "parent: " + str(object.parent) + "\n"
+		text += "position: " + str(object.pos) + "\n"
+		text += "velocity: " + str(object.vel) + "\n"
+		text += "id: " + str(object.id) + "\n"
+		text += "size: " + str(object.size) + "\n"
+		infobox.setText(text)
+
+	def onNetworkTimeRemaining(self, evt):
+		print "onNetworkRemaining"
+		print evt.remaining
+		if evt.remaining == 0:
+			print "End of turn"
+			network = self.parent.application.network
+			network.Call(network.CacheUpdate)
+
+	def onCacheUpdate(self, evt):
+		print "onCacheUpdate"
+		if evt.what is None:
+			if self.created:
+				self.recreate(self.parent.application.cache)
+			else:
+				self.create(self.parent.application.cache)
+
+	def onNextMessage(self, evt):
+		"""Sets messagebox to the next message if available"""
+		if self.message_index < len(self.messages) - 1:
+			self.message_index += 1
+			self.setCurrentMessage(self.messages[self.message_index])
+
+	def onPrevMessage(self, evt):
+		"""Sets messagebox to the previous message if available"""
+		if self.message_index > 0:
+			self.message_index -= 1
+			self.setCurrentMessage(self.messages[self.message_index])
+
+	def onSystemSelected(self, evt):
+		"""Updates information box with selected system info"""
+		wm = cegui.WindowManager.getSingleton()
+		listbox = wm.getWindow("System/SystemList")
+		selected = listbox.getFirstSelectedItem()
+		for obj in self.objects.values():
+			if obj.name == selected.text:
+				self.setInformationText(obj)
+				break
+
+	def onWindowToggle(self, evt):
+		"""Toggles visibility of a window"""
+		wm = cegui.WindowManager.getSingleton()
+		# assume buttons and windows have the same name, minus prefix
+		name = evt.window.getName().c_str().split("/")[1]
+		if name != None:
+			window = wm.getWindow(name)
+			window.setVisible(not window.isVisible())
 
 	def mousePressed(self, evt, id):
 		print self, "mousePressed"
@@ -607,19 +640,7 @@ class StarmapScene(MenuScene):
 	def mouseSelectObject(self, id):
 		print "SelectObject", id
 		if id != None:
-			self.updateInformation(self.objects[id])
-
-	def updateInformation(self, object):
-		wm = cegui.WindowManager.getSingleton()
-		infobox = wm.getWindow("Information/Text")
-		text = "modify time: " + object.modify_time.ctime() + "\n"
-		text += "name: " + object.name + "\n"
-		text += "parent: " + str(object.parent) + "\n"
-		text += "position: " + str(object.pos) + "\n"
-		text += "velocity: " + str(object.vel) + "\n"
-		text += "id: " + str(object.id) + "\n"
-		text += "size: " + str(object.size) + "\n"
-		infobox.setText(text)
+			self.setInformationText(self.objects[id])
 
 	def keyPressed(self, evt):
 		if evt.key == ois.KC_A:
