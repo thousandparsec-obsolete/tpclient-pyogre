@@ -496,6 +496,13 @@ class StarmapScene(MenuScene):
 				if not self.camera.isVisible(object.getPosition()):
 					fit = False
 
+	def center(self, id):
+		"""Center on an object identified by object id"""
+		node = self.nodes[id]
+		pos = node.getPosition()
+		cam = self.camera.getPosition()
+		self.camera.setPosition(ogre.Vector3(pos.x,pos.x,cam.z))
+
 	def update(self, evt):
 		camera = self.sceneManager.getCamera( 'PlayerCam' )
 		for overlay in self.overlays.values():
@@ -677,6 +684,10 @@ class StarmapScene(MenuScene):
 	def keyPressed(self, evt):
 		if evt.key == ois.KC_A:
 			self.autofit()
+		if evt.key == ois.KC_C:
+			if self.currentObject:
+				id = long(self.currentObject.getName()[6:])
+				self.center(id)
 
 	def mode(self, modes):
 		if self.OWNERS in modes:
