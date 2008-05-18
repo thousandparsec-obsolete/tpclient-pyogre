@@ -702,6 +702,10 @@ class StarmapScene(MenuScene):
 			self.camera.moveRelative(ogre.Vector3(0, self.scrollSpeed, 0))
 		if keyboard.isKeyDown(ois.KC_DOWN):
 			self.camera.moveRelative(ogre.Vector3(0, -self.scrollSpeed, 0))
+		if keyboard.isKeyDown(ois.KC_EQUALS):
+			self.camera.moveRelative(ogre.Vector3(0, 0, -self.scrollSpeed))
+		if keyboard.isKeyDown(ois.KC_MINUS):
+			self.camera.moveRelative(ogre.Vector3(0, 0, self.scrollSpeed))
 
 	def mode(self, modes):
 		if self.OWNERS in modes:
