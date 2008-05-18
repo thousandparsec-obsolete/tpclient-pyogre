@@ -95,6 +95,9 @@ class Scene:
 	def keyReleased(self, evt):
 		return False
 
+	def keyDown(self, keyboard):
+		return False
+
 class MenuScene(Scene):
 	"""
 	Menu Scenes all share a common background. The state of the 
@@ -269,6 +272,7 @@ class StarmapScene(MenuScene):
 	rotateSpeed = 5
 	toleranceDelta = 0.001
 	distance_scale = 900000
+	scrollSpeed = 100
 
 	def __init__(self, parent, sceneManager):
 		Scene.__init__(self, parent, sceneManager)
@@ -688,6 +692,16 @@ class StarmapScene(MenuScene):
 			if self.currentObject:
 				id = long(self.currentObject.getName()[6:])
 				self.center(id)
+
+	def keyDown(self, keyboard):
+		if keyboard.isKeyDown(ois.KC_LEFT):
+			self.camera.moveRelative(ogre.Vector3(-self.scrollSpeed, 0, 0))
+		if keyboard.isKeyDown(ois.KC_RIGHT):
+			self.camera.moveRelative(ogre.Vector3(self.scrollSpeed, 0, 0))
+		if keyboard.isKeyDown(ois.KC_UP):
+			self.camera.moveRelative(ogre.Vector3(0, self.scrollSpeed, 0))
+		if keyboard.isKeyDown(ois.KC_DOWN):
+			self.camera.moveRelative(ogre.Vector3(0, -self.scrollSpeed, 0))
 
 	def mode(self, modes):
 		if self.OWNERS in modes:

@@ -246,6 +246,7 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 
 			if self.enableKeyboard and self.keyboard != None:
 				self.keyboard.capture()
+				self.keyDown()
 		
 		return self.application.currentScene.update(evt) and self.keepRendering
 
@@ -308,6 +309,9 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 		system = cegui.System.getSingleton()
 		system.injectKeyUp(evt.key) \
 			or self.application.currentScene.keyReleased(evt)
+
+	def keyDown(self):
+		self.application.currentScene.keyDown(self.keyboard)
 
 	def _convertOgreButtonToCegui(self, buttonID):
 		# Convert ogre button to cegui button
