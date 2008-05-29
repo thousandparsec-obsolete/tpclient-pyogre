@@ -322,6 +322,9 @@ class StarmapScene(MenuScene):
 		bindEvent("Messages/Next", self, "onNextMessage", cegui.PushButton.EventClicked)
 		bindEvent("Messages/Prev", self, "onPrevMessage", cegui.PushButton.EventClicked)
 
+		for window in ['Messages', 'Orders', 'System', 'Information']:
+			bindEvent(window, self, "onCloseClicked", cegui.FrameWindow.EventCloseClicked)
+
 		bindEvent("System/SystemList", self, "onSystemSelected", cegui.Listbox.EventSelectionChanged)
 
 		self.hide()
@@ -570,6 +573,9 @@ class StarmapScene(MenuScene):
 			if obj.name == selected.text:
 				self.setInformationText(obj)
 				break
+
+	def onCloseClicked(self, evt):
+		evt.window.setVisible(not evt.window.isVisible())
 
 	def onWindowToggle(self, evt):
 		"""Toggles visibility of a window"""
