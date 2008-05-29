@@ -4,7 +4,8 @@ import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
 import ogre.io.OIS as ois
 
-from tp.netlib.objects import OrderDescs
+from tp.netlib.objects import OrderDescs, Order
+from tp.netlib.objects.constants import *
 from tp.client.threads import NetworkThread
 
 def setWidgetText(name, text):
@@ -662,15 +663,35 @@ class StarmapScene(MenuScene):
 						return self.mouseSelectObject(oid)
 					if id == ois.MB_Right:
 						if self.currentObject:
-							current_id = self.currentObject.getName()[6:]
+							current_id = long(self.currentObject.getName()[6:])
 							object = self.objects[current_id]
+							if object.subtype == 4:
+								target = self.objects[oid]
+								descs = OrderDescs()
+								for order_type in object.order_types:
+									if not descs.has_key(order_type):
+										continue
+									descclass = descs[order_type]
+									if descclass._name in ['Move', 'Move To', 'Intercept']:
+										orderargs = [0, current_id, -1, descclass.subtype, 0, []]
+										for name, t in descclass.names:
+											if t is ARG_ABS_COORD:
+												orderargs.append(target.pos)
+										order = descclass(*orderargs)
+
+										cache = self.parent.application.cache
+										network = self.parent.application.network
+										node = cache.orders[current_id].first
+										evt = cache.apply("orders", "create after", current_id, node, order)
+										network.Call(network.OnCacheDirty, evt)
+										break
 			return self.mouseSelectObject(None)
 	
 	def mouseSelectObject(self, id):
 		print "SelectObject", id
 		if id != None:
-			self.setInformationText(self.objects[id])
 			object = self.objects[id]
+			self.setInformationText(object)
 
 			if object.order_number > 0 or len(object.order_types) > 0:
 				wm = cegui.WindowManager.getSingleton()
