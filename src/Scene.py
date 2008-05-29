@@ -8,6 +8,8 @@ from tp.netlib.objects import OrderDescs, Order
 from tp.netlib.objects.constants import *
 from tp.client.threads import NetworkThread
 
+import overlay
+
 def setWidgetText(name, text):
 	"""Shortcut for setting CEGUI widget text.
 
@@ -22,7 +24,13 @@ def bindEvent(name, object, method, event):
 	wm.getWindow(name).subscribeEvent(event, object, method)
 
 
-class Scene:
+class Scene(object):
+	"""Displays a scene for the user.
+
+	Can be swapped with other scenes using the show and hide methods.
+
+	"""
+
 	def __init__(self, parent, sceneManager):
 		self.parent = parent
 		self.guiSystem = parent.guiSystem
@@ -36,9 +44,7 @@ class Scene:
 		self.windows = []
 	
 	def show(self):
-		"""
-		Called when this SceneManager is being displayed.
-		"""
+		"""Called when this SceneManager is being displayed"""
 		# Attach the root node
 		self.sceneManager.rootSceneNode.addChild(self.rootNode)
 	
@@ -56,9 +62,7 @@ class Scene:
 		self.camera = camera
 	
 	def hide(self):
-		"""
-		Called when this SceneManager is no longer being displayed.
-		"""
+		"""Called when this SceneManager is no longer being displayed"""
 		# Save camera position and orientation
 		self.position = self.camera.position
 		self.orientation = self.camera.orientation
@@ -75,6 +79,7 @@ class Scene:
 		self.sceneManager.rootSceneNode.removeChild(self.rootNode)
 
 	def update(self, evt):
+		"""Update is called every frame"""
 		return True
 	
 	# Note, the GUI system always gets fed before the Scene does
@@ -103,10 +108,12 @@ class Scene:
 		return False
 
 class MenuScene(Scene):
+	"""Menu Scenes all share a common backdrop
+	
+	The state of the background is preserved across Menu Scenes
+
 	"""
-	Menu Scenes all share a common background. The state of the 
-	background is preserved accross Menu Scenes.
-	"""
+
 	def setPosition(self, position):
 		MenuScene.position = position
 	position = property(fset=setPosition)
@@ -130,11 +137,6 @@ class MenuScene(Scene):
 
 		return True
 
-	def keyPressed(self, evt):
-		if evt.key == ois.KC_A:
-			
-			print "A!"
-
 class LoginScene(MenuScene):
 	def __init__(self, parent, sceneManager):
 		Scene.__init__(self, parent, sceneManager)
@@ -155,6 +157,7 @@ class LoginScene(MenuScene):
 		self.hide()
 
 	def onFoundRemoteGame(self, evt):
+		"""Called when a remote game is found from the metaserver"""
 		print "found remote game"
 		location = evt.game.locations["tp"][0][0]
 		print location
@@ -165,6 +168,7 @@ class LoginScene(MenuScene):
 		combobox.addItem(item)
 
 	def onConnect(self, evt):
+		"""Called when user clicks on the login button"""
 		wm = cegui.WindowManager.getSingleton()
 		
 		host = wm.getWindow("Login/Server").getText().c_str()
@@ -176,97 +180,23 @@ class LoginScene(MenuScene):
 				self.parent.application.network.ConnectTo, host, username, password, True)
 
 	def onConfig(self, evt):
+		"""Called when user clicks on the config button"""
 		print "onConfig"
 		wm = cegui.WindowManager.getSingleton()
 
 	def onQuit(self, evt):
+		"""Called when user clicks on the quit button"""
 		print "onQuit"
 		self.parent.Cleanup()
 
 	def setServer(self, host):
+		"""Sets the initial value of the host input field"""
 		setWidgetText("Login/Server", host)
 
 class ConfigScene(MenuScene):
 	def __init__(self, parent, sceneManager):
 		Scene.__init__(self, parent, sceneManager)
-
-		#login = cegui.WindowManager.getSingleton().loadWindowLayout("config.layout")
-		#self.guiSystem.guiSheet.addChildWindow(login)
-		#self.windows.append(login)
-
 		self.hide()
-
-class ObjectOverlay:
-	def __init__(self, node, object):
-		self.node = node
-		self.entity = "Object%i" % object.id
-		self.active = []
-
-		overlayManager = ogre.OverlayManager.getSingleton()
-		panel = overlayManager.createOverlayElement("Panel", "Panel%i" % object.id)
-		panel.metricsMode = ogre.GMM_PIXELS
-		# FIXME: This should be calculated...
-		panel.dimensions = (100, 100)
-		self.panel = panel
-	
-		name = overlayManager.createOverlayElement("TextArea", "Name%i" % object.id)
-		name.metricsMode = ogre.GMM_PIXELS
-		name.charHeight = 16
-		name.fontName = "Tahoma-12"
-		name.caption = object.name
-		self.name = name
-
-		#position = overlayManager.createOverlayElement("TextArea", "Position%i" % object.id)
-		#position.metricsMode = ogre.GMM_PIXELS
-		#position.setPosition(0, 16)
-		#position.charHeight = 16
-		#position.fontName = "Tahoma-12"
-		#position.caption = "%i, %i, %i" % object.pos
-		#self.position = position
-
-		self.overlay = overlayManager.create("Overlay%i" % object.id)
-		self.overlay.add2D(self.panel)
-
-		# WARN: This needs to happen after the panel is added to an overlay
-		panel.addChild(name)
-		#panel.addChild(position)
-
-	def show(self, *which):
-		for text in self.active:
-			text.hide()
-
-		self.active = which
-
-		for text in self.active:
-			text.show()
-
-	def update(self, camera):
-		entity = self.node.getAttachedObject(0)
-	
-		#pos = self.node.worldPosition
-		pos =  self.node._getWorldAABB().getMaximum()
-		pos = camera.viewMatrix*pos
-		pos = camera.projectionMatrix*pos
-	
-		if abs(pos[0]) < 1 and abs(pos[1]) < 1 and pos[2] < 1 and entity.visible:
-			if not self.overlay.isVisible():
-				self.overlay.show()
-
-			pos /= 2
-
-			pos = ((0.5 + pos.x)*(camera.viewport.actualWidth), (0.5 - pos.y)*camera.viewport.actualHeight)
-			self.panel.setPosition(pos[0], pos[1])
-		else:
-			if self.overlay.isVisible():
-				self.overlay.hide()
-
-	def setColour(self, ColourValue):
-		#for overlay in (self.name, self.position):
-			#overlay.colour = ColourValue
-		self.name.colour = ColourValue
-	def getColour(self):
-		return self.name.ColourValue
-	colour = property(getColour, setColour)
 
 class StarmapScene(MenuScene):
 	SELECTABLE = 2**1
@@ -339,7 +269,8 @@ class StarmapScene(MenuScene):
 		self.message_index = 0
 		self.system_list = []
 
-		listbox = cegui.WindowManager.getSingleton().getWindow("System/SystemList")
+		wm = cegui.WindowManager.getSingleton()
+		listbox = wm.getWindow("System/SystemList")
 
 		for object in self.objects.values():
 			pos = ogre.Vector3(object.pos[0]/self.distance_scale, 
@@ -365,10 +296,10 @@ class StarmapScene(MenuScene):
 				billboard = billboardSet.createBillboard(pos, ogre.ColourValue.White)
 		
 				# Text overlays
-				overlay = ObjectOverlay(entityNode, object)
-				overlay.show(overlay.name)
-				overlay.setColour(ogre.ColourValue(0.7, 0.9, 0.7))
-				self.overlays[object.id] = overlay
+				label = overlay.ObjectOverlay(entityNode, object)
+				label.show(label.name)
+				label.setColour(ogre.ColourValue(0.7, 0.9, 0.7))
+				self.overlays[object.id] = label
 
 				# Add to system list
 				item = cegui.ListboxTextItem(object.name)
@@ -516,8 +447,8 @@ class StarmapScene(MenuScene):
 
 	def update(self, evt):
 		camera = self.sceneManager.getCamera( 'PlayerCam' )
-		for overlay in self.overlays.values():
-			overlay.update(camera)
+		for label in self.overlays.values():
+			label.update(camera)
 		return True
 
 	def setInformationText(self, object):
@@ -534,6 +465,7 @@ class StarmapScene(MenuScene):
 		infobox.setText(text)
 
 	def onNetworkTimeRemaining(self, evt):
+		"""Called whenever a NetworkTimeRemaining packet is received"""
 		print "onNetworkRemaining"
 		print evt.remaining
 		if evt.remaining == 0:
@@ -542,9 +474,11 @@ class StarmapScene(MenuScene):
 			network.Call(network.CacheUpdate)
 
 	def onNetworkFailure(self, evt):
+		"""Called whenever a NetworkFailure packet is received"""
 		print "onNetworkFailure"
 
 	def onCacheUpdate(self, evt):
+		"""Called whever the cache is updated"""
 		print "onCacheUpdate"
 		if evt.what is None:
 			if self.created:
@@ -575,6 +509,7 @@ class StarmapScene(MenuScene):
 				break
 
 	def onCloseClicked(self, evt):
+		"""Called when user clicks on the close button of a window"""
 		evt.window.setVisible(not evt.window.isVisible())
 
 	def onWindowToggle(self, evt):
@@ -591,9 +526,11 @@ class StarmapScene(MenuScene):
 		self.mouseDelta -= self.mouseDelta
 	
 	def mouseMoved(self, evt):
-		"""
+		"""Handles the MouseMoved event
+
 		If the middle mouse button is down pan the screen.
 		Scrolling the mousewheel will zoom in and out.
+
 		"""
 		state = evt.get_state()
 

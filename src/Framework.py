@@ -1,11 +1,14 @@
 import os
+
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
 import ogre.io.OIS as ois
+
 import console
 
 class Application(object):
-	"This class is the base for an Ogre application."
+	"""This class is the base for an Ogre application"""
+
 	def __init__(self):
 		self.frameListener = None
 		self.root = None
@@ -14,7 +17,7 @@ class Application(object):
 		self.sceneManager = None
 
 	def __del__(self):
-		"Clear variables, this should not actually be needed."
+		"""Clear variables, this should not actually be needed"""
 		del self.camera
 		del self.sceneManager
 		del self.frameListener
@@ -22,7 +25,7 @@ class Application(object):
 		del self.renderWindow
 
 	def go(self):
-		"Starts the rendering loop."
+		"""Starts the rendering loop"""
 		if not self._setUp():
 			return
 		if self._isPsycoEnabled():
@@ -30,8 +33,11 @@ class Application(object):
 		self.root.startRendering()
 
 	def _setUp(self):
-		"""This sets up the ogre application, and returns false if the user
-		hits "cancel" in the dialog box."""
+		"""This sets up the ogre application
+
+		Returns false if the user hits "cancel" in the dialog box.
+		
+		"""
 		self.root = ogre.Root("plugins.cfg", "ogre.cfg")
 
 		self._setUpResources()
@@ -52,8 +58,7 @@ class Application(object):
 		return True
 
 	def _setUpResources(self):
-		"""This sets up Ogre's resources, which are required to be in
-		resources.cfg."""
+		"""This sets up Ogre's resources, which are required to be in resources.cfg"""
 		config = ogre.ConfigFile()
 		config.load('resources.cfg')
 		seci = config.getSectionIterator()
@@ -66,17 +71,19 @@ class Application(object):
 				ogre.ResourceGroupManager.getSingleton().addResourceLocation(archName, typeName, secName)
 
 	def _createResourceListener(self):
-		"""This method is here if you want to add a resource listener to check
-		the status of resources loading."""
+		"""Override to add a resource listener to check the status of resources loading"""
 		pass
 
 	def _loadResources(self):
-		"""This loads all initial resources.  Redefine this if you do not want
-		to load all resources at startup."""
+		"""This loads all initial resources
+		
+		Redefine this if you do not want to load all resources at startup.
+		
+		"""
 		ogre.ResourceGroupManager.getSingleton().initialiseAllResourceGroups()
 
 	def _configure(self):
-		"""This shows the config dialog and creates the renderWindow."""
+		"""This shows the config dialog and creates the render window"""
 		if os.path.exists("ogre.cfg"):
 			carryOn = self.root.restoreConfig()
 		else:
@@ -87,27 +94,31 @@ class Application(object):
 		return carryOn
 
 	def _chooseSceneManager(self):
-		"""Chooses a default SceneManager."""
+		"""Chooses a default scene manager"""
 		self.sceneManager = self.root.createSceneManager(ogre.ST_GENERIC, "DefaultSM")
 
 	def _createCamera(self):
-		"""Creates the camera."""		
+		"""Creates the camera"""		
 		self.camera = self.sceneManager.createCamera('PlayerCam')
 		self.camera.position = (0, 0, 500)
 		self.camera.lookAt((0, 0, -300))
 		self.camera.nearClipDistance = 5
 
 	def _createViewports(self):
-		"""Creates the Viewport."""
+		"""Creates the viewport"""
 		self.viewport = self.renderWindow.addViewport(self.camera)
 		self.viewport.backgroundColour = (0,0,0)
 		
 	def _createScene(self):
-		"""Creates the scene.  Override this with initial scene contents."""
+		"""Creates the scene
+		
+		Override this with initial scene contents.
+		
+		"""
 		pass
 
 	def _createFrameListener(self):
-		"""Creates the FrameListener."""
+		"""Creates the frame listener"""
 		self.frameListener = FrameListener(self.renderWindow, self.camera)
 		self.frameListener.showDebugOverlay(True)
 		self.root.addFrameListener(self.frameListener)
@@ -125,8 +136,8 @@ class Application(object):
 		   pass
 
 class FrameListener(ogre.FrameListener):
-	"""A default frame listener, which takes care of basic mouse and keyboard
-	input."""
+	"""A default frame listener, which takes care of basic mouse and keyboard input"""
+
 	def __init__(self, renderWindow, camera):
 		ogre.FrameListener.__init__(self)
 		
@@ -148,14 +159,16 @@ class FrameListener(ogre.FrameListener):
 		self._setupInput()
 
 	def _setupInput(self):
+		"""Override to setup input for the listener"""
 		pass
 
 	def frameEnded(self, frameEvent):
+		"""Called at the end of a frame"""
 		self._updateStatistics()
 		return True
 
 	def showDebugOverlay(self, show):
-		"""Turns the debug overlay (frame statistics) on or off."""
+		"""Turns the debug overlay (frame statistics) on or off"""
 		overlay = ogre.OverlayManager.getSingleton().getByName('Core/DebugOverlay')
 		if overlay is None:
 			raise ogre.Exception(111, "Could not find overlay Core/DebugOverlay", "Framework.py")
@@ -165,6 +178,7 @@ class FrameListener(ogre.FrameListener):
 			overlay.hide()
 
 	def _updateStatistics(self):
+		"""Updates information in the debug overlay"""
 		statistics = self.renderWindow
 		self._setGuiCaption('Core/AverageFps', 'Average FPS: %f' % statistics.averageFPS)
 		self._setGuiCaption('Core/CurrFps', 'Current FPS: %f' % statistics.lastFPS)
@@ -176,10 +190,13 @@ class FrameListener(ogre.FrameListener):
 		self._setGuiCaption('Core/DebugText', statistics.debugText)
 
 	def _setGuiCaption(self, elementName, text):
+		"""Sets the caption for an overlay element"""
 		element = ogre.OverlayManager.getSingleton().getOverlayElement(elementName, False)
 		element.caption = text
 
 class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
+	"""A frame listener which passes input to CEGUI and the current scene"""
+
 	def __init__(self, application, renderWindow, camera):
 		ois.MouseListener.__init__(self)
 		ois.KeyListener.__init__(self)
@@ -192,8 +209,10 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 		root = self.application.root
 		self.console = console.Console(root)
 		self.console.addLocals({'root':root})
+		self.console.addLocals({'app':application})
 
 	def _setupInput(self):
+		"""Setup the OIS library for input"""
 		options = [("WINDOW", str(self.renderWindow.getCustomAttributeInt("WINDOW")))]
 
 		if os.name.startswith("posix"):
@@ -222,6 +241,7 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 			state.height = self.renderWindow.getHeight()
 
 	def destroy(self):
+		"""Release OIS resources"""
 		try:
 			if self.inputManager != None:
 				if self.enableKeyboard:
@@ -236,6 +256,7 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 			pass
 
 	def frameStarted(self, evt):
+		"""Called at the start of a frame"""
 		self.application.frameStarted(evt)
 		if self.renderWindow.isClosed():
 			self.keepRendering = False
@@ -251,27 +272,32 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 		return self.application.currentScene.update(evt) and self.keepRendering
 
 	def mouseDragged(self, evt):
+		"""Passes MouseDragged events to CEGUI and then the current scene"""
 		system = cegui.System.getSingleton()
 		system.injectMouseMove(evt.relX * system.renderer.width, evt.relY * system.renderer.height) \
 			or self.application.currentScene.mouseDragged(evt)
 
 	def mousePressed(self, evt, id):
+		"""Passes MousePressed events to CEGUI and then the current scene"""
 		button = self._convertOgreButtonToCegui(id)
 		cegui.System.getSingleton().injectMouseButtonDown(button) \
 			or self.application.currentScene.mousePressed(evt, id)
 
 	def mouseReleased(self, evt, id):
+		"""Passes MouseReleased events to CEGUI and then the current scene"""
 		button = self._convertOgreButtonToCegui(evt)
 		cegui.System.getSingleton().injectMouseButtonUp(button) \
 			or self.application.currentScene.mouseReleased(evt, id)
 
 	def mouseMoved(self, evt):
+		"""Passes MouseMoved events to CEGUI and then the current scene"""
 		system = cegui.System.getSingleton()
-		system.injectMouseMove( evt.get_state().X.rel, evt.get_state().Y.rel ) \
+		system.injectMouseMove(evt.get_state().X.rel, evt.get_state().Y.rel) \
 			or self.application.currentScene.mouseMoved(evt)
 		return True
 
 	def keyPressed(self, evt):
+		"""Handles a single key press by the user"""
 		self.console.keyPressed(evt)
 
 		# Quick escape? Maybe it should be removed
@@ -306,15 +332,17 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 		return True
 
 	def keyReleased(self, evt):
+		"""Handles a single key release by the user"""
 		system = cegui.System.getSingleton()
 		system.injectKeyUp(evt.key) \
 			or self.application.currentScene.keyReleased(evt)
 
 	def keyDown(self):
+		"""Handles keys that are constantly held down"""
 		self.application.currentScene.keyDown(self.keyboard)
 
 	def _convertOgreButtonToCegui(self, buttonID):
-		# Convert ogre button to cegui button
+		"""Convert ogre button to cegui button"""
 		if buttonID ==0:
 			return cegui.LeftButton
 		elif buttonID ==1:

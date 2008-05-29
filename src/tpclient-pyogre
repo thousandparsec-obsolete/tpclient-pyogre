@@ -8,18 +8,19 @@ import sys
 
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
+from tp.client.threads import NetworkThread, MediaThread, FinderThread
+from tp.client.threads import Application as ClientApplication
+from tp.client.cache import Cache
 
 import Framework
 import Scene
-from tp.client.threads import NetworkThread
-from tp.client.threads import MediaThread, FinderThread
-from tp.client.threads import Application as ClientApplication
 
 def traceback():
 	import sys, traceback, string
 	type, val, tb = sys.exc_info()
 	sys.stderr.write(string.join(traceback.format_exception(type, val, tb), ''))
 	sys.stderr.flush()
+
 
 class GUI(Framework.Application):
 	def __init__(self, application):
@@ -30,7 +31,6 @@ class GUI(Framework.Application):
 		self.guiSystem = 0
 
 		self.tocall = []
-		self.start = self.go
 
 	def start(self):
 		try:
@@ -40,7 +40,8 @@ class GUI(Framework.Application):
 			self.application.Exit()
 
 	def _createScene(self):
-		# Initiaslise CEGUI Renderer
+		"""Setup CEGUI and create the various scenes"""
+		# Initialise CEGUI Renderer
 		self.guiRenderer = cegui.OgreCEGUIRenderer(self.renderWindow,
 				   ogre.RENDER_QUEUE_OVERLAY, True, 0, self.sceneManager)
 		self.guiSystem = cegui.System(self.guiRenderer)
@@ -74,7 +75,11 @@ class GUI(Framework.Application):
 		self.frameListener.showDebugOverlay(False)
 
 	def __del__(self):
-		"Clear variables, this is needed to ensure the correct order of deletion"
+		"""Clear variables
+		
+		This is needed to ensure the correct order of deletion.
+		
+		"""
 		del self.camera
 		del self.sceneManager
 		del self.frameListener
@@ -96,18 +101,14 @@ class GUI(Framework.Application):
 		method(*args, **kw)
 
 	def Call(self, method, *args, **kw):
-		"""\
-		Call a method in this thread.
-		"""
+		"""Call a method in this thread"""
 		self.tocall.append((method, args, kw))
 
 	def ConfigLoad(self, config):
 		return
 	
 	def Post(self, event):
-		"""
-		Post an Event the current window.
-		"""
+		"""Post an Event the current window"""
 		func = 'on' + event.__class__.__name__[:-5]
 		if hasattr(self.currentScene, func):
 			try:
@@ -125,9 +126,7 @@ class GUI(Framework.Application):
 		self.frameListener.destroy()
 
 	def changeScene(self, scene):
-		"""\
-		Function to change to a different scene.
-		"""
+		"""Function to change to a different scene"""
 		if hasattr(self, "currentScene"):
 			self.currentScene.hide()
 		self.currentScene = scene
@@ -136,21 +135,19 @@ class GUI(Framework.Application):
 class Network(NetworkThread):
 	## These are network events
 	class NetworkFailureEvent(Exception):
-		"""\
-		Raised when the network connection fails for what ever reason.
-		"""
+		"""Raised when the network connection fails for what ever reason"""
 		pass
 
 	def ConnectTo(self, host, username, password, debug=False):
-		"""\
-		Connect to a given host using a certain username and password.
-		"""
+		"""Connect to a given host using a certain username and password"""
 		def callback(*args, **kw):
 			print args, kw
 		NetworkThread.ConnectTo(self, host, username, password, debug, callback)
+		self.application.cache = Cache("tp://%s@%s:6923" % (username, host), new=True)
 		self.CacheUpdate()
 	
 	def CacheUpdate(self):
+		"""Update the cache from the server"""
 		def callback(*args, **kw):
 			print args, kw
 		
