@@ -4,6 +4,9 @@ import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
 import ogre.io.OIS as ois
 
+from tp.netlib.objects import OrderDescs
+from tp.client.threads import NetworkThread
+
 def setWidgetText(name, text):
 	"""Shortcut for setting CEGUI widget text.
 
@@ -270,7 +273,7 @@ class StarmapScene(MenuScene):
 
 	panSpeed = 500
 	rotateSpeed = 5
-	toleranceDelta = 0.001
+	toleranceDelta = 1
 	distance_scale = 900000
 	scrollSpeed = 100
 
@@ -534,6 +537,9 @@ class StarmapScene(MenuScene):
 			network = self.parent.application.network
 			network.Call(network.CacheUpdate)
 
+	def onNetworkFailure(self, evt):
+		print "onNetworkFailure"
+
 	def onCacheUpdate(self, evt):
 		print "onCacheUpdate"
 		if evt.what is None:
@@ -576,15 +582,6 @@ class StarmapScene(MenuScene):
 	def mousePressed(self, evt, id):
 		print self, "mousePressed"
 		self.mouseDelta -= self.mouseDelta
-
-		#self.mouseState = evt.get_state().buttons
-		#if id & ogre.MouseEvent.BUTTON0_MASK:
-			#self.mouseState |= ogre.MouseEvent.BUTTON0_MASK
-		
-		#if id & ogre.MouseEvent.BUTTON2_MASK:
-			#self.mouseState |= ogre.MouseEvent.BUTTON2_MASK
-	
-		#print id, self.mouseState
 	
 	def mouseMoved(self, evt):
 		"""
@@ -623,31 +620,15 @@ class StarmapScene(MenuScene):
 
 	def mouseReleased(self, evt, id):
 		print self, "mouseReleased"
-		#print id & self.mouseState
-		#self.mouseState = evt.get_state().buttons
-		#if id & ogre.MouseEvent.BUTTON0_MASK:
-			#self.mouseState &= ~ogre.MouseEvent.BUTTON0_MASK
-		
-		#if id & ogre.MouseEvent.BUTTON2_MASK:
-			#self.mouseState &= ~ogre.MouseEvent.BUTTON2_MASK
-
-		#if evt.get_state().buttons == 0:
-			#cegui.MouseCursor.getSingleton().show()
 
 		state = evt.get_state()
-		#if self.mouseDelta.length < self.toleranceDelta:
-		if True:
-			# Unselect the current object
-			#if self.currentObject:
-				#self.currentObject.getParentSceneNode().showBoundingBox(False)
-				#self.currentObject = None
-
+		if self.mouseDelta[0] <= self.toleranceDelta and self.mouseDelta[1] <= self.toleranceDelta:
 			# The mouse hasn't moved much check if the person is clicking on something.
 			x = float(state.X.abs) / float(state.width)
 			y = float(state.Y.abs) / float(state.height)
-			print "%d, %d" % (state.width, state.height)
-			print "%f, %f" % (state.X.abs, state.Y.abs)
-			print "coord: ", x, y
+			#print "%d, %d" % (state.width, state.height)
+			#print "%f, %f" % (state.X.abs, state.Y.abs)
+			#print "coord: ", x, y
 			mouseRay = self.camera.getCameraToViewportRay( x, y )
 			self.raySceneQuery.setRay(mouseRay)
 
@@ -666,24 +647,45 @@ class StarmapScene(MenuScene):
 			
 					# We are clicking on something!
 					found = True
+					oid = long(o.movable.getName()[6:])
 					
-					# Unselect the current object
-					if self.currentObject:
-						self.currentObject.getParentSceneNode().showBoundingBox(False)
-						self.currentObject = None
+					if id == ois.MB_Left:
+						# Unselect the current object
+						if self.currentObject:
+							self.currentObject.getParentSceneNode().showBoundingBox(False)
+							self.currentObject = None
 
-					print "MovableObject: ", o.movable.getName()
-					self.currentObject = o.movable
-					self.currentObject.getParentSceneNode().showBoundingBox(True)
+						print "MovableObject: ", o.movable.getName()
+						self.currentObject = o.movable
+						self.currentObject.getParentSceneNode().showBoundingBox(True)
 
-					# Call the
-					return self.mouseSelectObject(long(o.movable.getName()[6:]))
+						return self.mouseSelectObject(oid)
+					if id == ois.MB_Right:
+						if self.currentObject:
+							current_id = self.currentObject.getName()[6:]
+							object = self.objects[current_id]
 			return self.mouseSelectObject(None)
 	
 	def mouseSelectObject(self, id):
 		print "SelectObject", id
 		if id != None:
 			self.setInformationText(self.objects[id])
+			object = self.objects[id]
+
+			if object.order_number > 0 or len(object.order_types) > 0:
+				wm = cegui.WindowManager.getSingleton()
+				order_list = wm.getWindow("Orders/OrderList")
+				self.orders = {}
+				order_list.resetList()
+				descs = OrderDescs()
+				for order_type in object.order_types:
+					if not descs.has_key(order_type):
+						continue
+					description = descs[order_type]
+					item = cegui.ListboxTextItem(description._name)
+					item.setAutoDeleted(False)
+					self.orders[item] = order_type
+					order_list.addItem(item)
 
 	def keyPressed(self, evt):
 		if evt.key == ois.KC_A:

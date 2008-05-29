@@ -11,11 +11,31 @@
             <Property Name="Visible" Value="False" />
             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
             <Property Name="TitlebarEnabled" Value="True" />
-            <Property Name="UnifiedAreaRect" Value="{{0.017187,0},{0.020833,0},{0.231249,0},{0.620837,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.0571317,0},{0.0372844,0},{0.315154,0},{0.633771,0}}" />
+            <Window Type="SleekSpace/MultiColumnList" Name="Orders/OrderQueue" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.067562,0},{0.0805802,0},{0.926628,0},{0.547134,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Combobox" Name="Orders/OrderList" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="ReadOnly" Value="True" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="ClippedByParent" Value="False" />
+                <Property Name="UnifiedAreaRect" Value="{{0.072652,0},{0.89835,0},{0.632899,0},{1.11801,0}}" />
+                <Property Name="MaxEditTextLength" Value="1073741823" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Orders/NewOrder" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="New" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.653886,0},{0.89835,0},{0.941075,0},{0.949819,0}}" />
+            </Window>
         </Window>
         <Window Type="SleekSpace/FrameWindow" Name="Windows" >
             <Property Name="Font" Value="BlueHighway-10" />
             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="ClippedByParent" Value="False" />
             <Property Name="TitlebarEnabled" Value="False" />
             <Property Name="UnifiedAreaRect" Value="{{-0.00156248,0},{0.918752,0},{0.7125,0},{0.995834,0}}" />
             <Property Name="CloseButtonEnabled" Value="False" />
@@ -66,6 +86,8 @@
             <Property Name="UnifiedAreaRect" Value="{{0.0124993,0},{0.635308,0},{0.451136,0},{0.908333,0}}" />
             <Window Type="SleekSpace/MultiLineEditbox" Name="Messages/Message" >
                 <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" >
+</Property>
                 <Property Name="ReadOnly" Value="True" />
                 <Property Name="MaxTextLength" Value="1073741823" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
@@ -93,6 +115,8 @@
             <Property Name="UnifiedAreaRect" Value="{{0.515623,0},{0.662502,0},{0.973435,0},{0.912502,0}}" />
             <Window Type="SleekSpace/MultiLineEditbox" Name="Information/Text" >
                 <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" >
+</Property>
                 <Property Name="ReadOnly" Value="True" />
                 <Property Name="MaxTextLength" Value="1073741823" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
