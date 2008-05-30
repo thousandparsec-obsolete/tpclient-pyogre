@@ -10,6 +10,11 @@ from tp.client.threads import NetworkThread
 
 import overlay
 
+UNIVERSE = 1
+STAR = 2
+PLANET = 3
+FLEET = 4
+
 def setWidgetText(name, text):
 	"""Shortcut for setting CEGUI widget text.
 
@@ -211,12 +216,15 @@ class StarmapScene(MenuScene):
 	def __init__(self, parent, sceneManager):
 		Scene.__init__(self, parent, sceneManager)
 
-		ogre.FontManager.getSingleton().load("Tahoma-12","General")
-
 		self.mouseDelta = ogre.Vector2(0, 0)
 		self.currentObject = None
+		self.nodes = {}
+		self.overlays = {}
+		self.messages = []
+		self.message_index = 0
+		self.created = False
 	
-		self.raySceneQuery = self.sceneManager.createRayQuery( ogre.Ray() )
+		self.raySceneQuery = self.sceneManager.createRayQuery(ogre.Ray())
 		self.raySceneQuery.setSortByDistance(True, 10)
 		self.raySceneQuery.setQueryMask(self.SELECTABLE & ~self.UNSELECTABLE)
 
@@ -232,30 +240,20 @@ class StarmapScene(MenuScene):
 			self.rootNode.attachObject(billboardSet)
 			self.flareBillboardSets.append(billboardSet)
 
-		self.nodes = {}
-		self.overlays = {}
-		self.messages = []
-		self.message_index = 0
-		self.created = False
-
 		wm = cegui.WindowManager.getSingleton()
-
 		system = wm.loadWindowLayout("system.layout")
 		self.guiSystem.getGUISheet().addChildWindow(system)
 		self.windows.append(system)
 
-		# Bind gui events
-		bindEvent("Windows/Information", self, "onWindowToggle", cegui.PushButton.EventClicked)
-		bindEvent("Windows/Orders", self, "onWindowToggle", cegui.PushButton.EventClicked)
-		bindEvent("Windows/Messages", self, "onWindowToggle", cegui.PushButton.EventClicked)
-		bindEvent("Windows/System", self, "onWindowToggle", cegui.PushButton.EventClicked)
-		bindEvent("Messages/Next", self, "onNextMessage", cegui.PushButton.EventClicked)
-		bindEvent("Messages/Prev", self, "onPrevMessage", cegui.PushButton.EventClicked)
-
+		bindEvent("Windows/Information", self, "windowToggle", cegui.PushButton.EventClicked)
+		bindEvent("Windows/Orders", self, "windowToggle", cegui.PushButton.EventClicked)
+		bindEvent("Windows/Messages", self, "windowToggle", cegui.PushButton.EventClicked)
+		bindEvent("Windows/System", self, "windowToggle", cegui.PushButton.EventClicked)
+		bindEvent("Messages/Next", self, "nextMessage", cegui.PushButton.EventClicked)
+		bindEvent("Messages/Prev", self, "prevMessage", cegui.PushButton.EventClicked)
+		bindEvent("System/SystemList", self, "systemSelected", cegui.Listbox.EventSelectionChanged)
 		for window in ['Messages', 'Orders', 'System', 'Information']:
-			bindEvent(window, self, "onCloseClicked", cegui.FrameWindow.EventCloseClicked)
-
-		bindEvent("System/SystemList", self, "onSystemSelected", cegui.Listbox.EventSelectionChanged)
+			bindEvent(window, self, "closeClicked", cegui.FrameWindow.EventCloseClicked)
 
 		self.hide()
 	
@@ -263,23 +261,20 @@ class StarmapScene(MenuScene):
 		"""Creates list of objects from cache"""
 		print "creating the starmap"
 		self.objects = cache.objects
-		self.nodes = {}
-		self.overlays = {}
-		self.messages = []
-		self.message_index = 0
 		self.system_list = []
 
 		wm = cegui.WindowManager.getSingleton()
 		listbox = wm.getWindow("System/SystemList")
 
 		for object in self.objects.values():
-			pos = ogre.Vector3(object.pos[0]/self.distance_scale, 
+			pos = ogre.Vector3(
+					object.pos[0]/self.distance_scale, 
 					object.pos[1]/self.distance_scale, 
 					object.pos[2]/self.distance_scale)
 
 			print "creating", object.id, object.name, object._subtype, "at", pos
 			
-			if object._subtype is 2:
+			if object._subtype is STAR:
 				node = self.rootNode.createChildSceneNode(pos)
 				self.nodes[object.id] = node
 
@@ -308,7 +303,7 @@ class StarmapScene(MenuScene):
 				self.system_list.append(item)
 				listbox.addItem(item)
 
-			if object._subtype is 3:
+			if object._subtype is PLANET:
 				# Get parent system and the number of other planets
 				parent = self.objects[object.parent]
 				if not hasattr(parent, "planets"):
@@ -337,14 +332,14 @@ class StarmapScene(MenuScene):
 				entityNode.setScale(ogre.Vector3(obj_scale,obj_scale,obj_scale))
 				entityNode.attachObject(entity)
 
-			if object._subtype is 4:
+			if object._subtype is FLEET:
 				# Get parent system and the number of other fleets
 				parent = self.objects[object.parent]
 				if not hasattr(parent, "fleets") or not hasattr(object, "index"):
 					parent.fleets = 0
 					index = 1
 					for i in self.objects.values():
-						if i._subtype is 4 and i.parent == object.parent:
+						if i._subtype is FLEET and i.parent == object.parent:
 							i.index = index
 							index += 1
 							parent.fleets += 1
@@ -361,7 +356,7 @@ class StarmapScene(MenuScene):
 				entityNode = node.createChildSceneNode(ogre.Vector3(0, 0, 0))
 				entity = self.sceneManager.createEntity("Object%i" % object.id, 'ship.mesh')
 				entity.queryFlags = self.SELECTABLE
-				obj_scale = 50/entity.mesh.boundingSphereRadius
+				obj_scale = 50 / entity.mesh.boundingSphereRadius
 				entityNode.setScale(ogre.Vector3(obj_scale,obj_scale,obj_scale))
 				entityNode.attachObject(entity)
 				entityNode.yaw(ogre.Radian(1.57))
@@ -387,13 +382,14 @@ class StarmapScene(MenuScene):
 		self.objects = cache.objects
 
 		for object in cache.objects.values():
-			pos = ogre.Vector3(object.pos[0]/self.distance_scale, 
+			pos = ogre.Vector3(
+					object.pos[0]/self.distance_scale, 
 					object.pos[1]/self.distance_scale, 
 					object.pos[2]/self.distance_scale)
 
 			print "updating", object.id, object.name, object._subtype, "at", pos
 
-			if object._subtype is 4:
+			if object._subtype is FLEET:
 				# Get parent system and the number of other fleets
 				# FIXME: What if a fleet is destroyed
 				parent = self.objects[object.parent]
@@ -401,7 +397,7 @@ class StarmapScene(MenuScene):
 					parent.fleets = 0
 					index = 1
 					for i in self.objects.values():
-						if i._subtype is 4 and i.parent == object.parent:
+						if i._subtype is FLEET and i.parent == object.parent:
 							i.index = index
 							index += 1
 							parent.fleets += 1
@@ -486,20 +482,21 @@ class StarmapScene(MenuScene):
 			else:
 				self.create(self.parent.application.cache)
 
-	def onNextMessage(self, evt):
+	def nextMessage(self, evt):
 		"""Sets messagebox to the next message if available"""
 		if self.message_index < len(self.messages) - 1:
 			self.message_index += 1
 			self.setCurrentMessage(self.messages[self.message_index])
 
-	def onPrevMessage(self, evt):
+	def prevMessage(self, evt):
 		"""Sets messagebox to the previous message if available"""
 		if self.message_index > 0:
 			self.message_index -= 1
 			self.setCurrentMessage(self.messages[self.message_index])
 
-	def onSystemSelected(self, evt):
+	def systemSelected(self, evt):
 		"""Updates information box with selected system info"""
+		print "System selected"
 		wm = cegui.WindowManager.getSingleton()
 		listbox = wm.getWindow("System/SystemList")
 		selected = listbox.getFirstSelectedItem()
@@ -508,11 +505,11 @@ class StarmapScene(MenuScene):
 				self.setInformationText(obj)
 				break
 
-	def onCloseClicked(self, evt):
+	def closeClicked(self, evt):
 		"""Called when user clicks on the close button of a window"""
 		evt.window.setVisible(not evt.window.isVisible())
 
-	def onWindowToggle(self, evt):
+	def windowToggle(self, evt):
 		"""Toggles visibility of a window"""
 		wm = cegui.WindowManager.getSingleton()
 		# assume buttons and windows have the same name, minus prefix
@@ -591,7 +588,7 @@ class StarmapScene(MenuScene):
 			
 					# We are clicking on something!
 					found = True
-					oid = long(o.movable.getName()[6:])
+					oid = self.getIDFromMovable(o.movable)
 					
 					if id == ois.MB_Left:
 						# Unselect the current object
@@ -604,9 +601,10 @@ class StarmapScene(MenuScene):
 						self.currentObject.getParentSceneNode().showBoundingBox(True)
 
 						return self.mouseSelectObject(oid)
+
 					if id == ois.MB_Right:
 						if self.currentObject:
-							current_id = long(self.currentObject.getName()[6:])
+							current_id = self.getIDFromMovable(self.currentObject)
 							object = self.objects[current_id]
 							if object.subtype == 4:
 								target = self.objects[oid]
@@ -628,8 +626,12 @@ class StarmapScene(MenuScene):
 										evt = cache.apply("orders", "create after", current_id, node, order)
 										network.Call(network.OnCacheDirty, evt)
 										break
+
 			return self.mouseSelectObject(None)
 	
+	def getIDFromMovable(self, movable):
+		return long(movable.getName()[6:])
+
 	def mouseSelectObject(self, id):
 		print "SelectObject", id
 		if id != None:
