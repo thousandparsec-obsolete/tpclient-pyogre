@@ -222,6 +222,7 @@ class StarmapScene(MenuScene):
 		self.overlays = {}
 		self.messages = []
 		self.message_index = 0
+		self.lines = 0
 		self.created = False
 	
 		self.raySceneQuery = self.sceneManager.createRayQuery(ogre.Ray())
@@ -380,6 +381,7 @@ class StarmapScene(MenuScene):
 		"""
 		print "Updating starmap"
 		self.objects = cache.objects
+		self.clearLines()
 
 		for object in cache.objects.values():
 			pos = ogre.Vector3(
@@ -625,10 +627,37 @@ class StarmapScene(MenuScene):
 										node = cache.orders[current_id].first
 										evt = cache.apply("orders", "create after", current_id, node, order)
 										network.Call(network.OnCacheDirty, evt)
+
+										self.drawLine(current_id, oid)
 										break
 
 			return self.mouseSelectObject(None)
 	
+	def drawLine(self, id_start, id_end):
+		start_node = self.nodes[id_start]
+		end_node = self.nodes[id_end]
+		manual_object = self.sceneManager.createManualObject("line%i" % self.lines)
+		scene_node = self.sceneManager.getRootSceneNode().createChildSceneNode("line%i_node" % self.lines)
+
+		material = ogre.MaterialManager.getSingleton().create("line%i_material" % self.lines, "default")
+		material.setReceiveShadows(False)
+		material.getTechnique(0).getPass(0).setAmbient(0,1,0)
+
+		manual_object.begin("line%i_material" % self.lines, ogre.RenderOperation.OT_LINE_LIST)
+		manual_object.position(start_node.position)
+		manual_object.position(end_node.position)
+		manual_object.end()
+
+		scene_node.attachObject(manual_object)
+		self.lines += 1
+
+	def clearLines(self):
+		for i in range(self.lines):
+			self.sceneManager.destroySceneNode("line%i_node" % i)
+			self.sceneManager.destroyEntity("line%i" % i)
+			ogre.MaterialManager.getSingleton().remove("line%i_material" % i)
+		self.lines = 0
+
 	def getIDFromMovable(self, movable):
 		return long(movable.getName()[6:])
 
