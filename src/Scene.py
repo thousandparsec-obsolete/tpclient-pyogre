@@ -254,6 +254,7 @@ class StarmapScene(MenuScene):
 		bindEvent("Windows/System", self, "windowToggle", cegui.PushButton.EventClicked)
 		bindEvent("Messages/Next", self, "nextMessage", cegui.PushButton.EventClicked)
 		bindEvent("Messages/Prev", self, "prevMessage", cegui.PushButton.EventClicked)
+		bindEvent("Messages/Delete", self, "deleteMessage", cegui.PushButton.EventClicked)
 		bindEvent("System/SystemList", self, "systemSelected", cegui.Listbox.EventSelectionChanged)
 		for window in ['Messages', 'Orders', 'System', 'Information']:
 			bindEvent(window, self, "closeClicked", cegui.FrameWindow.EventCloseClicked)
@@ -350,11 +351,13 @@ class StarmapScene(MenuScene):
 				entityNode.roll(ogre.Radian(1.57))
 
 		for val in cache.messages[0]:
-			message = val.CurrentOrder
-			self.messages.append(message)
+			self.messages.append(val)
 
 		if len(self.messages) > 0:
-			self.setCurrentMessage(self.messages[self.message_index])
+			if len(self.messages) > self.message_index:
+				self.setCurrentMessage(self.messages[self.message_index])
+			else:
+				self.setCurrentMessage(self.messages[0])
 
 		self.created = True
 
@@ -614,29 +617,39 @@ class StarmapScene(MenuScene):
 		
 	def nextMessage(self, evt):
 		"""Sets messagebox to the next message if available"""
-		if self.message_index < len(self.messages) - 1:
+		if len(self.messages) > 0 and self.message_index < len(self.messages) - 1:
 			self.message_index += 1
 			self.setCurrentMessage(self.messages[self.message_index])
 
 	def prevMessage(self, evt):
 		"""Sets messagebox to the previous message if available"""
-		if self.message_index > 0:
+		if len(self.messages) > 0 and self.message_index > 0:
 			self.message_index -= 1
 			self.setCurrentMessage(self.messages[self.message_index])
 
-	def setCurrentMessage(self, message):
+	def deleteMessage(self, evt):
+		cache = self.parent.application.cache
+		network = self.parent.application.network
+		current_message = self.messages[self.message_index]
+		change_node = cache.messages[0][current_message.id]
+		evt = cache.apply("messages", "remove", 0, change_node, None)
+		network.Call(network.OnCacheDirty, evt)
+		self.messages.remove(current_message)
+		if len(self.messages) > 0:
+			self.nextMessage(evt)
+		else:
+			setWidgetText("Messages/Message", "")
+
+	def setCurrentMessage(self, message_object):
 		"""Sets message text inside message window"""
-		wm = cegui.WindowManager.getSingleton()
-		msgbox = wm.getWindow("Messages/Message")
+		message = message_object.CurrentOrder
 		text = "Subject: " + message.subject + "\n"
 		text += "\n"
 		text += message.body
-		msgbox.setText(text)
+		setWidgetText("Messages/Message", text)
 
 	def setInformationText(self, object):
 		"""Sets text inside information window"""
-		wm = cegui.WindowManager.getSingleton()
-		infobox = wm.getWindow("Information/Text")
 		text = "modify time: " + object.modify_time.ctime() + "\n"
 		text += "name: " + object.name + "\n"
 		text += "parent: " + str(object.parent) + "\n"
@@ -644,7 +657,7 @@ class StarmapScene(MenuScene):
 		text += "velocity: " + str(object.vel) + "\n"
 		text += "id: " + str(object.id) + "\n"
 		text += "size: " + str(object.size) + "\n"
-		infobox.setText(text)
+		setWidgetText("Information/Text", text)
 
 	def systemSelected(self, evt):
 		"""Updates information box with selected system info"""
@@ -706,6 +719,8 @@ class StarmapScene(MenuScene):
 		wm.getWindow("System/SystemList").resetList()
 		wm.getWindow("Messages/Message").setText("")
 		wm.getWindow("Information/Text").setText("")
+		for window in ['Orders', 'System', 'Messages', 'Information']:
+			wm.getWindow(window).hide()
 	
 	def clearAll(self):
 		self.clearLines()
