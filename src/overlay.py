@@ -35,6 +35,13 @@ class ObjectOverlay(object):
 		panel.addChild(name)
 		#panel.addChild(position)
 
+	def destroy(self):
+		"""Destroy and remove this overlay"""
+		overlayManager = ogre.OverlayManager.getSingleton()
+		overlayManager.destroyOverlayElement(self.name)
+		overlayManager.destroyOverlayElement(self.panel)
+		overlayManager.destroy(self.overlay)
+
 	def show(self, *which):
 		for text in self.active:
 			text.hide()

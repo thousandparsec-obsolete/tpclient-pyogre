@@ -207,17 +207,16 @@ class StarmapScene(MenuScene):
 	SELECTABLE = 2**1
 	UNSELECTABLE = 2**2
 
-	panSpeed = 500
-	rotateSpeed = 5
-	toleranceDelta = 1
+	pan_speed = 500
+	tolerance_delta = 1
 	distance_scale = 900000
-	scrollSpeed = 100
+	scroll_speed = 100
 
 	def __init__(self, parent, sceneManager):
 		Scene.__init__(self, parent, sceneManager)
 
-		self.mouseDelta = ogre.Vector2(0, 0)
-		self.currentObject = None
+		self.mouse_delta = ogre.Vector2(0, 0)
+		self.current_object = None
 		self.nodes = {}
 		self.overlays = {}
 		self.messages = []
@@ -276,20 +275,13 @@ class StarmapScene(MenuScene):
 			print "creating", object.id, object.name, object._subtype, "at", pos
 			
 			if object._subtype is STAR:
-				node = self.rootNode.createChildSceneNode(pos)
+				node = self.createObjectNode(pos, object.id, 'sphere.mesh', 100)
 				self.nodes[object.id] = node
+				entityNode = self.sceneManager.getSceneNode("Object%i_EntityNode" % object.id)
 
-				# Selectable entity
-				entityNode = node.createChildSceneNode(ogre.Vector3(0, 0, 0))
-				entity = self.sceneManager.createEntity("Object%i" % object.id, 'sphere.mesh')
-				entity.queryFlags = self.SELECTABLE
-				obj_scale = 100/entity.mesh.boundingSphereRadius
-				entityNode.setScale(ogre.Vector3(obj_scale,obj_scale,obj_scale))
-				entityNode.attachObject(entity)
-		
 				# Lens flare
-				billboardSet = self.flareBillboardSets[object.id % len(self.flareBillboardSets)]
-				billboard = billboardSet.createBillboard(pos, ogre.ColourValue.White)
+				#billboardSet = self.flareBillboardSets[object.id % len(self.flareBillboardSets)]
+				#billboard = billboardSet.createBillboard(pos, ogre.ColourValue.White)
 		
 				# Text overlays
 				label = overlay.ObjectOverlay(entityNode, object)
@@ -301,6 +293,7 @@ class StarmapScene(MenuScene):
 				item = cegui.ListboxTextItem(object.name)
 				item.setSelectionBrushImage("SleekSpace", "ClientBrush")
 				item.setSelectionColours(cegui.colour(0.9, 0.9, 0.9))
+				item.setAutoDeleted(False)
 				self.system_list.append(item)
 				listbox.addItem(item)
 
@@ -323,15 +316,10 @@ class StarmapScene(MenuScene):
 				pos.x += x
 				pos.y += y
 
-				node = self.rootNode.createChildSceneNode(pos)
+				node = self.createObjectNode(pos, object.id, 'sphere.mesh', 50)
 				self.nodes[object.id] = node
-				entityNode = node.createChildSceneNode(ogre.Vector3(0, 0, 0))
-				entity = self.sceneManager.createEntity("Object%i" % object.id, 'sphere.mesh')
+				entity = self.sceneManager.getEntity("Object%i" % object.id)
 				entity.setMaterialName("Starmap/Planet")
-				entity.queryFlags = self.SELECTABLE
-				obj_scale = 50/entity.mesh.boundingSphereRadius
-				entityNode.setScale(ogre.Vector3(obj_scale,obj_scale,obj_scale))
-				entityNode.attachObject(entity)
 
 			if object._subtype is FLEET:
 				# Get parent system and the number of other fleets
@@ -352,14 +340,9 @@ class StarmapScene(MenuScene):
 				pos.x += x
 				pos.y += y
 
-				node = self.rootNode.createChildSceneNode(pos)
+				node = self.createObjectNode(pos, object.id, 'ship.mesh', 50)
 				self.nodes[object.id] = node
-				entityNode = node.createChildSceneNode(ogre.Vector3(0, 0, 0))
-				entity = self.sceneManager.createEntity("Object%i" % object.id, 'ship.mesh')
-				entity.queryFlags = self.SELECTABLE
-				obj_scale = 50 / entity.mesh.boundingSphereRadius
-				entityNode.setScale(ogre.Vector3(obj_scale,obj_scale,obj_scale))
-				entityNode.attachObject(entity)
+				entityNode = node.getChild(0)
 				entityNode.yaw(ogre.Radian(1.57))
 				entityNode.roll(ogre.Radian(1.57))
 
@@ -373,6 +356,16 @@ class StarmapScene(MenuScene):
 		self.created = True
 
 		self.autofit()
+
+	def createObjectNode(self, pos, oid, mesh, scale):
+		node = self.rootNode.createChildSceneNode("Object%i_Node" % oid, pos)
+		entityNode = node.createChildSceneNode("Object%i_EntityNode" % oid, ogre.Vector3(0, 0, 0))
+		entity = self.sceneManager.createEntity("Object%i" % oid, mesh)
+		entity.queryFlags = self.SELECTABLE
+		obj_scale = scale / entity.mesh.boundingSphereRadius
+		entityNode.setScale(ogre.Vector3(obj_scale,obj_scale,obj_scale))
+		entityNode.attachObject(entity)
+		return node
 
 	def recreate(self, cache):
 		"""Update locations of objects
@@ -414,53 +407,11 @@ class StarmapScene(MenuScene):
 				node = self.nodes[object.id]
 				node.setPosition(pos)
 
-	def setCurrentMessage(self, message):
-		"""Sets message text inside message window"""
-		wm = cegui.WindowManager.getSingleton()
-		msgbox = wm.getWindow("Messages/Message")
-		text = "Subject: " + message.subject + "\n"
-		text += "\n"
-		text += message.body
-		msgbox.setText(text)
-
-	def autofit(self):
-		"""Zooms out until all stars are visible"""
-		fit = False
-		self.camera.setPosition(ogre.Vector3(0,0,0))
-		while not fit:
-			self.camera.moveRelative(ogre.Vector3(0, 0, 500))
-
-			fit = True
-			for key in self.nodes:
-				object = self.nodes[key]
-				if not self.camera.isVisible(object.getPosition()):
-					fit = False
-
-	def center(self, id):
-		"""Center on an object identified by object id"""
-		node = self.nodes[id]
-		pos = node.getPosition()
-		cam = self.camera.getPosition()
-		self.camera.setPosition(ogre.Vector3(pos.x,pos.x,cam.z))
-
 	def update(self, evt):
 		camera = self.sceneManager.getCamera( 'PlayerCam' )
 		for label in self.overlays.values():
 			label.update(camera)
 		return True
-
-	def setInformationText(self, object):
-		"""Sets text inside information window"""
-		wm = cegui.WindowManager.getSingleton()
-		infobox = wm.getWindow("Information/Text")
-		text = "modify time: " + object.modify_time.ctime() + "\n"
-		text += "name: " + object.name + "\n"
-		text += "parent: " + str(object.parent) + "\n"
-		text += "position: " + str(object.pos) + "\n"
-		text += "velocity: " + str(object.vel) + "\n"
-		text += "id: " + str(object.id) + "\n"
-		text += "size: " + str(object.size) + "\n"
-		infobox.setText(text)
 
 	def onNetworkTimeRemaining(self, evt):
 		"""Called whenever a NetworkTimeRemaining packet is received"""
@@ -484,45 +435,9 @@ class StarmapScene(MenuScene):
 			else:
 				self.create(self.parent.application.cache)
 
-	def nextMessage(self, evt):
-		"""Sets messagebox to the next message if available"""
-		if self.message_index < len(self.messages) - 1:
-			self.message_index += 1
-			self.setCurrentMessage(self.messages[self.message_index])
-
-	def prevMessage(self, evt):
-		"""Sets messagebox to the previous message if available"""
-		if self.message_index > 0:
-			self.message_index -= 1
-			self.setCurrentMessage(self.messages[self.message_index])
-
-	def systemSelected(self, evt):
-		"""Updates information box with selected system info"""
-		print "System selected"
-		wm = cegui.WindowManager.getSingleton()
-		listbox = wm.getWindow("System/SystemList")
-		selected = listbox.getFirstSelectedItem()
-		for obj in self.objects.values():
-			if obj.name == selected.text:
-				self.setInformationText(obj)
-				break
-
-	def closeClicked(self, evt):
-		"""Called when user clicks on the close button of a window"""
-		evt.window.setVisible(not evt.window.isVisible())
-
-	def windowToggle(self, evt):
-		"""Toggles visibility of a window"""
-		wm = cegui.WindowManager.getSingleton()
-		# assume buttons and windows have the same name, minus prefix
-		name = evt.window.getName().c_str().split("/")[1]
-		if name != None:
-			window = wm.getWindow(name)
-			window.setVisible(not window.isVisible())
-
 	def mousePressed(self, evt, id):
 		print self, "mousePressed"
-		self.mouseDelta -= self.mouseDelta
+		self.mouse_delta -= self.mouse_delta
 	
 	def mouseMoved(self, evt):
 		"""Handles the MouseMoved event
@@ -533,21 +448,23 @@ class StarmapScene(MenuScene):
 		"""
 		state = evt.get_state()
 
-		self.mouseDelta += (abs(state.X.rel), abs(state.Y.rel))
-		#if self.mouseDelta.length > self.toleranceDelta:
+		self.mouse_delta += (abs(state.X.rel), abs(state.Y.rel))
+		#if self.mouse_delta.length > self.tolerance_delta:
 			#cegui.MouseCursor.getSingleton().hide()
 
 		if state.buttonDown(ois.MB_Middle):
+			if self.zoom != 0:
+				adjusted_pan = abs(self.pan_speed / (self.zoom * 2))
+			else:
+				adjusted_pan = self.pan_speed
 			self.camera.moveRelative(
-				ogre.Vector3(state.X.rel * self.panSpeed, -state.Y.rel * self.panSpeed, 0))
+				ogre.Vector3(state.X.rel * adjusted_pan, -state.Y.rel * adjusted_pan, 0))
 		
-		elif state.Z.rel < 0:
-			self.camera.moveRelative(
-				ogre.Vector3(0, 0, 2 * self.panSpeed))
+		elif state.Z.rel < 0: # scroll down
+			self.camera.moveRelative(ogre.Vector3(0, 0, 2 * self.pan_speed))
 
-		elif state.Z.rel > 0:
-			self.camera.moveRelative(
-				ogre.Vector3(0, 0, -2 * self.panSpeed))
+		elif state.Z.rel > 0: # scroll up
+			self.camera.moveRelative(ogre.Vector3(0, 0, -2 * self.pan_speed))
 
 		else:
 			x = float(state.X.abs) / float(state.width)
@@ -565,7 +482,7 @@ class StarmapScene(MenuScene):
 		print self, "mouseReleased"
 
 		state = evt.get_state()
-		if self.mouseDelta[0] <= self.toleranceDelta and self.mouseDelta[1] <= self.toleranceDelta:
+		if self.mouse_delta[0] <= self.tolerance_delta and self.mouse_delta[1] <= self.tolerance_delta:
 			# The mouse hasn't moved much check if the person is clicking on something.
 			x = float(state.X.abs) / float(state.width)
 			y = float(state.Y.abs) / float(state.height)
@@ -594,73 +511,23 @@ class StarmapScene(MenuScene):
 					
 					if id == ois.MB_Left:
 						# Unselect the current object
-						if self.currentObject:
-							self.currentObject.getParentSceneNode().showBoundingBox(False)
-							self.currentObject = None
+						if self.current_object:
+							self.current_object.getParentSceneNode().showBoundingBox(False)
+							self.current_object = None
 
 						print "MovableObject: ", o.movable.getName()
-						self.currentObject = o.movable
-						self.currentObject.getParentSceneNode().showBoundingBox(True)
+						self.current_object = o.movable
+						self.current_object.getParentSceneNode().showBoundingBox(True)
 
 						return self.mouseSelectObject(oid)
 
 					if id == ois.MB_Right:
-						if self.currentObject:
-							current_id = self.getIDFromMovable(self.currentObject)
-							object = self.objects[current_id]
-							if object.subtype == 4:
-								target = self.objects[oid]
-								descs = OrderDescs()
-								for order_type in object.order_types:
-									if not descs.has_key(order_type):
-										continue
-									descclass = descs[order_type]
-									if descclass._name in ['Move', 'Move To', 'Intercept']:
-										orderargs = [0, current_id, -1, descclass.subtype, 0, []]
-										for name, t in descclass.names:
-											if t is ARG_ABS_COORD:
-												orderargs.append(target.pos)
-										order = descclass(*orderargs)
-
-										cache = self.parent.application.cache
-										network = self.parent.application.network
-										node = cache.orders[current_id].first
-										evt = cache.apply("orders", "create after", current_id, node, order)
-										network.Call(network.OnCacheDirty, evt)
-
-										self.drawLine(current_id, oid)
-										break
+						if self.current_object:
+							current_id = self.getIDFromMovable(self.current_object)
+							self.moveTo(current_id, oid)
 
 			return self.mouseSelectObject(None)
 	
-	def drawLine(self, id_start, id_end):
-		start_node = self.nodes[id_start]
-		end_node = self.nodes[id_end]
-		manual_object = self.sceneManager.createManualObject("line%i" % self.lines)
-		scene_node = self.sceneManager.getRootSceneNode().createChildSceneNode("line%i_node" % self.lines)
-
-		material = ogre.MaterialManager.getSingleton().create("line%i_material" % self.lines, "default")
-		material.setReceiveShadows(False)
-		material.getTechnique(0).getPass(0).setAmbient(0,1,0)
-
-		manual_object.begin("line%i_material" % self.lines, ogre.RenderOperation.OT_LINE_LIST)
-		manual_object.position(start_node.position)
-		manual_object.position(end_node.position)
-		manual_object.end()
-
-		scene_node.attachObject(manual_object)
-		self.lines += 1
-
-	def clearLines(self):
-		for i in range(self.lines):
-			self.sceneManager.destroySceneNode("line%i_node" % i)
-			self.sceneManager.destroyEntity("line%i" % i)
-			ogre.MaterialManager.getSingleton().remove("line%i_material" % i)
-		self.lines = 0
-
-	def getIDFromMovable(self, movable):
-		return long(movable.getName()[6:])
-
 	def mouseSelectObject(self, id):
 		print "SelectObject", id
 		if id != None:
@@ -685,24 +552,52 @@ class StarmapScene(MenuScene):
 	def keyPressed(self, evt):
 		if evt.key == ois.KC_A:
 			self.autofit()
-		if evt.key == ois.KC_C:
-			if self.currentObject:
-				id = long(self.currentObject.getName()[6:])
-				self.center(id)
+		elif evt.key == ois.KC_C:
+			if self.current_object:
+				self.center(self.getIDFromMovable(self.current_object))
+		elif evt.key == ois.KC_ESCAPE:
+			self.clearAll()
+			self.created = False
+			self.parent.changeScene(self.parent.login)
 
 	def keyDown(self, keyboard):
 		if keyboard.isKeyDown(ois.KC_LEFT):
-			self.camera.moveRelative(ogre.Vector3(-self.scrollSpeed, 0, 0))
+			self.camera.moveRelative(ogre.Vector3(-self.scroll_speed, 0, 0))
 		if keyboard.isKeyDown(ois.KC_RIGHT):
-			self.camera.moveRelative(ogre.Vector3(self.scrollSpeed, 0, 0))
+			self.camera.moveRelative(ogre.Vector3(self.scroll_speed, 0, 0))
 		if keyboard.isKeyDown(ois.KC_UP):
-			self.camera.moveRelative(ogre.Vector3(0, self.scrollSpeed, 0))
+			self.camera.moveRelative(ogre.Vector3(0, self.scroll_speed, 0))
 		if keyboard.isKeyDown(ois.KC_DOWN):
-			self.camera.moveRelative(ogre.Vector3(0, -self.scrollSpeed, 0))
+			self.camera.moveRelative(ogre.Vector3(0, -self.scroll_speed, 0))
 		if keyboard.isKeyDown(ois.KC_EQUALS):
-			self.camera.moveRelative(ogre.Vector3(0, 0, -self.scrollSpeed))
+			self.camera.moveRelative(ogre.Vector3(0, 0, -self.scroll_speed))
 		if keyboard.isKeyDown(ois.KC_MINUS):
-			self.camera.moveRelative(ogre.Vector3(0, 0, self.scrollSpeed))
+			self.camera.moveRelative(ogre.Vector3(0, 0, self.scroll_speed))
+
+	def moveTo(self, source, destination):
+		object = self.objects[source]
+		if object.subtype is FLEET:
+			target = self.objects[destination]
+			descs = OrderDescs()
+			for order_type in object.order_types:
+				if not descs.has_key(order_type):
+					continue
+				descclass = descs[order_type]
+				if descclass._name in ['Move', 'Move To', 'Intercept']:
+					orderargs = [0, source, -1, descclass.subtype, 0, []]
+					for name, t in descclass.names:
+						if t is ARG_ABS_COORD:
+							orderargs.append(target.pos)
+					order = descclass(*orderargs)
+
+					cache = self.parent.application.cache
+					network = self.parent.application.network
+					node = cache.orders[source].first
+					evt = cache.apply("orders", "create after", source, node, order)
+					network.Call(network.OnCacheDirty, evt)
+
+					self.drawLine(source, destination)
+					break
 
 	def mode(self, modes):
 		if self.OWNERS in modes:
@@ -712,3 +607,128 @@ class StarmapScene(MenuScene):
 				else:
 					self.overlays[id].colour = ogre.ColorValue.Yellow
 		
+	def nextMessage(self, evt):
+		"""Sets messagebox to the next message if available"""
+		if self.message_index < len(self.messages) - 1:
+			self.message_index += 1
+			self.setCurrentMessage(self.messages[self.message_index])
+
+	def prevMessage(self, evt):
+		"""Sets messagebox to the previous message if available"""
+		if self.message_index > 0:
+			self.message_index -= 1
+			self.setCurrentMessage(self.messages[self.message_index])
+
+	def setCurrentMessage(self, message):
+		"""Sets message text inside message window"""
+		wm = cegui.WindowManager.getSingleton()
+		msgbox = wm.getWindow("Messages/Message")
+		text = "Subject: " + message.subject + "\n"
+		text += "\n"
+		text += message.body
+		msgbox.setText(text)
+
+	def setInformationText(self, object):
+		"""Sets text inside information window"""
+		wm = cegui.WindowManager.getSingleton()
+		infobox = wm.getWindow("Information/Text")
+		text = "modify time: " + object.modify_time.ctime() + "\n"
+		text += "name: " + object.name + "\n"
+		text += "parent: " + str(object.parent) + "\n"
+		text += "position: " + str(object.pos) + "\n"
+		text += "velocity: " + str(object.vel) + "\n"
+		text += "id: " + str(object.id) + "\n"
+		text += "size: " + str(object.size) + "\n"
+		infobox.setText(text)
+
+	def systemSelected(self, evt):
+		"""Updates information box with selected system info"""
+		print "System selected"
+		wm = cegui.WindowManager.getSingleton()
+		listbox = wm.getWindow("System/SystemList")
+		selected = listbox.getFirstSelectedItem()
+		for obj in self.objects.values():
+			if obj.name == selected.text:
+				self.setInformationText(obj)
+				break
+
+	def closeClicked(self, evt):
+		"""Called when user clicks on the close button of a window"""
+		evt.window.setVisible(not evt.window.isVisible())
+
+	def windowToggle(self, evt):
+		"""Toggles visibility of a window"""
+		wm = cegui.WindowManager.getSingleton()
+		# assume buttons and windows have the same name, minus prefix
+		name = evt.window.getName().c_str().split("/")[1]
+		if name != None:
+			window = wm.getWindow(name)
+			window.setVisible(not window.isVisible())
+
+	def drawLine(self, id_start, id_end):
+		start_node = self.nodes[id_start]
+		end_node = self.nodes[id_end]
+		manual_object = self.sceneManager.createManualObject("line%i" % self.lines)
+		scene_node = self.rootNode.createChildSceneNode("line%i_node" % self.lines)
+
+		material = ogre.MaterialManager.getSingleton().create("line%i_material" % self.lines, "default")
+		material.setReceiveShadows(False)
+		material.getTechnique(0).getPass(0).setAmbient(0,1,0)
+
+		manual_object.begin("line%i_material" % self.lines, ogre.RenderOperation.OT_LINE_LIST)
+		manual_object.position(start_node.position)
+		manual_object.position(end_node.position)
+		manual_object.end()
+
+		scene_node.attachObject(manual_object)
+		self.lines += 1
+
+	def clearLines(self):
+		for i in range(self.lines):
+			self.sceneManager.destroySceneNode("line%i_node" % i)
+			self.sceneManager.destroyEntity("line%i" % i)
+			ogre.MaterialManager.getSingleton().remove("line%i_material" % i)
+		self.lines = 0
+
+	def clearOverlays(self):
+		for ov in self.overlays.values():
+			ov.destroy()
+		self.overlays = {}
+
+	def clearGui(self):
+		wm = cegui.WindowManager.getSingleton()
+		wm.getWindow("Orders/OrderList").resetList()
+		wm.getWindow("System/SystemList").resetList()
+		wm.getWindow("Messages/Message").setText("")
+		wm.getWindow("Information/Text").setText("")
+	
+	def clearAll(self):
+		self.clearLines()
+		self.clearOverlays()
+		self.clearGui()
+		self.sceneManager.destroyAllEntities()
+		self.rootNode.removeAndDestroyAllChildren()
+
+	def getIDFromMovable(self, movable):
+		return long(movable.getName()[6:])
+
+	def autofit(self):
+		"""Zooms out until all stars are visible"""
+		fit = False
+		self.camera.setPosition(ogre.Vector3(0,0,0))
+		while not fit:
+			self.camera.moveRelative(ogre.Vector3(0, 0, 500))
+
+			fit = True
+			for key in self.nodes:
+				object = self.nodes[key]
+				if not self.camera.isVisible(object.getPosition()):
+					fit = False
+
+	def center(self, id):
+		"""Center on an object identified by object id"""
+		node = self.nodes[id]
+		pos = node.getPosition()
+		cam = self.camera.getPosition()
+		self.camera.setPosition(ogre.Vector3(pos.x,pos.y,cam.z))
+

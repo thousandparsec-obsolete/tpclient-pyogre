@@ -300,12 +300,7 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 		"""Handles a single key press by the user"""
 		self.console.keyPressed(evt)
 
-		# Quick escape? Maybe it should be removed
-		if evt.key == ois.KC_ESCAPE:
-			self.keepRendering = False
-			return True
-		
-		elif evt.key == ois.KC_F12:
+		if evt.key == ois.KC_F12:
 			path, next = 'screenshot.png', 1
 			while os.path.exists(path):
 				path = 'screenshot_%d.png' % next
@@ -313,6 +308,11 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 			
 			self.renderWindow.writeContentsToFile(path)
 			self.renderWindow.debugText = 'screenshot taken: ' + path
+
+		elif evt.key == ois.KC_Q:
+			if self.keyboard.isKeyDown(ois.KC_LCONTROL) or self.keyboard.isKeyDown(ois.KC_RCONTROL):
+				self.keepRendering = False
+				return True
 
 		# Debugging functions
 		elif evt.key == ois.KC_SCROLL:
