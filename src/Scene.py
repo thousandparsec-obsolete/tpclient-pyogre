@@ -211,6 +211,8 @@ class StarmapScene(MenuScene):
 	tolerance_delta = 1
 	distance_scale = 900000
 	scroll_speed = 100
+	max_zoom = -10
+	min_zoom = 10
 
 	def __init__(self, parent, sceneManager):
 		Scene.__init__(self, parent, sceneManager)
@@ -223,6 +225,7 @@ class StarmapScene(MenuScene):
 		self.message_index = 0
 		self.lines = 0
 		self.created = False
+		self.zoom = 0
 	
 		self.raySceneQuery = self.sceneManager.createRayQuery(ogre.Ray())
 		self.raySceneQuery.setSortByDistance(True, 10)
@@ -460,11 +463,13 @@ class StarmapScene(MenuScene):
 			self.camera.moveRelative(
 				ogre.Vector3(state.X.rel * adjusted_pan, -state.Y.rel * adjusted_pan, 0))
 		
-		elif state.Z.rel < 0: # scroll down
+		elif state.Z.rel < 0 and self.zoom > self.max_zoom: # scroll down
 			self.camera.moveRelative(ogre.Vector3(0, 0, 2 * self.pan_speed))
+			self.zoom -= 1
 
-		elif state.Z.rel > 0: # scroll up
+		elif state.Z.rel > 0 and self.zoom < self.min_zoom: # scroll up
 			self.camera.moveRelative(ogre.Vector3(0, 0, -2 * self.pan_speed))
+			self.zoom += 1
 
 		else:
 			x = float(state.X.abs) / float(state.width)
