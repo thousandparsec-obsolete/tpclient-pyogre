@@ -232,16 +232,16 @@ class StarmapScene(MenuScene):
 		self.raySceneQuery.setQueryMask(self.SELECTABLE & ~self.UNSELECTABLE)
 
 		# Load all the billboards
-		self.flareBillboardSets = []
-		for i in xrange(1, 12):
-			billboardSet = self.sceneManager.createBillboardSet("flare%i" % i)
-			billboardSet.setMaterialName("Billboards/Flares/flare%i" % i)
-			billboardSet.setCullIndividually(True)
-			billboardSet.setDefaultDimensions(20, 20)
-			billboardSet.setQueryFlags(self.UNSELECTABLE)
+		#self.flareBillboardSets = []
+		#for i in xrange(1, 12):
+			#billboardSet = self.sceneManager.createBillboardSet("flare%i" % i)
+			#billboardSet.setMaterialName("Billboards/Flares/flare%i" % i)
+			#billboardSet.setCullIndividually(True)
+			#billboardSet.setDefaultDimensions(20, 20)
+			#billboardSet.setQueryFlags(self.UNSELECTABLE)
 			
-			self.rootNode.attachObject(billboardSet)
-			self.flareBillboardSets.append(billboardSet)
+			#self.rootNode.attachObject(billboardSet)
+			#self.flareBillboardSets.append(billboardSet)
 
 		wm = cegui.WindowManager.getSingleton()
 		system = wm.loadWindowLayout("system.layout")
@@ -272,9 +272,9 @@ class StarmapScene(MenuScene):
 
 		for object in self.objects.values():
 			pos = ogre.Vector3(
-					object.pos[0]/self.distance_scale, 
-					object.pos[1]/self.distance_scale, 
-					object.pos[2]/self.distance_scale)
+					object.pos[0] / self.distance_scale, 
+					object.pos[1] / self.distance_scale, 
+					object.pos[2] / self.distance_scale)
 
 			print "creating", object.id, object.name, object._subtype, "at", pos
 			
@@ -303,22 +303,9 @@ class StarmapScene(MenuScene):
 
 			if object._subtype is PLANET:
 				# Get parent system and the number of other planets
-				parent = self.objects[object.parent]
-				if not hasattr(parent, "planets"):
-					parent.planets = 0
-					index = 1
-					for i in self.objects.values():
-						if i._subtype is 3 and i.parent == object.parent:
-							i.index = index
-							index += 1
-							parent.planets += 1
+				parent = self.updateObjectIndex(object, "planets", PLANET)
 
-				radius = 100
-				interval = (720 / parent.planets) * object.index
-				x = radius * math.cos(interval)
-				y = radius * math.sin(interval)
-				pos.x += x
-				pos.y += y
+				pos = self.calculateRadialPosition(pos, 100, 720, parent.planets, object.index)
 
 				node = self.createObjectNode(pos, object.id, 'sphere.mesh', 50)
 				self.nodes[object.id] = node
@@ -327,22 +314,8 @@ class StarmapScene(MenuScene):
 
 			if object._subtype is FLEET:
 				# Get parent system and the number of other fleets
-				parent = self.objects[object.parent]
-				if not hasattr(parent, "fleets") or not hasattr(object, "index"):
-					parent.fleets = 0
-					index = 1
-					for i in self.objects.values():
-						if i._subtype is FLEET and i.parent == object.parent:
-							i.index = index
-							index += 1
-							parent.fleets += 1
-
-				radius = 200
-				interval = (360 / parent.fleets) * object.index
-				x = radius * math.cos(interval)
-				y = radius * math.sin(interval)
-				pos.x += x
-				pos.y += y
+				parent = self.updateObjectIndex(object, "fleets", FLEET)
+				pos = self.calculateRadialPosition(pos, 200, 360, parent.fleets, object.index)
 
 				node = self.createObjectNode(pos, object.id, 'ship.mesh', 50)
 				self.nodes[object.id] = node
@@ -363,13 +336,33 @@ class StarmapScene(MenuScene):
 
 		self.autofit()
 
+	def updateObjectIndex(self, object, subtype_name, subtype_index):
+		parent = self.objects[object.parent]
+		if not hasattr(parent, subtype_name) or not hasattr(object, "index"):
+			exec("parent.%s = %i" % (subtype_name, 0))
+			index = 1
+			for i in self.objects.values():
+				if i._subtype == subtype_index and i.parent == object.parent:
+					i.index = index
+					index += 1
+					exec("parent.%s += 1" % subtype_name)
+		return parent
+
+	def calculateRadialPosition(self, position, radius, total_degree, total_objects, object_index):
+		interval = (total_degree / total_objects) * object_index
+		x = radius * math.cos(interval)
+		y = radius * math.sin(interval)
+		position.x += x
+		position.y += y
+		return position
+
 	def createObjectNode(self, pos, oid, mesh, scale):
 		node = self.rootNode.createChildSceneNode("Object%i_Node" % oid, pos)
 		entityNode = node.createChildSceneNode("Object%i_EntityNode" % oid, ogre.Vector3(0, 0, 0))
 		entity = self.sceneManager.createEntity("Object%i" % oid, mesh)
 		entity.queryFlags = self.SELECTABLE
 		obj_scale = scale / entity.mesh.boundingSphereRadius
-		entityNode.setScale(ogre.Vector3(obj_scale,obj_scale,obj_scale))
+		entityNode.setScale(ogre.Vector3(obj_scale, obj_scale, obj_scale))
 		entityNode.attachObject(entity)
 		return node
 
@@ -384,31 +377,18 @@ class StarmapScene(MenuScene):
 
 		for object in cache.objects.values():
 			pos = ogre.Vector3(
-					object.pos[0]/self.distance_scale, 
-					object.pos[1]/self.distance_scale, 
-					object.pos[2]/self.distance_scale)
+					object.pos[0] / self.distance_scale, 
+					object.pos[1] / self.distance_scale, 
+					object.pos[2] / self.distance_scale)
 
 			print "updating", object.id, object.name, object._subtype, "at", pos
 
 			if object._subtype is FLEET:
 				# Get parent system and the number of other fleets
 				# FIXME: What if a fleet is destroyed
-				parent = self.objects[object.parent]
-				if not hasattr(parent, "fleets") or not hasattr(object, "index"):
-					parent.fleets = 0
-					index = 1
-					for i in self.objects.values():
-						if i._subtype is FLEET and i.parent == object.parent:
-							i.index = index
-							index += 1
-							parent.fleets += 1
+				parent = self.updateObjectIndex(object, "fleets", FLEET)
 
-				radius = 200
-				interval = (360 / parent.fleets) * object.index
-				x = radius * math.cos(interval)
-				y = radius * math.sin(interval)
-				pos.x += x
-				pos.y += y
+				pos = self.calculateRadialPosition(pos, 200, 360, parent.fleets, object.index)
 
 				node = self.nodes[object.id]
 				node.setPosition(pos)
@@ -628,6 +608,7 @@ class StarmapScene(MenuScene):
 			self.setCurrentMessage(self.messages[self.message_index])
 
 	def deleteMessage(self, evt):
+		"""Deletes the current message permanently and displays the next message, if any."""
 		cache = self.parent.application.cache
 		network = self.parent.application.network
 		current_message = self.messages[self.message_index]
@@ -744,6 +725,7 @@ class StarmapScene(MenuScene):
 				object = self.nodes[key]
 				if not self.camera.isVisible(object.getPosition()):
 					fit = False
+		self.zoom = 0
 
 	def center(self, id):
 		"""Center on an object identified by object id"""
