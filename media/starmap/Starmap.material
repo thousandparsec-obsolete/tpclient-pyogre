@@ -1,0 +1,18 @@
+material Starmap/Planet
+{
+	technique
+	{
+		pass
+		{
+			ambient 1 1 1 1
+			diffuse 0 0 0 0
+			specular 0 0 0 0 60
+			emissive 0 0 0 1
+
+			texture_unit
+			{
+				texture oceanBase.jpg
+			}
+		}
+	}
+}

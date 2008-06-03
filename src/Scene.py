@@ -226,6 +226,7 @@ class StarmapScene(MenuScene):
 		self.lines = 0
 		self.created = False
 		self.zoom = 0
+		self.bg_particle = None
 	
 		self.raySceneQuery = self.sceneManager.createRayQuery(ogre.Ray())
 		self.raySceneQuery.setSortByDistance(True, 10)
@@ -261,11 +262,23 @@ class StarmapScene(MenuScene):
 
 		self.hide()
 	
+	def show(self):
+		Scene.show(self)
+
+	def createBackground(self):
+		if self.bg_particle is None:
+			self.bg_particle = self.sceneManager.createParticleSystem("stars", "Space/Stars")
+		particleNode = self.rootNode.createChildSceneNode("StarryBackground")
+		particleNode.pitch(ogre.Radian(1.57))
+		particleNode.attachObject(self.bg_particle)
+
 	def create(self, cache):
 		"""Creates list of objects from cache"""
 		print "creating the starmap"
 		self.objects = cache.objects
 		self.system_list = []
+
+		self.createBackground()
 
 		wm = cegui.WindowManager.getSingleton()
 		listbox = wm.getWindow("System/SystemList")
