@@ -9,6 +9,7 @@ from tp.netlib.objects.constants import *
 from tp.client.threads import NetworkThread
 
 import overlay
+import starmap
 
 UNIVERSE = 1
 STAR = 2
@@ -204,6 +205,8 @@ class ConfigScene(MenuScene):
 		self.hide()
 
 class StarmapScene(MenuScene):
+	"""Manages the GUI and Starmap class"""
+
 	SELECTABLE = 2**1
 	UNSELECTABLE = 2**2
 
@@ -219,14 +222,10 @@ class StarmapScene(MenuScene):
 
 		self.mouse_delta = ogre.Vector2(0, 0)
 		self.current_object = None
-		self.nodes = {}
-		self.overlays = {}
 		self.messages = []
 		self.message_index = 0
-		self.lines = 0
 		self.created = False
-		self.zoom = 0
-		self.bg_particle = None
+		self.starmap = starmap.Starmap(self, self.sceneManager, self.rootNode)
 	
 		self.raySceneQuery = self.sceneManager.createRayQuery(ogre.Ray())
 		self.raySceneQuery.setSortByDistance(True, 10)
@@ -265,21 +264,13 @@ class StarmapScene(MenuScene):
 	def show(self):
 		Scene.show(self)
 
-	def createBackground(self):
-		"""Creates a starry background for the current scene"""
-		if self.bg_particle is None:
-			self.bg_particle = self.sceneManager.createParticleSystem("stars", "Space/Stars")
-		particleNode = self.rootNode.createChildSceneNode("StarryBackground")
-		particleNode.pitch(ogre.Radian(1.57))
-		particleNode.attachObject(self.bg_particle)
-
 	def create(self, cache):
 		"""Creates list of objects from cache"""
 		print "creating the starmap"
 		self.objects = cache.objects
 		self.system_list = []
 
-		self.createBackground()
+		self.starmap.createBackground()
 
 		wm = cegui.WindowManager.getSingleton()
 		listbox = wm.getWindow("System/SystemList")
@@ -293,19 +284,7 @@ class StarmapScene(MenuScene):
 			print "creating", object.id, object.name, object._subtype, "at", pos
 			
 			if object._subtype is STAR:
-				node = self.createObjectNode(pos, object.id, 'sphere.mesh', 100)
-				self.nodes[object.id] = node
-				entityNode = self.sceneManager.getSceneNode("Object%i_EntityNode" % object.id)
-
-				# Lens flare
-				#billboardSet = self.flareBillboardSets[object.id % len(self.flareBillboardSets)]
-				#billboard = billboardSet.createBillboard(pos, ogre.ColourValue.White)
-		
-				# Text overlays
-				label = overlay.ObjectOverlay(entityNode, object)
-				label.show(label.name)
-				label.setColour(ogre.ColourValue(0.7, 0.9, 0.7))
-				self.overlays[object.id] = label
+				node = self.starmap.addStar(object, pos)
 
 				# Add to system list
 				item = cegui.ListboxTextItem(object.name)
@@ -318,24 +297,12 @@ class StarmapScene(MenuScene):
 			if object._subtype is PLANET:
 				# Get parent system and the number of other planets
 				parent = self.updateObjectIndex(object, "planets", PLANET)
-
-				pos = self.calculateRadialPosition(pos, 100, 720, parent.planets, object.index)
-
-				node = self.createObjectNode(pos, object.id, 'sphere.mesh', 50)
-				self.nodes[object.id] = node
-				entity = self.sceneManager.getEntity("Object%i" % object.id)
-				entity.setMaterialName("Starmap/Planet")
+				node = self.starmap.addPlanet(object, pos, parent)
 
 			if object._subtype is FLEET:
 				# Get parent system and the number of other fleets
 				parent = self.updateObjectIndex(object, "fleets", FLEET)
-				pos = self.calculateRadialPosition(pos, 200, 360, parent.fleets, object.index)
-
-				node = self.createObjectNode(pos, object.id, 'ship.mesh', 50)
-				self.nodes[object.id] = node
-				entityNode = node.getChild(0)
-				entityNode.yaw(ogre.Radian(1.57))
-				entityNode.roll(ogre.Radian(1.57))
+				node = self.starmap.addFleet(object, pos, parent)
 
 		for val in cache.messages[0]:
 			self.messages.append(val)
@@ -348,7 +315,7 @@ class StarmapScene(MenuScene):
 
 		self.created = True
 
-		self.autofit()
+		self.starmap.autofit()
 
 	def updateObjectIndex(self, object, subtype_name, subtype_index):
 		"""Finds how many siblings an object has and updates it's index accordingly
@@ -371,41 +338,6 @@ class StarmapScene(MenuScene):
 					exec("parent.%s += 1" % subtype_name)
 		return parent
 
-	def calculateRadialPosition(self, position, radius, total_degree, total_objects, object_index):
-		"""Updates the position of an object orbiting around it's parent
-
-		position - The current position of the object
-		radius - The distance from the parent
-		total_degree - How many total degrees there are
-		total_objects - How many objects in total surrounding the parent
-		object_index - Index of the current object
-		
-		"""
-		interval = (total_degree / total_objects) * object_index
-		x = radius * math.cos(interval)
-		y = radius * math.sin(interval)
-		position.x += x
-		position.y += y
-		return position
-
-	def createObjectNode(self, pos, oid, mesh, scale):
-		"""Returns a scene node containing the scaled entity mesh
-		
-		pos - The current position of the object
-		oid - The ID of the object
-		mesh - String containing the mesh file name
-		scale - How much to scale the object by
-
-		"""
-		node = self.rootNode.createChildSceneNode("Object%i_Node" % oid, pos)
-		entityNode = node.createChildSceneNode("Object%i_EntityNode" % oid, ogre.Vector3(0, 0, 0))
-		entity = self.sceneManager.createEntity("Object%i" % oid, mesh)
-		entity.queryFlags = self.SELECTABLE
-		obj_scale = scale / entity.mesh.boundingSphereRadius
-		entityNode.setScale(ogre.Vector3(obj_scale, obj_scale, obj_scale))
-		entityNode.attachObject(entity)
-		return node
-
 	def recreate(self, cache):
 		"""Update locations of objects
 		
@@ -414,7 +346,7 @@ class StarmapScene(MenuScene):
 		"""
 		print "Updating starmap"
 		self.objects = cache.objects
-		self.clearLines()
+		self.starmap.clearLines()
 
 		for object in cache.objects.values():
 			pos = ogre.Vector3(
@@ -428,17 +360,10 @@ class StarmapScene(MenuScene):
 				# Get parent system and the number of other fleets
 				# FIXME: What if a fleet is destroyed
 				parent = self.updateObjectIndex(object, "fleets", FLEET)
-
-				pos = self.calculateRadialPosition(pos, 200, 360, parent.fleets, object.index)
-
-				node = self.nodes[object.id]
-				node.setPosition(pos)
+				self.starmap.setFleet(object, pos, parent)
 
 	def update(self, evt):
-		camera = self.sceneManager.getCamera( 'PlayerCam' )
-		for label in self.overlays.values():
-			label.update(camera)
-		return True
+		return self.starmap.update()
 
 	def onNetworkTimeRemaining(self, evt):
 		"""Called whenever a NetworkTimeRemaining packet is received"""
@@ -478,20 +403,20 @@ class StarmapScene(MenuScene):
 		self.mouse_delta += (abs(state.X.rel), abs(state.Y.rel))
 
 		if state.buttonDown(ois.MB_Middle):
-			if self.zoom != 0:
-				adjusted_pan = abs(self.pan_speed / (self.zoom * 2))
+			if self.starmap.zoom != 0:
+				adjusted_pan = abs(self.pan_speed / (self.starmap.zoom * 2))
 			else:
 				adjusted_pan = self.pan_speed
 			self.camera.moveRelative(
 				ogre.Vector3(state.X.rel * adjusted_pan, -state.Y.rel * adjusted_pan, 0))
 		
-		elif state.Z.rel < 0 and self.zoom > self.max_zoom: # scroll down
+		elif state.Z.rel < 0 and self.starmap.zoom > self.max_zoom: # scroll down
 			self.camera.moveRelative(ogre.Vector3(0, 0, 2 * self.pan_speed))
-			self.zoom -= 1
+			self.starmap.zoom -= 1
 
-		elif state.Z.rel > 0 and self.zoom < self.min_zoom: # scroll up
+		elif state.Z.rel > 0 and self.starmap.zoom < self.min_zoom: # scroll up
 			self.camera.moveRelative(ogre.Vector3(0, 0, -2 * self.pan_speed))
-			self.zoom += 1
+			self.starmap.zoom += 1
 
 		else:
 			x = float(state.X.abs) / float(state.width)
@@ -579,10 +504,10 @@ class StarmapScene(MenuScene):
 
 	def keyPressed(self, evt):
 		if evt.key == ois.KC_A:
-			self.autofit()
+			self.starmap.autofit()
 		elif evt.key == ois.KC_C:
 			if self.current_object:
-				self.center(self.getIDFromMovable(self.current_object))
+				self.starmap.center(self.getIDFromMovable(self.current_object))
 		elif evt.key == ois.KC_ESCAPE:
 			self.clearAll()
 			self.created = False
@@ -631,17 +556,9 @@ class StarmapScene(MenuScene):
 					evt = cache.apply("orders", "create after", source, node, order)
 					network.Call(network.OnCacheDirty, evt)
 
-					self.drawLine(source, destination)
+					self.starmap.drawLine(source, destination)
 					break
 
-	def mode(self, modes):
-		if self.OWNERS in modes:
-			for id, object in self.objects.items():
-				if object.owner in (0, -1):
-					self.overlays[id].colour = ogre.ColorValue.Blue
-				else:
-					self.overlays[id].colour = ogre.ColorValue.Yellow
-		
 	def nextMessage(self, evt):
 		"""Sets messagebox to the next message if available"""
 		if len(self.messages) > 0 and self.message_index < len(self.messages) - 1:
@@ -711,44 +628,6 @@ class StarmapScene(MenuScene):
 			window = wm.getWindow(name)
 			window.setVisible(not window.isVisible())
 
-	def drawLine(self, id_start, id_end):
-		"""Draws a line showing the path of an object.
-
-		id_start - ID of the moving object
-		id_end - ID of the object's destination
-
-		"""
-		start_node = self.nodes[id_start]
-		end_node = self.nodes[id_end]
-		manual_object = self.sceneManager.createManualObject("line%i" % self.lines)
-		scene_node = self.rootNode.createChildSceneNode("line%i_node" % self.lines)
-
-		material = ogre.MaterialManager.getSingleton().create("line%i_material" % self.lines, "default")
-		material.setReceiveShadows(False)
-		material.getTechnique(0).getPass(0).setAmbient(0,1,0)
-
-		manual_object.begin("line%i_material" % self.lines, ogre.RenderOperation.OT_LINE_LIST)
-		manual_object.position(start_node.position)
-		manual_object.position(end_node.position)
-		manual_object.end()
-
-		scene_node.attachObject(manual_object)
-		self.lines += 1
-
-	def clearLines(self):
-		"""Removes all lines created by the drawLine method"""
-		for i in range(self.lines):
-			self.sceneManager.destroySceneNode("line%i_node" % i)
-			self.sceneManager.destroyEntity("line%i" % i)
-			ogre.MaterialManager.getSingleton().remove("line%i_material" % i)
-		self.lines = 0
-
-	def clearOverlays(self):
-		"""Clears all the object labels"""
-		for ov in self.overlays.values():
-			ov.destroy()
-		self.overlays = {}
-
 	def clearGui(self):
 		"""Empty out all GUI textboxes and hide all windows"""
 		wm = cegui.WindowManager.getSingleton()
@@ -761,34 +640,12 @@ class StarmapScene(MenuScene):
 	
 	def clearAll(self):
 		"""Clears the entire starmap scene"""
-		self.clearLines()
-		self.clearOverlays()
+		self.starmap.clearLines()
+		self.starmap.clearOverlays()
+		self.starmap.clearObjects()
 		self.clearGui()
-		self.sceneManager.destroyAllEntities()
-		self.rootNode.removeAndDestroyAllChildren()
 
 	def getIDFromMovable(self, movable):
 		"""Returns the object id from an Entity node"""
 		return long(movable.getName()[6:])
-
-	def autofit(self):
-		"""Zooms out until all stars are visible"""
-		fit = False
-		self.camera.setPosition(ogre.Vector3(0,0,0))
-		while not fit:
-			self.camera.moveRelative(ogre.Vector3(0, 0, 500))
-
-			fit = True
-			for key in self.nodes:
-				object = self.nodes[key]
-				if not self.camera.isVisible(object.getPosition()):
-					fit = False
-		self.zoom = 0
-
-	def center(self, id):
-		"""Center on an object identified by object id"""
-		node = self.nodes[id]
-		pos = node.getPosition()
-		cam = self.camera.getPosition()
-		self.camera.setPosition(ogre.Vector3(pos.x,pos.y,cam.z))
 
