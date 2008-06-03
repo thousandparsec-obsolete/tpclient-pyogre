@@ -12,30 +12,33 @@
             <Property Name="CloseButtonEnabled" Value="False" />
             <Window Type="SleekSpace/StaticText" Name="Login/ServerText" >
                 <Property Name="Text" Value="Server:" />
+                <Property Name="HorzFormatting" Value="HorzCentred" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.028125,0},{0.0437505,0},{0.246875,0},{0.24375,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0300781,0},{0.0628345,0},{0.248828,0},{0.183016,0}}" />
             </Window>
             <Window Type="SleekSpace/StaticText" Name="Login/UsernameText" >
                 <Property Name="Text" Value="Username:" />
+                <Property Name="HorzFormatting" Value="HorzCentred" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.028125,0},{0.2875,0},{0.246875,0},{0.4875,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0300781,0},{0.279866,0},{0.248828,0},{0.396231,0}}" />
             </Window>
             <Window Type="SleekSpace/Editbox" Name="Login/Username" >
                 <Property Name="Text" Value="test" />
                 <Property Name="MaxTextLength" Value="255" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.253125,0},{0.297567,0},{0.96875,0},{0.478817,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.255078,0},{0.2875,0},{0.970703,0},{0.400048,0}}" />
             </Window>
             <Window Type="SleekSpace/StaticText" Name="Login/PasswordText" >
                 <Property Name="Text" Value="Password:" />
+                <Property Name="HorzFormatting" Value="HorzCentred" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.028125,0},{0.5375,0},{0.246875,0},{0.7375,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0300781,0},{0.487882,0},{0.248828,0},{0.608063,0}}" />
             </Window>
             <Window Type="SleekSpace/Editbox" Name="Login/Password" >
                 <Property Name="Text" Value="12345" />
                 <Property Name="MaxTextLength" Value="1073741823" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.253125,0},{0.551384,0},{0.96875,0},{0.732634,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.255078,0},{0.495515,0},{0.970703,0},{0.608063,0}}" />
             </Window>
             <Window Type="SleekSpace/Button" Name="Login/LoginButton" >
                 <Property Name="Text" Value="Login" />
@@ -56,7 +59,7 @@
                 <Property Name="Text" Value="localhost" />
                 <Property Name="AlwaysOnTop" Value="True" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.253125,0},{0.0600673,0},{0.96875,0},{0.503817,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.255078,0},{0.0742849,0},{0.970703,0},{0.518035,0}}" />
                 <Property Name="MaxEditTextLength" Value="1073741823" />
                 <Property Name="DistributeCapturedInputs" Value="True" />
             </Window>

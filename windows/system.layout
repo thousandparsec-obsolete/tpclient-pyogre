@@ -29,7 +29,7 @@
                 <Property Name="Font" Value="BlueHighway-10" />
                 <Property Name="Text" Value="New" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.653886,0},{0.89835,0},{0.941075,0},{0.949819,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.653886,0},{0.89835,0},{0.941075,0},{0.947686,0}}" />
             </Window>
         </Window>
         <Window Type="SleekSpace/FrameWindow" Name="Windows" >
