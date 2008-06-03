@@ -266,6 +266,7 @@ class StarmapScene(MenuScene):
 		Scene.show(self)
 
 	def createBackground(self):
+		"""Creates a starry background for the current scene"""
 		if self.bg_particle is None:
 			self.bg_particle = self.sceneManager.createParticleSystem("stars", "Space/Stars")
 		particleNode = self.rootNode.createChildSceneNode("StarryBackground")
@@ -350,6 +351,15 @@ class StarmapScene(MenuScene):
 		self.autofit()
 
 	def updateObjectIndex(self, object, subtype_name, subtype_index):
+		"""Finds how many siblings an object has and updates it's index accordingly
+		
+		object - The current object
+		subtype_name - The name of the object type
+		subtype_index - The index of the object type
+
+		e.g. updateObjectIndex(object, "fleets", 4)
+
+		"""
 		parent = self.objects[object.parent]
 		if not hasattr(parent, subtype_name) or not hasattr(object, "index"):
 			exec("parent.%s = %i" % (subtype_name, 0))
@@ -362,6 +372,15 @@ class StarmapScene(MenuScene):
 		return parent
 
 	def calculateRadialPosition(self, position, radius, total_degree, total_objects, object_index):
+		"""Updates the position of an object orbiting around it's parent
+
+		position - The current position of the object
+		radius - The distance from the parent
+		total_degree - How many total degrees there are
+		total_objects - How many objects in total surrounding the parent
+		object_index - Index of the current object
+		
+		"""
 		interval = (total_degree / total_objects) * object_index
 		x = radius * math.cos(interval)
 		y = radius * math.sin(interval)
@@ -370,6 +389,14 @@ class StarmapScene(MenuScene):
 		return position
 
 	def createObjectNode(self, pos, oid, mesh, scale):
+		"""Returns a scene node containing the scaled entity mesh
+		
+		pos - The current position of the object
+		oid - The ID of the object
+		mesh - String containing the mesh file name
+		scale - How much to scale the object by
+
+		"""
 		node = self.rootNode.createChildSceneNode("Object%i_Node" % oid, pos)
 		entityNode = node.createChildSceneNode("Object%i_EntityNode" % oid, ogre.Vector3(0, 0, 0))
 		entity = self.sceneManager.createEntity("Object%i" % oid, mesh)
@@ -383,6 +410,7 @@ class StarmapScene(MenuScene):
 		"""Update locations of objects
 		
 		Assumes stars and planet locations do not change.
+
 		"""
 		print "Updating starmap"
 		self.objects = cache.objects
@@ -448,8 +476,6 @@ class StarmapScene(MenuScene):
 		state = evt.get_state()
 
 		self.mouse_delta += (abs(state.X.rel), abs(state.Y.rel))
-		#if self.mouse_delta.length > self.tolerance_delta:
-			#cegui.MouseCursor.getSingleton().hide()
 
 		if state.buttonDown(ois.MB_Middle):
 			if self.zoom != 0:
@@ -487,10 +513,7 @@ class StarmapScene(MenuScene):
 			# The mouse hasn't moved much check if the person is clicking on something.
 			x = float(state.X.abs) / float(state.width)
 			y = float(state.Y.abs) / float(state.height)
-			#print "%d, %d" % (state.width, state.height)
-			#print "%f, %f" % (state.X.abs, state.Y.abs)
-			#print "coord: ", x, y
-			mouseRay = self.camera.getCameraToViewportRay( x, y )
+			mouseRay = self.camera.getCameraToViewportRay(x, y)
 			self.raySceneQuery.setRay(mouseRay)
 
 			print "Executing ray scene query"
@@ -511,27 +534,31 @@ class StarmapScene(MenuScene):
 					oid = self.getIDFromMovable(o.movable)
 					
 					if id == ois.MB_Left:
-						# Unselect the current object
-						if self.current_object:
-							self.current_object.getParentSceneNode().showBoundingBox(False)
-							self.current_object = None
-
 						print "MovableObject: ", o.movable.getName()
-						self.current_object = o.movable
-						self.current_object.getParentSceneNode().showBoundingBox(True)
-
-						return self.mouseSelectObject(oid)
+						return self.selectEntity(o.movable)
 
 					if id == ois.MB_Right:
 						if self.current_object:
 							current_id = self.getIDFromMovable(self.current_object)
 							self.moveTo(current_id, oid)
 
-			return self.mouseSelectObject(None)
+			return False
 	
-	def mouseSelectObject(self, id):
+	def selectEntity(self, movable):
+		"""Highlights and selects the given Entity"""
+
+		id = self.getIDFromMovable(movable)
 		print "SelectObject", id
+
 		if id != None:
+			# Unselect the current object
+			if self.current_object:
+				self.current_object.getParentSceneNode().showBoundingBox(False)
+				self.current_object = None
+
+			self.current_object = movable
+			self.current_object.getParentSceneNode().showBoundingBox(True)
+
 			object = self.objects[id]
 			self.setInformationText(object)
 
@@ -559,6 +586,7 @@ class StarmapScene(MenuScene):
 		elif evt.key == ois.KC_ESCAPE:
 			self.clearAll()
 			self.created = False
+			self.parent.application.network.connection.disconnect()
 			self.parent.changeScene(self.parent.login)
 
 	def keyDown(self, keyboard):
@@ -576,6 +604,12 @@ class StarmapScene(MenuScene):
 			self.camera.moveRelative(ogre.Vector3(0, 0, self.scroll_speed))
 
 	def moveTo(self, source, destination):
+		"""Orders a fleet to move to a destination
+
+		source - ID of the fleet to move
+		destination - ID of the destination object
+
+		"""
 		object = self.objects[source]
 		if object.subtype is FLEET:
 			target = self.objects[destination]
@@ -678,6 +712,12 @@ class StarmapScene(MenuScene):
 			window.setVisible(not window.isVisible())
 
 	def drawLine(self, id_start, id_end):
+		"""Draws a line showing the path of an object.
+
+		id_start - ID of the moving object
+		id_end - ID of the object's destination
+
+		"""
 		start_node = self.nodes[id_start]
 		end_node = self.nodes[id_end]
 		manual_object = self.sceneManager.createManualObject("line%i" % self.lines)
@@ -696,6 +736,7 @@ class StarmapScene(MenuScene):
 		self.lines += 1
 
 	def clearLines(self):
+		"""Removes all lines created by the drawLine method"""
 		for i in range(self.lines):
 			self.sceneManager.destroySceneNode("line%i_node" % i)
 			self.sceneManager.destroyEntity("line%i" % i)
@@ -703,11 +744,13 @@ class StarmapScene(MenuScene):
 		self.lines = 0
 
 	def clearOverlays(self):
+		"""Clears all the object labels"""
 		for ov in self.overlays.values():
 			ov.destroy()
 		self.overlays = {}
 
 	def clearGui(self):
+		"""Empty out all GUI textboxes and hide all windows"""
 		wm = cegui.WindowManager.getSingleton()
 		wm.getWindow("Orders/OrderList").resetList()
 		wm.getWindow("System/SystemList").resetList()
@@ -717,6 +760,7 @@ class StarmapScene(MenuScene):
 			wm.getWindow(window).hide()
 	
 	def clearAll(self):
+		"""Clears the entire starmap scene"""
 		self.clearLines()
 		self.clearOverlays()
 		self.clearGui()
@@ -724,6 +768,7 @@ class StarmapScene(MenuScene):
 		self.rootNode.removeAndDestroyAllChildren()
 
 	def getIDFromMovable(self, movable):
+		"""Returns the object id from an Entity node"""
 		return long(movable.getName()[6:])
 
 	def autofit(self):

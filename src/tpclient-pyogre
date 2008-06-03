@@ -31,6 +31,8 @@ class GUI(Framework.Application):
 		self.guiSystem = 0
 
 		self.tocall = []
+		
+		self.start = self.go
 
 	def start(self):
 		try:
@@ -136,7 +138,7 @@ class Network(NetworkThread):
 	## These are network events
 	class NetworkFailureEvent(Exception):
 		"""Raised when the network connection fails for what ever reason"""
-		pass
+		type = "NetworkFailure"
 
 	def ConnectTo(self, host, username, password, debug=False):
 		"""Connect to a given host using a certain username and password"""
