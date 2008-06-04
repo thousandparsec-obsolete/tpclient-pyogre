@@ -4,10 +4,7 @@ material Starmap/Base
 	{
 		pass
 		{
-			ambient 1 1 1 1
-			diffuse 0 0 0 0
-			specular 0 0 0 0 60
-			emissive 0 0 0 1
+			// sphere.mesh links to this
 		}
 	}
 }
@@ -37,7 +34,16 @@ material Starmap/Sun
 		pass
 		{
 			emissive 1 1 1 1
+		}
+	}
+}
 
+material Starmap/Sun/Orange : Starmap/Sun
+{
+	technique
+	{
+		pass
+		{
 			texture_unit
 			{
 				texture orange_star.jpg
@@ -46,7 +52,35 @@ material Starmap/Sun
 	}
 }
 
-material Starmap/Planet/Terran
+material Starmap/Sun/Green : Starmap/Sun
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture greensun.jpg
+			}
+		}
+	}
+}
+
+material Starmap/Sun/White : Starmap/Sun
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture white_star.jpg
+			}
+		}
+	}
+}
+
+material Starmap/Planet
 {
 	technique
 	{
@@ -56,10 +90,47 @@ material Starmap/Planet/Terran
 			diffuse 1 1 1 1
 			specular 0 0 0 0 60
 			emissive 0 0 0 1
+		}
+	}
+}
 
+material Starmap/Planet/Terran : Starmap/Planet
+{
+	technique
+	{
+		pass
+		{
 			texture_unit
 			{
 				texture earth.jpg
+			}
+		}
+	}
+}
+
+material Starmap/Planet/Ocean : Starmap/Planet
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture oceanBase.jpg
+			}
+		}
+	}
+}
+
+material Starmap/Planet/Arid : Starmap/Planet
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture terr_rock-dirt.jpg
 			}
 		}
 	}

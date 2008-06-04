@@ -1,4 +1,5 @@
 import math
+import random
 
 import ogre.renderer.OGRE as ogre
 
@@ -66,8 +67,11 @@ class Starmap(object):
 		label.setColour(ogre.ColourValue(0.7, 0.9, 0.7))
 		self.overlays[object.id] = label
 
+		random.seed(object.id)
+		star_type = random.choice(["Orange", "White", "Green"])
+
 		entity = self.sceneManager.getEntity("Object%i" % object.id)
-		entity.setMaterialName("Starmap/Sun")
+		entity.setMaterialName("Starmap/Sun/%s" % star_type)
 
 		return node
 
@@ -79,8 +83,13 @@ class Starmap(object):
 		entityNode = node.getChild(0)
 		entityNode.pitch(ogre.Radian(1.57))
 
+		random.seed(parent.id)
+		for i in range(object.index):
+			random.random()
+		planet_type = random.choice(["Terran", "Ocean", "Arid"])
+
 		entity = self.sceneManager.getEntity("Object%i" % object.id)
-		entity.setMaterialName("Starmap/Planet/Terran")
+		entity.setMaterialName("Starmap/Planet/%s" % planet_type)
 
 	def addFleet(self, object, position, parent):
 		pos = self.calculateRadialPosition(position, 200, 360, parent.fleets, object.index)
@@ -90,6 +99,10 @@ class Starmap(object):
 		entityNode.yaw(ogre.Radian(1.57))
 		entityNode.roll(ogre.Radian(1.57))
 		
+		entity = self.sceneManager.getEntity("Object%i" % object.id)
+		material = entity.getSubEntity(0).getMaterial()
+		material.setAmbient(ogre.ColourValue.White)
+
 	def setFleet(self, object, position, parent):
 		pos = self.calculateRadialPosition(pos, 200, 360, parent.fleets, object.index)
 		node = self.nodes[object.id]
