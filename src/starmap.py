@@ -38,18 +38,24 @@ class Starmap(object):
 		label.setColour(ogre.ColourValue(0.7, 0.9, 0.7))
 		self.overlays[object.id] = label
 
+		entity = self.sceneManager.getEntity("Object%i" % object.id)
+		entity.setMaterialName("Starmap/Sun")
+
 		return node
 
 	def addPlanet(self, object, position, parent):
-		pos = self.calculateRadialPosition(position, 100, 720, parent.planets, object.index)
+		pos = self.calculateRadialPosition(position, 200, 720, parent.planets, object.index)
 		node = self.createObjectNode(pos, object.id, 'sphere.mesh', 50)
 		self.nodes[object.id] = node
+		entityNode = node.getChild(0)
+		entityNode.pitch(ogre.Radian(1.57))
+
 		entity = self.sceneManager.getEntity("Object%i" % object.id)
-		entity.setMaterialName("Starmap/Planet")
+		entity.setMaterialName("Starmap/Planet/Terran")
 
 	def addFleet(self, object, position, parent):
 		pos = self.calculateRadialPosition(position, 200, 360, parent.fleets, object.index)
-		node = self.createObjectNode(pos, object.id, 'ship.mesh', 50)
+		node = self.createObjectNode(pos, object.id, 'gawain.mesh', 50)
 		self.nodes[object.id] = node
 		entityNode = node.getChild(0)
 		entityNode.yaw(ogre.Radian(1.57))
@@ -83,6 +89,7 @@ class Starmap(object):
 		obj_scale = scale / entity.mesh.boundingSphereRadius
 		entityNode.setScale(ogre.Vector3(obj_scale, obj_scale, obj_scale))
 		entityNode.attachObject(entity)
+
 		return node
 
 	def calculateRadialPosition(self, position, radius, total_degree, total_objects, object_index):
@@ -103,9 +110,10 @@ class Starmap(object):
 		return position
 
 	def update(self):
-		camera = self.sceneManager.getCamera( 'PlayerCam' )
+		camera = self.sceneManager.getCamera('PlayerCam')
 		for label in self.overlays.values():
 			label.update(camera)
+
 		return True
 
 	def drawLine(self, id_start, id_end):

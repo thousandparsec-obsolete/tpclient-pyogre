@@ -1,6 +1,6 @@
 Space/Stars
 {
-   material        Billboards/Flares/flare
+   material        Starmap/Stars
    particle_width  100
    particle_height 100
    cull_each       true

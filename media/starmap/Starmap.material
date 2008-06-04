@@ -1,4 +1,36 @@
-material Starmap/Planet
+material Starmap/Base
+{
+	technique
+	{
+		pass
+		{
+			ambient 1 1 1 1
+			diffuse 0 0 0 0
+			specular 0 0 0 0 60
+			emissive 0 0 0 1
+		}
+	}
+}
+
+material Starmap/Stars
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend add
+			depth_write off
+
+			texture_unit
+			{
+				texture star.png
+			}
+		}
+	}
+}
+
+material Starmap/Sun
 {
 	technique
 	{
@@ -11,8 +43,28 @@ material Starmap/Planet
 
 			texture_unit
 			{
-				texture oceanBase.jpg
+				texture orange_star.jpg
 			}
 		}
 	}
 }
+
+material Starmap/Planet/Terran
+{
+	technique
+	{
+		pass
+		{
+			ambient 1 1 1 1
+			diffuse 0 0 0 0
+			specular 0 0 0 0 60
+			emissive 0 0 0 1
+
+			texture_unit
+			{
+				texture earth.jpg
+			}
+		}
+	}
+}
+
