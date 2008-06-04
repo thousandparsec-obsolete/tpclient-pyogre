@@ -4,31 +4,17 @@ import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
 import ogre.io.OIS as ois
 
-from tp.netlib.objects import OrderDescs, Order
+from tp.netlib.objects import OrderDescs
 from tp.netlib.objects.constants import *
-from tp.client.threads import NetworkThread
 
 import overlay
 import starmap
+import helpers
 
 UNIVERSE = 1
 STAR = 2
 PLANET = 3
 FLEET = 4
-
-def setWidgetText(name, text):
-	"""Shortcut for setting CEGUI widget text.
-
-	Examples of widget text are window titles, edit box text and button captions.
-	"""
-	wm = cegui.WindowManager.getSingleton()
-	wm.getWindow(name).setText(text)
-
-def bindEvent(name, object, method, event):
-	"""Shortcut for binding a CEGUI widget event to a method"""
-	wm = cegui.WindowManager.getSingleton()
-	wm.getWindow(name).subscribeEvent(event, object, method)
-
 
 class Scene(object):
 	"""Displays a scene for the user.
@@ -156,9 +142,9 @@ class LoginScene(MenuScene):
 		self.guiSystem.getGUISheet().addChildWindow(login)
 		self.windows.append(login)
 
-		bindEvent("Login/LoginButton", self, "onConnect", cegui.PushButton.EventClicked)
-		bindEvent("Login/ConfigButton", self, "onConfig", cegui.PushButton.EventClicked)
-		bindEvent("Login/QuitButton", self, "onQuit", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Login/LoginButton", self, "onConnect", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Login/ConfigButton", self, "onConfig", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Login/QuitButton", self, "onQuit", cegui.PushButton.EventClicked)
 
 		self.hide()
 
@@ -197,7 +183,7 @@ class LoginScene(MenuScene):
 
 	def setServer(self, host):
 		"""Sets the initial value of the host input field"""
-		setWidgetText("Login/Server", host)
+		helpers.setWidgetText("Login/Server", host)
 
 class ConfigScene(MenuScene):
 	def __init__(self, parent, sceneManager):
@@ -248,16 +234,16 @@ class StarmapScene(MenuScene):
 		self.guiSystem.getGUISheet().addChildWindow(system)
 		self.windows.append(system)
 
-		bindEvent("Windows/Information", self, "windowToggle", cegui.PushButton.EventClicked)
-		bindEvent("Windows/Orders", self, "windowToggle", cegui.PushButton.EventClicked)
-		bindEvent("Windows/Messages", self, "windowToggle", cegui.PushButton.EventClicked)
-		bindEvent("Windows/System", self, "windowToggle", cegui.PushButton.EventClicked)
-		bindEvent("Messages/Next", self, "nextMessage", cegui.PushButton.EventClicked)
-		bindEvent("Messages/Prev", self, "prevMessage", cegui.PushButton.EventClicked)
-		bindEvent("Messages/Delete", self, "deleteMessage", cegui.PushButton.EventClicked)
-		bindEvent("System/SystemList", self, "systemSelected", cegui.Listbox.EventSelectionChanged)
+		helpers.bindEvent("Windows/Information", self, "windowToggle", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Windows/Orders", self, "windowToggle", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Windows/Messages", self, "windowToggle", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Windows/System", self, "windowToggle", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Messages/Next", self, "nextMessage", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Messages/Prev", self, "prevMessage", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Messages/Delete", self, "deleteMessage", cegui.PushButton.EventClicked)
+		helpers.bindEvent("System/SystemList", self, "systemSelected", cegui.Listbox.EventSelectionChanged)
 		for window in ['Messages', 'Orders', 'System', 'Information']:
-			bindEvent(window, self, "closeClicked", cegui.FrameWindow.EventCloseClicked)
+			helpers.bindEvent(window, self, "closeClicked", cegui.FrameWindow.EventCloseClicked)
 
 		self.hide()
 	
@@ -583,7 +569,7 @@ class StarmapScene(MenuScene):
 		if len(self.messages) > 0:
 			self.nextMessage(evt)
 		else:
-			setWidgetText("Messages/Message", "")
+			helpers.setWidgetText("Messages/Message", "")
 
 	def setCurrentMessage(self, message_object):
 		"""Sets message text inside message window"""
@@ -591,7 +577,7 @@ class StarmapScene(MenuScene):
 		text = "Subject: " + message.subject + "\n"
 		text += "\n"
 		text += message.body
-		setWidgetText("Messages/Message", text)
+		helpers.setWidgetText("Messages/Message", text)
 
 	def setInformationText(self, object):
 		"""Sets text inside information window"""
@@ -602,7 +588,7 @@ class StarmapScene(MenuScene):
 		text += "velocity: " + str(object.vel) + "\n"
 		text += "id: " + str(object.id) + "\n"
 		text += "size: " + str(object.size) + "\n"
-		setWidgetText("Information/Text", text)
+		helpers.setWidgetText("Information/Text", text)
 
 	def systemSelected(self, evt):
 		"""Updates information box with selected system info"""
