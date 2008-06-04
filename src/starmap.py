@@ -43,10 +43,14 @@ class Starmap(object):
 	def createBackground(self):
 		"""Creates a starry background for the current scene"""
 		if self.bg_particle is None:
-			self.bg_particle = self.sceneManager.createParticleSystem("stars", "Space/Stars")
-		particleNode = self.rootNode.createChildSceneNode("StarryBackground")
+			self.bg_particle = self.sceneManager.createParticleSystem("star_layer1", "Space/Stars/Large")
+		particleNode = self.rootNode.createChildSceneNode("StarryBackgroundLayer1")
 		particleNode.pitch(ogre.Radian(1.57))
 		particleNode.attachObject(self.bg_particle)
+		self.bg_particle1 = self.sceneManager.createParticleSystem("stars_layer2", "Space/Stars/Small")
+		particleNode = self.rootNode.createChildSceneNode("StarryBackgroundLayer2")
+		particleNode.pitch(ogre.Radian(1.57))
+		particleNode.attachObject(self.bg_particle1)
 
 	def addStar(self, object, position):
 		node = self.createObjectNode(position, object.id, 'sphere.mesh', 100, False)
