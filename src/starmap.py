@@ -18,6 +18,7 @@ class Starmap(object):
 		self.overlays = {}
 		self.bg_particle = None
 		self.zoom = 0
+		self.planets = []
 		self.selection = {}
 
 		self.flareBillboard = self.sceneManager.createBillboardSet("flare")
@@ -63,6 +64,7 @@ class Starmap(object):
 		pos = self.calculateRadialPosition(position, 200, 720, parent.planets, object.index)
 		node = self.createObjectNode(pos, object.id, 'sphere.mesh', 50)
 		self.nodes[object.id] = node
+		self.planets.append(node)
 		entityNode = node.getChild(0)
 		entityNode.pitch(ogre.Radian(1.57))
 
@@ -153,6 +155,8 @@ class Starmap(object):
 		camera = self.sceneManager.getCamera('PlayerCam')
 		for label in self.overlays.values():
 			label.update(camera)
+		for planet in self.planets:
+			planet.getChild(0).roll(ogre.Radian(0.005))
 
 		return True
 
