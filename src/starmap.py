@@ -20,6 +20,12 @@ class Starmap(object):
 		self.zoom = 0
 		self.selection = {}
 
+		self.flareBillboard = self.sceneManager.createBillboardSet("flare")
+		self.flareBillboard.setMaterialName("Billboards/Flares/flare")
+		self.flareBillboard.setCullIndividually(False)
+		self.flareBillboard.setDefaultDimensions(500, 500)
+		self.rootNode.attachObject(self.flareBillboard)
+
 		self.selectionBillboard = self.sceneManager.createBillboardSet("selection")
 		self.selectionBillboard.setMaterialName("Billboards/Selection")
 		self.selectionBillboard.setCullIndividually(False)
@@ -38,6 +44,9 @@ class Starmap(object):
 		node = self.createObjectNode(position, object.id, 'sphere.mesh', 100)
 		self.nodes[object.id] = node
 		entityNode = self.sceneManager.getSceneNode("Object%i_EntityNode" % object.id)
+
+		# Lens flare
+		billboard = self.flareBillboard.createBillboard(position, ogre.ColourValue.White)
 
 		# Text overlays
 		label = overlay.ObjectOverlay(entityNode, object)
