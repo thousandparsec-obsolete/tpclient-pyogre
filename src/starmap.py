@@ -33,6 +33,12 @@ class Starmap(object):
 		self.selectionBillboard.setDefaultDimensions(500, 500)
 		self.rootNode.attachObject(self.selectionBillboard)
 
+		self.sceneManager.ambientLight = (0, 0, 0)
+		light = self.sceneManager.createLight('DirectionalLight')
+		light.type = ogre.Light.LT_DIRECTIONAL
+		light.diffuseColour = (0.3, 0.3, 0.3)
+		light.direction = (0, 0, -1)
+
 	def createBackground(self):
 		"""Creates a starry background for the current scene"""
 		if self.bg_particle is None:
@@ -42,12 +48,17 @@ class Starmap(object):
 		particleNode.attachObject(self.bg_particle)
 
 	def addStar(self, object, position):
-		node = self.createObjectNode(position, object.id, 'sphere.mesh', 100)
+		node = self.createObjectNode(position, object.id, 'sphere.mesh', 100, False)
 		self.nodes[object.id] = node
 		entityNode = self.sceneManager.getSceneNode("Object%i_EntityNode" % object.id)
 
 		# Lens flare
 		billboard = self.flareBillboard.createBillboard(position, ogre.ColourValue.White)
+
+		light = self.sceneManager.createLight("Object%i_Light" % object.id)
+		light.type = ogre.Light.LT_POINT
+		light.position = position
+		light.setAttenuation(500, 1, 0, 0)
 
 		# Text overlays
 		label = overlay.ObjectOverlay(entityNode, object)
@@ -78,7 +89,7 @@ class Starmap(object):
 		entityNode = node.getChild(0)
 		entityNode.yaw(ogre.Radian(1.57))
 		entityNode.roll(ogre.Radian(1.57))
-
+		
 	def setFleet(self, object, position, parent):
 		pos = self.calculateRadialPosition(pos, 200, 360, parent.fleets, object.index)
 		node = self.nodes[object.id]
@@ -116,18 +127,20 @@ class Starmap(object):
 				else:
 					self.overlays[id].colour = ogre.ColorValue.Yellow
 		
-	def createObjectNode(self, pos, oid, mesh, scale):
+	def createObjectNode(self, pos, oid, mesh, scale, normalise=True):
 		"""Returns a scene node containing the scaled entity mesh
 		
 		pos - The current position of the object
 		oid - The ID of the object
 		mesh - String containing the mesh file name
 		scale - How much to scale the object by
+		normalise - Normalise normals if object uses lighting
 
 		"""
 		node = self.rootNode.createChildSceneNode("Object%i_Node" % oid, pos)
 		entityNode = node.createChildSceneNode("Object%i_EntityNode" % oid, ogre.Vector3(0, 0, 0))
 		entity = self.sceneManager.createEntity("Object%i" % oid, mesh)
+		entity.setNormaliseNormals(normalise)
 		obj_scale = scale / entity.mesh.boundingSphereRadius
 		entityNode.setScale(ogre.Vector3(obj_scale, obj_scale, obj_scale))
 		entityNode.attachObject(entity)

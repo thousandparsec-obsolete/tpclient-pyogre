@@ -5,7 +5,7 @@ material gawain/Base
 		pass
 		{
 			ambient 1 1 1 1
-			diffuse 0 0 0 0
+			diffuse 1 1 1 1
 			specular 0 0 0 0 60
 			emissive 0 0 0 1
 

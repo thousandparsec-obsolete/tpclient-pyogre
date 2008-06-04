@@ -36,10 +36,7 @@ material Starmap/Sun
 	{
 		pass
 		{
-			ambient 1 1 1 1
-			diffuse 0 0 0 0
-			specular 0 0 0 0 60
-			emissive 0 0 0 1
+			emissive 1 1 1 1
 
 			texture_unit
 			{
@@ -56,7 +53,7 @@ material Starmap/Planet/Terran
 		pass
 		{
 			ambient 1 1 1 1
-			diffuse 0 0 0 0
+			diffuse 1 1 1 1
 			specular 0 0 0 0 60
 			emissive 0 0 0 1
 
