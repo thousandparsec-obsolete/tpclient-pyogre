@@ -464,11 +464,14 @@ class StarmapScene(MenuScene):
 		if id != None:
 			# Unselect the current object
 			if self.current_object:
-				self.current_object.getParentSceneNode().showBoundingBox(False)
+				self.starmap.clearSelection()
 				self.current_object = None
 
 			self.current_object = movable
-			self.current_object.getParentSceneNode().showBoundingBox(True)
+			scale_factor = 3
+			if self.objects[id].subtype == FLEET:
+				scale_factor = 25
+			self.starmap.selectObject(id, scale_factor=scale_factor)
 
 			object = self.objects[id]
 			self.setInformationText(object)

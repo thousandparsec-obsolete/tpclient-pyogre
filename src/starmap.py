@@ -18,6 +18,13 @@ class Starmap(object):
 		self.overlays = {}
 		self.bg_particle = None
 		self.zoom = 0
+		self.selection = {}
+
+		self.selectionBillboard = self.sceneManager.createBillboardSet("selection")
+		self.selectionBillboard.setMaterialName("Billboards/Selection")
+		self.selectionBillboard.setCullIndividually(False)
+		self.selectionBillboard.setDefaultDimensions(500, 500)
+		self.rootNode.attachObject(self.selectionBillboard)
 
 	def createBackground(self):
 		"""Creates a starry background for the current scene"""
@@ -65,6 +72,30 @@ class Starmap(object):
 		pos = self.calculateRadialPosition(pos, 200, 360, parent.fleets, object.index)
 		node = self.nodes[object.id]
 		node.setPosition(pos)
+
+	def selectObject(self, object_id, colour_value = ogre.ColourValue.White, scale_factor=3):
+		"""Appends a scene node to the current selection and highlights it"""
+		scene_node = self.nodes[object_id]
+		position = scene_node.position
+		scale = scene_node.getChild(0).getScale()
+		print scene_node, position, scale, scene_node.initialScale, scene_node.getChild(0).initialScale
+
+		billboard = self.selectionBillboard.createBillboard(position, colour_value)
+		billboard.setDimensions(scale.x * scale_factor, scale.y * scale_factor)
+
+		self.selection[object_id] = billboard
+
+	def unselectObject(self, object_id):
+		"""Remove an object from the current selection"""
+		if self.selection.has_key(object_id):
+			billboard = self.selection[object_id]
+			self.selectionBillboard.removeBillboard(billboard)
+			del self.selection[object_id]
+
+	def clearSelection(self):
+		"""Clears all selected objects"""
+		self.selectionBillboard.clear()
+		self.selection = {}
 
 	def mode(self, modes):
 		if self.OWNERS in modes:
