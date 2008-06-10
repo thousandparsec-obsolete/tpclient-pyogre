@@ -298,7 +298,8 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 
 	def keyPressed(self, evt):
 		"""Handles a single key press by the user"""
-		self.console.keyPressed(evt)
+		if self.console.keyPressed(evt):
+			return True
 
 		if evt.key == ois.KC_F12:
 			path, next = 'screenshot.png', 1

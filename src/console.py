@@ -158,18 +158,20 @@ class Console(ogre.FrameListener):
 		self._visible = True
  
 	def keyPressed(self, evt):
+		"""Handles keyboard input, returns True if key was handled"""
 		if evt.key == OIS.KC_GRAVE:
 			if not self.visible:
 				self.show()
 			else:
 				self.hide()
-			return
+			return False
 		
 		if not self.visible:
-			return
+			return False
  
 		try:
 			self.keyBinds[evt.key]()
+			handled = True
 		except KeyError:
 			if evt.text != 0:
 				self.prompt.insert(self.cursorPosition, evt.text)
@@ -177,6 +179,7 @@ class Console(ogre.FrameListener):
 				self.currentInputHistory = len(self.inputHistory)
  
 		self.updateOverlay = True
+		return True
  
 	def _updateConsoleText(self):
 		lines = [""] * (Console.CONSOLE_LINE_COUNT - len(self.outputHistory))
