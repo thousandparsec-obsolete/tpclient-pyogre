@@ -16,6 +16,8 @@ STAR = 2
 PLANET = 3
 FLEET = 4
 
+OBJECT = 1
+
 class Scene(object):
 	"""Displays a scene for the user.
 
@@ -210,24 +212,13 @@ class StarmapScene(MenuScene):
 		self.current_object = None
 		self.messages = []
 		self.message_index = 0
+		self.goto_index = 0
 		self.created = False
 		self.starmap = starmap.Starmap(self, self.sceneManager, self.rootNode)
 	
 		self.raySceneQuery = self.sceneManager.createRayQuery(ogre.Ray())
 		self.raySceneQuery.setSortByDistance(True, 10)
 		self.raySceneQuery.setQueryMask(self.SELECTABLE & ~self.UNSELECTABLE)
-
-		# Load all the billboards
-		#self.flareBillboardSets = []
-		#for i in xrange(1, 12):
-			#billboardSet = self.sceneManager.createBillboardSet("flare%i" % i)
-			#billboardSet.setMaterialName("Billboards/Flares/flare%i" % i)
-			#billboardSet.setCullIndividually(True)
-			#billboardSet.setDefaultDimensions(20, 20)
-			#billboardSet.setQueryFlags(self.UNSELECTABLE)
-			
-			#self.rootNode.attachObject(billboardSet)
-			#self.flareBillboardSets.append(billboardSet)
 
 		wm = cegui.WindowManager.getSingleton()
 		system = wm.loadWindowLayout("system.layout")
@@ -240,6 +231,7 @@ class StarmapScene(MenuScene):
 		helpers.bindEvent("Windows/System", self, "windowToggle", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Messages/Next", self, "nextMessage", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Messages/Prev", self, "prevMessage", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Messages/Goto", self, "gotoMessageSubject", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Messages/Delete", self, "deleteMessage", cegui.PushButton.EventClicked)
 		helpers.bindEvent("System/SystemList", self, "systemSelected", cegui.Listbox.EventSelectionChanged)
 		for window in ['Messages', 'Orders', 'System', 'Information']:
@@ -485,58 +477,70 @@ class StarmapScene(MenuScene):
 		print "SelectObject", id
 
 		if id != None:
-			# Unselect the current object
-			if self.current_object:
-				self.starmap.clearSelection()
-				self.current_object = None
+			self.selectObjectById(id)
 
-			self.current_object = movable
-			scale_factor = 25
-			if self.objects[id].subtype == PLANET:
-				scale_factor = 10
-			elif self.objects[id].subtype == FLEET:
-				scale_factor = 10
-			self.starmap.selectObject(id, scale_factor=scale_factor)
+	def selectObjectById(self, id):
+		"""Selects the object given by id. Returns True if selected."""
+		try:
+			entity = self.sceneManager.getEntity("Object%i" % id)
+		except ogre.OgreItemIdentityException:
+			return False
 
-			object = self.objects[id]
-			self.setInformationText(object)
+		# Unselect the current object
+		if self.current_object:
+			self.starmap.clearSelection()
+			self.current_object = None
 
-			wm = cegui.WindowManager.getSingleton()
-			order_queue = wm.getWindow("Orders/OrderQueue")
-			order_list = wm.getWindow("Orders/OrderList")
-			order_queue.resetList()
-			order_list.resetList()
+		self.current_object = entity
 
-			self.order_queue_items = []
+		scale_factor = 25
+		if self.objects[id].subtype == PLANET:
+			scale_factor = 10
+		elif self.objects[id].subtype == FLEET:
+			scale_factor = 10
+		self.starmap.selectObject(id, scale_factor=scale_factor)
 
-			if not hasattr(self.parent, "application"):
-				return
+		object = self.objects[id]
+		self.setInformationText(object)
 
-			for o_node in self.parent.application.cache.orders[id]:
-				index = order_queue.addRow()
-				order = o_node.CurrentOrder
-				item = cegui.ListboxTextItem(order._name)
+		wm = cegui.WindowManager.getSingleton()
+		order_queue = wm.getWindow("Orders/OrderQueue")
+		order_list = wm.getWindow("Orders/OrderList")
+		order_queue.resetList()
+		order_list.resetList()
+
+		self.order_queue_items = []
+
+		if not hasattr(self.parent, "application"):
+			return True
+
+		for o_node in self.parent.application.cache.orders[id]:
+			index = order_queue.addRow()
+			order = o_node.CurrentOrder
+			item = cegui.ListboxTextItem(order._name)
+			item.setAutoDeleted(False)
+			item.setSelectionBrushImage("SleekSpace", "MultiListSelectionBrush")
+			self.order_queue_items.append(item)
+			order_queue.setItem(item, 0, index) # col id, row id
+
+			item = cegui.ListboxTextItem(str(order.turns))
+			item.setAutoDeleted(False)
+			order_queue.setItem(item, 1, index)
+			self.order_queue_items.append(item)
+
+		if object.order_number > 0 or len(object.order_types) > 0:
+			self.orders = {}
+			descs = OrderDescs()
+			for order_type in object.order_types:
+				if not descs.has_key(order_type):
+					continue
+				description = descs[order_type]
+				item = cegui.ListboxTextItem(description._name)
 				item.setAutoDeleted(False)
-				item.setSelectionBrushImage("SleekSpace", "MultiListSelectionBrush")
-				self.order_queue_items.append(item)
-				order_queue.setItem(item, 0, index) # col id, row id
+				self.orders[item] = order_type
+				order_list.addItem(item)
 
-				item = cegui.ListboxTextItem(str(order.turns))
-				item.setAutoDeleted(False)
-				order_queue.setItem(item, 1, index)
-				self.order_queue_items.append(item)
-
-			if object.order_number > 0 or len(object.order_types) > 0:
-				self.orders = {}
-				descs = OrderDescs()
-				for order_type in object.order_types:
-					if not descs.has_key(order_type):
-						continue
-					description = descs[order_type]
-					item = cegui.ListboxTextItem(description._name)
-					item.setAutoDeleted(False)
-					self.orders[item] = order_type
-					order_list.addItem(item)
+		return True
 
 	def keyPressed(self, evt):
 		if evt.key == ois.KC_A:
@@ -613,12 +617,14 @@ class StarmapScene(MenuScene):
 		"""Sets messagebox to the next message if available"""
 		if len(self.messages) > 0 and self.message_index < len(self.messages) - 1:
 			self.message_index += 1
+			self.goto_index = 0
 			self.setCurrentMessage(self.messages[self.message_index])
 
 	def prevMessage(self, evt):
 		"""Sets messagebox to the previous message if available"""
 		if len(self.messages) > 0 and self.message_index > 0:
 			self.message_index -= 1
+			self.goto_index = 0
 			self.setCurrentMessage(self.messages[self.message_index])
 
 	def deleteMessage(self, evt):
@@ -634,6 +640,32 @@ class StarmapScene(MenuScene):
 			self.nextMessage(evt)
 		else:
 			helpers.setWidgetText("Messages/Message", "")
+
+	def gotoMessageSubject(self, evt):
+		"""Select and center on the subject of a message.
+
+		Cycles through available subjects if there are more than one.
+
+		"""
+		message = self.messages[self.message_index].CurrentOrder
+		refs = message.references
+		if self.goto_index >= len(refs):
+			self.goto_index = 0
+		i = 0
+		for reference in refs:
+			print reference
+		for reference in refs:
+			i += 1
+			if reference[0] is OBJECT:
+				id = reference[1]
+				if id is 1: # universe
+					continue
+				if i < self.goto_index + 1:
+					continue
+				if self.selectObjectById(id):
+					self.starmap.center(id)
+					self.goto_index = i
+					break
 
 	def setCurrentMessage(self, message_object):
 		"""Sets message text inside message window"""
