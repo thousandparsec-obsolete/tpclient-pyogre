@@ -12,11 +12,13 @@ import helpers
 
 class DummyCache(object):
 	def __init__(self):
-		objects = helpers.pickle_load("object")
-		self.messages = [[]]
-		self.objects = objects
+		self.objects = helpers.pickle_load("object")
+		self.messages = helpers.pickle_load("message")
+		self.designs = helpers.pickle_load("design")
 
 class TestStarmap(Framework.Application):
+	"""Display the starmap without using a network connection"""
+
 	def __init__(self):
 		Framework.Application.__init__(self)
 		
@@ -46,7 +48,15 @@ class TestStarmap(Framework.Application):
 		dummy_cache = DummyCache()
 		self.starmap.create(dummy_cache)
 
+		wmgr.getWindow("Windows").hide()
+
 		self.guiSystem.injectMousePosition(0, 0)
+
+		# Check shader syntax
+		gpu = ogre.GpuProgramManager.getSingleton()
+		syntaxi = gpu.getSupportedSyntax()
+		for syntax in syntaxi:
+			print "Supported shader syntax: ", syntax
 
 	def _createCamera(self):
 		self.camera = self.sceneManager.createCamera("PlayerCam")
@@ -56,7 +66,7 @@ class TestStarmap(Framework.Application):
 	def _createFrameListener(self):
 		self.frameListener = Framework.CEGUIFrameListener(self, self.renderWindow, self.camera)
 		self.root.addFrameListener(self.frameListener)
-		self.frameListener.showDebugOverlay(False)
+		self.frameListener.showDebugOverlay(True)
 
 	def __del__(self):
 		"""Clear variables
@@ -94,3 +104,4 @@ class TestStarmap(Framework.Application):
 if __name__ == '__main__':
 	app = TestStarmap()
 	app.go()
+	app.Cleanup()

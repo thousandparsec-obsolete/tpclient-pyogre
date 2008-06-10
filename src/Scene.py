@@ -497,6 +497,12 @@ class StarmapScene(MenuScene):
 		elif evt.key == ois.KC_C:
 			if self.current_object:
 				self.starmap.center(self.getIDFromMovable(self.current_object))
+		elif evt.key == ois.KC_F11:
+			cache = self.parent.application.cache
+			helpers.pickle_dump(cache.objects, "object")
+			helpers.pickle_dump(cache.designs, "design")
+			helpers.pickle_dump(cache.messages, "message")
+			print "cache dumped"
 		elif evt.key == ois.KC_ESCAPE:
 			self.clearAll()
 			self.created = False
