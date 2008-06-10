@@ -35,9 +35,10 @@ class Starmap(object):
 		self.rootNode.attachObject(self.selectionBillboard)
 
 		self.sceneManager.ambientLight = (0, 0, 0)
-		light = self.sceneManager.createLight('DirectionalLight')
+
+		light = self.sceneManager.createLight('TopLight')
 		light.type = ogre.Light.LT_DIRECTIONAL
-		light.diffuseColour = (0.3, 0.3, 0.3)
+		light.diffuseColour = (1, 1, 1)
 		light.direction = (0, 0, -1)
 
 	def createBackground(self):
@@ -80,7 +81,7 @@ class Starmap(object):
 		return node
 
 	def addPlanet(self, object, position, parent):
-		pos = self.calculateRadialPosition(position, 200, 720, parent.planets, object.index)
+		pos = self.calculateRadialPosition(position, 300, 720, parent.planets, object.index)
 		node = self.createObjectNode(pos, object.id, 'sphere.mesh', 50)
 		self.nodes[object.id] = node
 		self.planets.append(node)
@@ -95,20 +96,36 @@ class Starmap(object):
 		entity = self.sceneManager.getEntity("Object%i" % object.id)
 		entity.setMaterialName("Starmap/Planet/%s" % planet_type)
 
-	def addFleet(self, object, position, parent):
+	def addFleet(self, object, position, parent, fleet_type = 0):
+		# rotate between 3 ship types
+		meshes = [('scout', 50), ('frigate', 75), ('plowshare', 75)]
+		fleet_type %= len(meshes)
+		mesh = meshes[fleet_type]
 		pos = self.calculateRadialPosition(position, 200, 360, parent.fleets, object.index)
-		node = self.createObjectNode(pos, object.id, 'gawain.mesh', 50)
+		node = self.createObjectNode(pos, object.id, '%s.mesh' % mesh[0], mesh[1])
 		self.nodes[object.id] = node
 		entityNode = node.getChild(0)
 		entityNode.yaw(ogre.Radian(1.57))
 		entityNode.roll(ogre.Radian(1.57))
-		
+
+		owner = object.owner
+		random.seed(owner)
 		entity = self.sceneManager.getEntity("Object%i" % object.id)
 		material = entity.getSubEntity(0).getMaterial()
-		material.setAmbient(ogre.ColourValue.White)
+		material_name = "%s_%i" % (material.getName(), owner)
+		material_manager = ogre.MaterialManager.getSingleton()
+		if not material_manager.resourceExists(material_name):
+			material = material.clone(material_name)
+		else:
+			material = material_manager.getByName(material_name)
+
+		entity.setMaterialName(material_name)
+
+		r = random.random
+		#material.setDiffuse(r(), r(), r(), 1)
 
 	def setFleet(self, object, position, parent):
-		pos = self.calculateRadialPosition(pos, 200, 360, parent.fleets, object.index)
+		pos = self.calculateRadialPosition(position, 200, 360, parent.fleets, object.index)
 		node = self.nodes[object.id]
 		node.setPosition(pos)
 
@@ -116,11 +133,11 @@ class Starmap(object):
 		"""Appends a scene node to the current selection and highlights it"""
 		scene_node = self.nodes[object_id]
 		position = scene_node.position
-		scale = scene_node.getChild(0).getScale()
+		scale = 20
 		print scene_node, position, scale, scene_node.initialScale, scene_node.getChild(0).initialScale
 
 		billboard = self.selectionBillboard.createBillboard(position, colour_value)
-		billboard.setDimensions(scale.x * scale_factor, scale.y * scale_factor)
+		billboard.setDimensions(scale * scale_factor, scale * scale_factor)
 
 		self.selection[object_id] = billboard
 

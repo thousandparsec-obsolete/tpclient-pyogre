@@ -198,10 +198,10 @@ class StarmapScene(MenuScene):
 
 	pan_speed = 500
 	tolerance_delta = 1
-	distance_scale = 900000
+	distance_scale = 500000
 	scroll_speed = 100
-	max_zoom = -10
-	min_zoom = 10
+	max_zoom_out = -5
+	min_zoom_in = 19
 
 	def __init__(self, parent, sceneManager):
 		Scene.__init__(self, parent, sceneManager)
@@ -261,13 +261,24 @@ class StarmapScene(MenuScene):
 		wm = cegui.WindowManager.getSingleton()
 		listbox = wm.getWindow("System/SystemList")
 
+		# get number of designs by each player
+		designs = {}
+		for design in cache.designs.values():
+			if designs.has_key(design.owner):
+				designs[design.owner] += 1
+			else:
+				designs[design.owner] = 1
+
 		for object in self.objects.values():
 			pos = ogre.Vector3(
 					object.pos[0] / self.distance_scale, 
 					object.pos[1] / self.distance_scale, 
 					object.pos[2] / self.distance_scale)
 
-			print "creating", object.id, object.name, object._subtype, "at", pos
+			print "creating", object.id, object.name, "\ttype:", object._subtype, "at", pos
+
+			if hasattr(object, "parent"):
+				print "parent of %s is %i" % (object.name, object.parent)
 			
 			if object._subtype is STAR:
 				node = self.starmap.addStar(object, pos)
@@ -283,12 +294,19 @@ class StarmapScene(MenuScene):
 			if object._subtype is PLANET:
 				# Get parent system and the number of other planets
 				parent = self.updateObjectIndex(object, "planets", PLANET)
+				if object.parent != 1:
+					pos = self.starmap.nodes[object.parent].position
 				node = self.starmap.addPlanet(object, pos, parent)
 
 			if object._subtype is FLEET:
 				# Get parent system and the number of other fleets
 				parent = self.updateObjectIndex(object, "fleets", FLEET)
-				node = self.starmap.addFleet(object, pos, parent)
+				# Assign fleet type according to how many designs player has
+				fleet_type = (object.ships[0][0] - 1) % designs[object.owner]
+				print "ship_design: %i designs: %i fleet type: %i" % (object.ships[0][0], designs[object.owner], fleet_type)
+				if object.parent != 1:
+					pos = self.starmap.nodes[object.parent].position
+				node = self.starmap.addFleet(object, pos, parent, fleet_type)
 
 		for val in cache.messages[0]:
 			self.messages.append(val)
@@ -396,11 +414,11 @@ class StarmapScene(MenuScene):
 			self.camera.moveRelative(
 				ogre.Vector3(state.X.rel * adjusted_pan, -state.Y.rel * adjusted_pan, 0))
 		
-		elif state.Z.rel < 0 and self.starmap.zoom > self.max_zoom: # scroll down
+		elif state.Z.rel < 0 and self.starmap.zoom > self.max_zoom_out: # scroll down
 			self.camera.moveRelative(ogre.Vector3(0, 0, 2 * self.pan_speed))
 			self.starmap.zoom -= 1
 
-		elif state.Z.rel > 0 and self.starmap.zoom < self.min_zoom: # scroll up
+		elif state.Z.rel > 0 and self.starmap.zoom < self.min_zoom_in: # scroll up
 			self.camera.moveRelative(ogre.Vector3(0, 0, -2 * self.pan_speed))
 			self.starmap.zoom += 1
 
@@ -468,9 +486,11 @@ class StarmapScene(MenuScene):
 				self.current_object = None
 
 			self.current_object = movable
-			scale_factor = 3
-			if self.objects[id].subtype == FLEET:
-				scale_factor = 25
+			scale_factor = 25
+			if self.objects[id].subtype == PLANET:
+				scale_factor = 10
+			elif self.objects[id].subtype == FLEET:
+				scale_factor = 10
 			self.starmap.selectObject(id, scale_factor=scale_factor)
 
 			object = self.objects[id]
@@ -522,6 +542,14 @@ class StarmapScene(MenuScene):
 			self.camera.moveRelative(ogre.Vector3(0, 0, -self.scroll_speed))
 		if keyboard.isKeyDown(ois.KC_MINUS):
 			self.camera.moveRelative(ogre.Vector3(0, 0, self.scroll_speed))
+		if keyboard.isKeyDown(ois.KC_HOME):
+			self.camera.pitch(ogre.Radian(0.03))
+		if keyboard.isKeyDown(ois.KC_END):
+			self.camera.pitch(ogre.Radian(-0.03))
+		if keyboard.isKeyDown(ois.KC_DELETE):
+			self.camera.yaw(ogre.Radian(-0.03))
+		if keyboard.isKeyDown(ois.KC_PGDOWN):
+			self.camera.yaw(ogre.Radian(0.03))
 
 	def moveTo(self, source, destination):
 		"""Orders a fleet to move to a destination
@@ -597,6 +625,10 @@ class StarmapScene(MenuScene):
 		text += "velocity: " + str(object.vel) + "\n"
 		text += "id: " + str(object.id) + "\n"
 		text += "size: " + str(object.size) + "\n"
+		if hasattr(object, "owner"):
+			text += "owner: " + str(object.owner) + "\n"
+		if hasattr(object, "ships"):
+			text += "ships: " + str(object.ships) + "\n"
 		helpers.setWidgetText("Information/Text", text)
 
 	def systemSelected(self, evt):
