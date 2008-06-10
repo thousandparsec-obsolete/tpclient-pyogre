@@ -1,0 +1,90 @@
+
+material frigate/11_-_Default
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.588235 0.588235 0.588235 1
+			diffuse 0.588235 0.588235 0.588235 1
+
+			texture_unit
+			{
+				texture_alias 0
+				texture fx3_pane.jpg
+			}
+		}
+
+	}
+
+}
+
+material frigate/Color_Hull
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.588235 0.588235 0.588235 1
+			diffuse 0.588235 0.588235 0.588235 1
+		}
+
+	}
+
+}
+
+material frigate/Color_Connect
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.309804 0.309804 0.309804 1
+			diffuse 0.309804 0.309804 0.309804 1
+		}
+
+	}
+
+}
+
+material frigate/Material_#48
+{
+	technique
+	{
+		pass
+		{
+			ambient 0 0 0 1
+			diffuse 0 0 0 1
+		}
+
+	}
+
+}
+
+material frigate/Color_Wing_V
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.729412 0.729412 0.729412 1
+			diffuse 0.729412 0.729412 0.729412 1
+		}
+
+	}
+
+}
+
+material frigate/Color_Wing_H
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.698039 0.698039 0.698039 1
+			diffuse 0.698039 0.698039 0.698039 1
+		}
+
+	}
+
+}

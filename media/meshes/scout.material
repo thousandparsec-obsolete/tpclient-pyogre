@@ -1,0 +1,62 @@
+
+material scout/02_-_Default
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.588235 0.588235 0.588235 1
+			diffuse 0.588235 0.588235 0.588235 1
+		}
+
+	}
+
+}
+
+material scout/Material_#37
+{
+	technique
+	{
+		pass
+		{
+			ambient 0 0 0 1
+			diffuse 0 0 0 1
+		}
+
+	}
+
+}
+
+material scout/02_-_Default1
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.407843 0.407843 0.407843 1
+			diffuse 0.407843 0.407843 0.407843 1
+		}
+
+	}
+
+}
+
+material scout/Material_#39
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.380392 0.380392 0.380392 1
+			diffuse 0.380392 0.380392 0.380392 1
+
+			texture_unit
+			{
+				texture_alias 0
+				texture fx3_pane.jpg
+			}
+		}
+
+	}
+
+}
