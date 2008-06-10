@@ -245,6 +245,11 @@ class StarmapScene(MenuScene):
 		for window in ['Messages', 'Orders', 'System', 'Information']:
 			helpers.bindEvent(window, self, "closeClicked", cegui.FrameWindow.EventCloseClicked)
 
+		order_queue = wm.getWindow("Orders/OrderQueue")
+		order_queue.addColumn("Type", 0, cegui.UDim(0.4, 0))
+		order_queue.addColumn("Turns left", 1, cegui.UDim(0.4, 0))
+		order_queue.setSelectionMode(cegui.MultiColumnList.RowSingle)
+
 		self.hide()
 	
 	def show(self):
@@ -496,11 +501,33 @@ class StarmapScene(MenuScene):
 			object = self.objects[id]
 			self.setInformationText(object)
 
+			wm = cegui.WindowManager.getSingleton()
+			order_queue = wm.getWindow("Orders/OrderQueue")
+			order_list = wm.getWindow("Orders/OrderList")
+			order_queue.resetList()
+			order_list.resetList()
+
+			self.order_queue_items = []
+
+			if not hasattr(self.parent, "application"):
+				return
+
+			for o_node in self.parent.application.cache.orders[id]:
+				index = order_queue.addRow()
+				order = o_node.CurrentOrder
+				item = cegui.ListboxTextItem(order._name)
+				item.setAutoDeleted(False)
+				item.setSelectionBrushImage("SleekSpace", "MultiListSelectionBrush")
+				self.order_queue_items.append(item)
+				order_queue.setItem(item, 0, index) # col id, row id
+
+				item = cegui.ListboxTextItem(str(order.turns))
+				item.setAutoDeleted(False)
+				order_queue.setItem(item, 1, index)
+				self.order_queue_items.append(item)
+
 			if object.order_number > 0 or len(object.order_types) > 0:
-				wm = cegui.WindowManager.getSingleton()
-				order_list = wm.getWindow("Orders/OrderList")
 				self.orders = {}
-				order_list.resetList()
 				descs = OrderDescs()
 				for order_type in object.order_types:
 					if not descs.has_key(order_type):

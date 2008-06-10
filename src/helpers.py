@@ -19,8 +19,8 @@ def pickle_dump(target_object, name="pickle"):
 	try:
 		f = open("%s_dump" % name, 'w')
 		pickle.dump(target_object, f)
-	except pickle.PicklingError:
-		print "Pickle Error!"
+	except pickle.PicklingError, e:
+		print "Pickle Error:", e
 	finally:
 		f.close()
 
