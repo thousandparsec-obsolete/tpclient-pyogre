@@ -58,6 +58,9 @@ class ObjectOverlay(object):
 		pos =  self.node._getWorldAABB().getMaximum()
 		pos = camera.viewMatrix*pos
 		pos = camera.projectionMatrix*pos
+
+		offset_x = 10
+		offset_y = 0
 	
 		if abs(pos[0]) < 1 and abs(pos[1]) < 1 and pos[2] < 1 and entity.visible:
 			if not self.overlay.isVisible():
@@ -65,7 +68,7 @@ class ObjectOverlay(object):
 
 			pos /= 2
 
-			pos = ((0.5 + pos.x)*(camera.viewport.actualWidth), (0.5 - pos.y)*camera.viewport.actualHeight)
+			pos = ((0.5 + pos.x)*(camera.viewport.actualWidth) + offset_x, (0.5 - pos.y)*camera.viewport.actualHeight + offset_y)
 			self.panel.setPosition(pos[0], pos[1])
 		else:
 			if self.overlay.isVisible():
