@@ -1,6 +1,17 @@
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
 
+def toggleWindow(name, visible=None):
+	"""Toggles the visibility of a window.
+
+	visible - Optional parameter to explicitly set visibility.
+
+	"""
+	wm = cegui.WindowManager.getSingleton()
+	if visible is None:
+		visible = not wm.getWindow(name).isVisible()
+	wm.getWindow(name).setVisible(visible)
+
 def setWidgetText(name, text):
 	"""Shortcut for setting CEGUI widget text.
 

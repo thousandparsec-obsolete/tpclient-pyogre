@@ -548,6 +548,14 @@ class StarmapScene(MenuScene):
 		elif evt.key == ois.KC_C:
 			if self.current_object:
 				self.starmap.center(self.getIDFromMovable(self.current_object))
+		elif evt.key == ois.KC_M:
+			helpers.toggleWindow("Messages")
+		elif evt.key == ois.KC_O:
+			helpers.toggleWindow("Orders")
+		elif evt.key == ois.KC_S:
+			helpers.toggleWindow("System")
+		elif evt.key == ois.KC_I:
+			helpers.toggleWindow("Information")
 		elif evt.key == ois.KC_F11:
 			cache = self.parent.application.cache
 			helpers.pickle_dump(cache.objects, "object")
@@ -711,8 +719,7 @@ class StarmapScene(MenuScene):
 		# assume buttons and windows have the same name, minus prefix
 		name = evt.window.getName().c_str().split("/")[1]
 		if name != None:
-			window = wm.getWindow(name)
-			window.setVisible(not window.isVisible())
+			helpers.toggleWindow(name)
 
 	def clearGui(self):
 		"""Empty out all GUI textboxes and hide all windows"""
