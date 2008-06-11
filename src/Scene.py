@@ -242,6 +242,9 @@ class StarmapScene(MenuScene):
 		order_queue.addColumn("Turns left", 1, cegui.UDim(0.4, 0))
 		order_queue.setSelectionMode(cegui.MultiColumnList.RowSingle)
 
+		self.orders_menu = RadialMenu(self.camera)
+		wm.getWindow("Starmap").addChildWindow(self.orders_menu.menu)
+
 		self.hide()
 	
 	def show(self):
@@ -556,6 +559,9 @@ class StarmapScene(MenuScene):
 			helpers.toggleWindow("System")
 		elif evt.key == ois.KC_I:
 			helpers.toggleWindow("Information")
+		elif evt.key == ois.KC_SPACE:
+			self.orders_menu.entity = self.current_object
+			self.orders_menu.toggle()
 		elif evt.key == ois.KC_F11:
 			cache = self.parent.application.cache
 			helpers.pickle_dump(cache.objects, "object")
@@ -742,3 +748,50 @@ class StarmapScene(MenuScene):
 		"""Returns the object id from an Entity node"""
 		return long(movable.getName()[6:])
 
+class RadialMenu(object):
+	def __init__(self, camera):
+		self.camera = camera
+		wm = cegui.WindowManager.getSingleton()
+		self.menu = wm.createWindow("SleekSpace/StaticImage", "RadialMenu")
+		self.menu.size = cegui.UVector2(cegui.UDim(0.23, 0), cegui.UDim(0.3, 0))
+		image = cegui.ImagesetManager.getSingleton().createImagesetFromImageFile("Radial", "halo2.png")
+		self.menu.setProperty("Image", "set:Radial image:full_image")
+		self.menu.hide()
+
+	def toggle(self):
+		if self.menu.isVisible():
+			self.close()
+		else:
+			self.open()
+
+	def close(self):
+		self.menu.hide()
+
+	def open(self):
+		if not self.entity:
+			return
+
+		bbox = self.entity.getWorldBoundingBox(True)
+		corners = bbox.getAllCorners()
+		min = [1, 1]
+
+		for corner in corners:
+			corner = self.camera.viewMatrix * corner
+			x = corner.x / corner.z + 0.5
+			y = corner.y / corner.z + 0.5
+			x = 1 - x
+			if (x < min[0]):
+				min[0] = x
+			if (y < min[1]):
+				min[1] = y
+
+		if min[0] < 0:
+			min[0] = 0
+		if min[1] < 0:
+			min[1] = 0
+
+		self.menu.show()
+		self.update(800*min[0], 600*min[1])
+
+	def update(self, x, y):
+		self.menu.position = cegui.UVector2(cegui.UDim(-0.10, x), cegui.UDim(-0.12, y))
