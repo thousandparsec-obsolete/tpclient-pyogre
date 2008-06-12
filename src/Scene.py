@@ -616,6 +616,8 @@ class StarmapScene(MenuScene):
 					for name, t in descclass.names:
 						if t is ARG_ABS_COORD:
 							orderargs.append(target.pos)
+						if t is ARG_OBJECT:
+							orderargs.append(destination)
 					order = descclass(*orderargs)
 
 					cache = self.parent.application.cache
