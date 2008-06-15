@@ -18,6 +18,24 @@ FLEET = 4
 
 OBJECT = 1
 
+ARG_GUI_MAP = {
+		ARG_ABS_COORD:'Position',
+		ARG_TIME:'Turns',
+		ARG_LIST:'List',
+		ARG_STRING:'String',
+		ARG_OBJECT:'Objects',
+		}
+
+defaults = {
+	ARG_ABS_COORD: [0,0,0],
+	ARG_TIME: [0, 0],
+	ARG_OBJECT: [0],
+	ARG_PLAYER: [0,0],
+	ARG_STRING: [0, ""],
+	ARG_LIST: [[], []],
+	ARG_RANGE: [-1, -1, -1, -1],
+}
+
 class Scene(object):
 	"""Displays a scene for the user.
 
@@ -215,6 +233,7 @@ class StarmapScene(MenuScene):
 		self.goto_index = 0
 		self.created = False
 		self.starmap = starmap.Starmap(self, self.sceneManager, self.rootNode)
+		self.timeout = False
 
 		self.raySceneQuery = self.sceneManager.createRayQuery(ogre.Ray())
 		self.raySceneQuery.setSortByDistance(True, 10)
@@ -234,6 +253,7 @@ class StarmapScene(MenuScene):
 			helpers.bindEvent(window, self, "closeClicked", cegui.FrameWindow.EventCloseClicked)
 
 		self.message_window = MessageWindow(self)
+		self.arguments_window = ArgumentsWindow(self)
 
 		order_queue = wm.getWindow("Orders/OrderQueue")
 		order_queue.addColumn("Type", 0, cegui.UDim(0.4, 0))
@@ -376,6 +396,7 @@ class StarmapScene(MenuScene):
 		print evt.remaining
 		if evt.remaining == 0:
 			print "End of turn"
+			self.timeout = True
 			network = self.parent.application.network
 			network.Call(network.CacheUpdate)
 
@@ -385,12 +406,19 @@ class StarmapScene(MenuScene):
 
 	def onCacheUpdate(self, evt):
 		"""Called whever the cache is updated"""
-		print "onCacheUpdate"
-		if evt.what is None:
-			if self.created:
-				self.recreate(self.parent.application.cache)
-			else:
-				self.create(self.parent.application.cache)
+		print "onCacheUpdate", evt
+		cache = self.parent.application.cache
+		if self.created:
+			if self.timeout:
+				self.recreate(cache)
+				self.timeout = False
+			elif self.current_object:
+				self.arguments_window.update()
+		else:
+			self.create(cache)
+
+	def onCacheDirty(self, evt):
+		print "OnCacheDirty", evt
 
 	def mousePressed(self, evt, id):
 		print self, "mousePressed"
@@ -495,6 +523,7 @@ class StarmapScene(MenuScene):
 			self.starmap.clearSelection()
 			self.current_object = None
 			self.orders_menu.close()
+			self.arguments_window.hide()
 
 		self.current_object = entity
 
@@ -563,6 +592,39 @@ class StarmapScene(MenuScene):
 					description = descs[order_type]
 					print description
 					self.orders_menu.add(description._name, self, "showOrder")
+			else:
+				self.arguments_window.hide()
+
+	def showOrder(self, evt):
+		index = int(evt.window.name.c_str()[17:])
+		id = self.getIDFromMovable(self.current_object)
+		object = self.objects[id]
+		descs = OrderDescs()
+		orders = []
+		for order_type in object.order_types:
+			if not descs.has_key(order_type):
+				continue
+			orders.append(descs[order_type])
+		order_description = orders[index]
+
+		self.arguments = []
+		orderargs = [0, id, -1, order_description.subtype, 0, []]
+		for name, t in order_description.names:
+			#print name, ARG_NAMEMAP[t]
+			orderargs += defaults[t]
+
+		order = order_description(*orderargs)
+
+		self.sendOrder(id, order)
+
+		for name, t in order_description.names:
+			self.arguments_window.addArgument(name, t)
+
+		self.arguments_window.show(order_description._name)
+		self.arguments_window.setCurrentOrder(id, order_description.subtype)
+
+		# remember to close after an order
+
 	def sendOrder(self, id, order, action="create after"):
 		cache = self.parent.application.cache
 		network = self.parent.application.network
@@ -695,7 +757,7 @@ class StarmapScene(MenuScene):
 		wm.getWindow("Information/Text").setText("")
 		for window in ['Orders', 'System', 'Messages', 'Information']:
 			wm.getWindow(window).hide()
-	
+
 	def clearAll(self):
 		"""Clears the entire starmap scene"""
 		self.starmap.clearLines()
@@ -790,4 +852,230 @@ class MessageWindow(object):
 		text += "\n"
 		text += message.body
 		helpers.setWidgetText("Messages/Message", text)
+
+class ArgumentsWindow(object):
+	def __init__(self, parent):
+		self.arguments = []
+		self.arguments_pending_update = []
+		self.parent = parent
+		self.id = None
+		self.order_subtype = None
+
+		self.selection_list = {}
+		self.listbox_queue = {}
+		self.update_list = {}
+		self.attributes = {}
+		self.object_list = {}
+
+		helpers.bindEvent("Arguments", self, "hide", cegui.FrameWindow.EventCloseClicked)
+		helpers.bindEvent("Arguments/Cancel", self, "hide", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Arguments/Save", self, "confirm", cegui.PushButton.EventClicked)
+		for win in ['Turns', 'Position', 'List', 'Objects', 'String']:
+			helpers.toggleWindow("Arguments/%s" % win, False)
+		self.hide()
+
+	def hide(self, evt=None):
+		helpers.toggleWindow("Arguments", False)
+		print self.arguments
+		for arg in self.arguments:
+			cegui.WindowManager.getSingleton().destroyWindow(arg)
+		self.arguments = []
+		self.arguments_pending_update = []
+		self.order_subtype = None
+		self.id = None
+
+	def confirm(self, evt):
+		print "Sending Order"
+		wm = cegui.WindowManager.getSingleton()
+
+		order_description = OrderDescs()[self.order_subtype]
+		print order_description
+		orderargs = [0, self.id, -1, order_description.subtype, 0, []]
+
+		for argument in self.arguments:
+			name = argument.name.c_str()
+			base = name[name.rfind('/') + 1:]
+			print name, base
+			if base == "Position":
+				value = []
+				for elem in ['X', 'Y', 'Z']:
+					elem_widget = wm.getWindow("%s/%s" % (name, elem))
+					text = elem_widget.text.c_str()
+					value.append(long(text))
+			elif base == "Turns":
+				elem_widget = wm.getWindow("%s/Editbox" % name)
+				# FIXME
+				value = [(long(elem_widget.text.c_str()), 100)]
+			elif base == "List":
+				elem_widget = wm.getWindow("%s/Listbox" % name)
+				update_list = self.update_list[name]
+				del self.update_list[name]
+				value = [update_list, []]
+				for key, queue in self.listbox_queue.items():
+					for update_item in update_list:
+						item_id = update_item[0]
+						item_name = update_item[1]
+						if item_name == key:
+							value[1].append((item_id, int(queue[0].text.c_str())))
+							break
+			elif base == "String":
+				elem_widget = wm.getWindow("%s/String" % name)
+				text = elem_widget.text.c_str()
+				# FIXME
+				value = [1024, unicode(text)]
+			elif base == "Objects":
+				elem_widget = wm.getWindow("%s/Object" % name)
+				text = elem_widget.text.c_str()
+				if not text.isdigit():
+					text = text.rpartition('(')[2]
+					text = text.replace(')', '')
+					if not text.isdigit():
+						print "Error with object argument", text
+						self.hide()
+						return
+				value = [long(text)]
+			else:
+				self.hide()
+				return
+
+			orderargs += value
+
+		order = order_description(*orderargs)
+		self.parent.sendOrder(self.id, order, "change")
+		self.hide()
+
+	def show(self, name):
+		wm = cegui.WindowManager.getSingleton()
+		args = wm.getWindow("Arguments")
+		args.show()
+		args.activate()
+		args.text = name
+
+	def setCurrentOrder(self, id, order_subtype):
+		self.id = id
+		self.order_subtype = order_subtype
+
+	def addArgument(self, caption, argument):
+		wm = cegui.WindowManager.getSingleton()
+		index = len(self.arguments)
+		parent = wm.getWindow("Arguments/Pane")
+
+		try:
+			base_name = ARG_GUI_MAP[argument]
+		except KeyError:
+			print "Unsupported argument"
+			return None
+
+		base = wm.getWindow("Arguments/%s" % base_name)
+		widget = helpers.copyWindow(base, "Argument%i" % index)
+
+		prefix = (index, base_name)
+		caption_widget = wm.getWindow("Argument%i/%s/Caption" % prefix)
+		caption_widget.text = caption.capitalize()
+		parent.addChildWindow(widget)
+
+		if argument is ARG_LIST:
+			self.arguments_pending_update.append((ARG_LIST, widget, caption))
+			list_widget = wm.getWindow("Argument%i/%s/Listbox" % prefix)
+			list_widget.addColumn("#", 0, cegui.UDim(0.3, 0))
+			list_widget.addColumn("Type", 1, cegui.UDim(0.5, 0))
+			list_widget.setSelectionMode(cegui.MultiColumnList.RowSingle)
+			helpers.bindEvent("Argument%i/%s/Add" % prefix, self, "addItemToList", cegui.PushButton.EventClicked)
+		if argument is ARG_OBJECT:
+			list_widget = wm.getWindow("Argument%i/%s/Object" % prefix)
+			for id, obj in self.parent.objects.items():
+				item = cegui.ListboxTextItem("%s (%i)" % (obj.name, id))
+				print item.text
+				item.setAutoDeleted(False)
+				if prefix in self.object_list:
+					self.object_list[prefix].append(item)
+				else:
+					self.object_list[prefix] = [item]
+				list_widget.addItem(item)
+
+		offset_x = cegui.UDim(0, 0)
+		offset_y = cegui.UDim(0, 0)
+		for arg_widget in self.arguments:
+			offset_y += arg_widget.position.d_y + arg_widget.height
+		widget.position += cegui.UVector2(offset_x, offset_y)
+		self.arguments.append(widget)
+
+		return widget
+
+	def addItemToList(self, evt):
+		#print "addItemToList", evt.window.name, evt.window.parent.name
+		prefix = evt.window.parent.name.c_str()
+		wm = cegui.WindowManager.getSingleton()
+		listbox = wm.getWindow("%s/Listbox" % prefix)
+		selection_widget = wm.getWindow("%s/Selection" % prefix)
+		current_selection = selection_widget.text.c_str()
+
+		if self.update_list.has_key(prefix) and self.selection_list.has_key(current_selection):
+			selection_list = self.update_list[prefix]
+			for triplet in selection_list:
+				selection_id = triplet[0]
+				selection_name = triplet[1]
+				if selection_name == current_selection:
+					print selection_id, selection_name, "selected"
+
+					if self.listbox_queue.has_key(current_selection):
+						queue = self.listbox_queue[current_selection]
+						for item in queue:
+							if item.text.c_str() == selection_name:
+								#print "Existing queue item found"
+								grid = listbox.getItemGridReference(item)
+								grid.column = 0
+								value_item = listbox.getItemAtGridReference(grid)
+								value = int(value_item.text.c_str())
+								value_item.text = str(value + 1)
+								#print "Value set:", value, grid
+								listbox.handleUpdatedItemData()
+								return
+					else:
+						queue = []
+						self.listbox_queue[current_selection] = queue
+
+					index = listbox.addRow()
+
+					item = cegui.ListboxTextItem(str(1))
+					item.setAutoDeleted(False)
+					item.setSelectionBrushImage("SleekSpace", "MultiListSelectionBrush")
+					listbox.setItem(item, 0, index)
+					queue.append(item)
+
+					item = cegui.ListboxTextItem(selection_name)
+					item.setAutoDeleted(False)
+					item.setSelectionBrushImage("SleekSpace", "MultiListSelectionBrush")
+					listbox.setItem(item, 1, index)
+					queue.append(item)
+
+	def update(self):
+		if self.id and self.order_subtype:
+			order = self.parent.parent.application.cache.orders[self.id].last.CurrentOrder
+			for triplet in self.arguments_pending_update:
+				#print triplet
+				arg_type = triplet[0]
+				argument = triplet[1]
+				attribute = triplet[2]
+
+				if arg_type is ARG_LIST:
+					update_list = getattr(order, attribute)[0]
+					selection = argument.getChild("%s/Selection" % argument.name)
+					print selection, selection.name, update_list
+					self.update_list[argument.name.c_str()] = update_list
+
+					selection.resetList()
+					self.selection_list = {}
+
+					for element in update_list:
+						#print element[1]
+						item = cegui.ListboxTextItem(element[1])
+						item.setAutoDeleted(False)
+						selection.addItem(item)
+						if self.selection_list.has_key(element[1]):
+							self.selection_list[element[1]].append(item)
+						else:
+							self.selection_list[element[1]] = [item]
+
+			self.arguments_pending_update = []
 
