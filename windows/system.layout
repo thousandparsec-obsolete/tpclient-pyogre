@@ -14,12 +14,14 @@
             <Property Name="UnifiedAreaRect" Value="{{0.0571317,0},{0.0372844,0},{0.315154,0},{0.633771,0}}" />
             <Window Type="SleekSpace/MultiColumnList" Name="Orders/OrderQueue" >
                 <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="InheritsAlpha" Value="False" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.067562,0},{0.0805802,0},{0.926628,0},{0.547134,0}}" />
             </Window>
             <Window Type="SleekSpace/Combobox" Name="Orders/OrderList" >
                 <Property Name="Font" Value="BlueHighway-10" />
                 <Property Name="ReadOnly" Value="True" />
+                <Property Name="InheritsAlpha" Value="False" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="ClippedByParent" Value="False" />
                 <Property Name="UnifiedAreaRect" Value="{{0.072652,0},{0.89835,0},{0.632899,0},{1.11801,0}}" />
@@ -28,40 +30,9 @@
             <Window Type="SleekSpace/Button" Name="Orders/NewOrder" >
                 <Property Name="Font" Value="BlueHighway-10" />
                 <Property Name="Text" Value="New" />
+                <Property Name="InheritsAlpha" Value="False" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.653886,0},{0.89835,0},{0.941075,0},{0.947686,0}}" />
-            </Window>
-        </Window>
-        <Window Type="SleekSpace/FrameWindow" Name="Windows" >
-            <Property Name="Font" Value="BlueHighway-10" />
-            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-            <Property Name="ClippedByParent" Value="False" />
-            <Property Name="TitlebarEnabled" Value="False" />
-            <Property Name="UnifiedAreaRect" Value="{{-0.00156248,0},{0.922867,0},{0.7125,0},{0.999949,0}}" />
-            <Property Name="CloseButtonEnabled" Value="False" />
-            <Window Type="SleekSpace/Button" Name="Windows/Orders" >
-                <Property Name="Font" Value="BlueHighway-10" />
-                <Property Name="Text" Value="Orders" />
-                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.0288841,0},{0.246767,0},{0.208862,0},{0.739198,0}}" />
-            </Window>
-            <Window Type="SleekSpace/Button" Name="Windows/Information" >
-                <Property Name="Font" Value="BlueHighway-10" />
-                <Property Name="Text" Value="Information" />
-                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.210175,0},{0.246767,0},{0.390153,0},{0.739198,0}}" />
-            </Window>
-            <Window Type="SleekSpace/Button" Name="Windows/System" >
-                <Property Name="Font" Value="BlueHighway-10" />
-                <Property Name="Text" Value="System" />
-                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.392834,0},{0.246767,0},{0.572812,0},{0.739198,0}}" />
-            </Window>
-            <Window Type="SleekSpace/Button" Name="Windows/Messages" >
-                <Property Name="Font" Value="BlueHighway-10" />
-                <Property Name="Text" Value="Messages" />
-                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.574125,0},{0.246767,0},{0.754103,0},{0.739198,0}}" />
             </Window>
         </Window>
         <Window Type="SleekSpace/FrameWindow" Name="System" >
@@ -73,6 +44,7 @@
             <Property Name="UnifiedAreaRect" Value="{{0.749999,0},{0.0270833,0},{0.974999,0},{0.539583,0}}" />
             <Window Type="SleekSpace/Listbox" Name="System/SystemList" >
                 <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="InheritsAlpha" Value="False" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.0827899,0},{0.0988445,0},{0.918043,0},{0.942554,0}}" />
             </Window>
@@ -89,6 +61,7 @@
                 <Property Name="Text" >
 </Property>
                 <Property Name="ReadOnly" Value="True" />
+                <Property Name="InheritsAlpha" Value="False" />
                 <Property Name="MaxTextLength" Value="1073741823" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.043565,0},{0.203946,0},{0.747503,0},{0.881579,0}}" />
@@ -96,24 +69,28 @@
             <Window Type="SleekSpace/Button" Name="Messages/Next" >
                 <Property Name="Font" Value="BlueHighway-10" />
                 <Property Name="Text" Value="Next" />
+                <Property Name="InheritsAlpha" Value="False" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.762284,0},{0.212474,0},{0.972755,0},{0.350373,0}}" />
             </Window>
             <Window Type="SleekSpace/Button" Name="Messages/Prev" >
                 <Property Name="Font" Value="BlueHighway-10" />
                 <Property Name="Text" Value="Prev" />
+                <Property Name="InheritsAlpha" Value="False" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.762284,0},{0.364393,0},{0.972755,0},{0.502292,0}}" />
             </Window>
             <Window Type="SleekSpace/Button" Name="Messages/Delete" >
                 <Property Name="Font" Value="BlueHighway-10" />
                 <Property Name="Text" Value="Delete" />
+                <Property Name="InheritsAlpha" Value="False" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.762284,0},{0.515407,0},{0.972755,0},{0.653306,0}}" />
             </Window>
             <Window Type="SleekSpace/Button" Name="Messages/Goto" >
                 <Property Name="Font" Value="BlueHighway-10" />
                 <Property Name="Text" Value="Goto" />
+                <Property Name="InheritsAlpha" Value="False" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.762284,0},{0.668137,0},{0.972755,0},{0.806036,0}}" />
             </Window>
@@ -130,9 +107,255 @@
                 <Property Name="Text" >
 </Property>
                 <Property Name="ReadOnly" Value="True" />
+                <Property Name="InheritsAlpha" Value="False" />
                 <Property Name="MaxTextLength" Value="1073741823" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.0358,0},{0.217105,0},{0.955045,0},{0.901315,0}}" />
+            </Window>
+        </Window>
+        <Window Type="SleekSpace/FrameWindow" Name="Arguments" >
+            <Property Name="Font" Value="BlueHighway-10" />
+            <Property Name="Visible" Value="False" />
+            <Property Name="SizingEnabled" Value="False" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="TitlebarEnabled" Value="True" />
+            <Property Name="UnifiedAreaRect" Value="{{0.348438,0},{0.30243,0},{0.758439,0},{0.679097,0}}" />
+            <Window Type="SleekSpace/ScrollablePane" Name="Arguments/Pane" >
+                <Property Name="ContentArea" Value="l:41 t:24 r:311 b:158" />
+                <Property Name="HorzStepSize" Value="0.1" />
+                <Property Name="VertStepSize" Value="0.1" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="HorzOverlapSize" Value="0.01" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0614755,0},{0.145122,0},{0.932926,0},{0.775761,0}}" />
+                <Property Name="VertOverlapSize" Value="0.01" />
+                <Property Name="HorzScrollPosition" Value="0" />
+                <Property Name="VertScrollPosition" Value="0" />
+                <AutoWindow NameSuffix="__auto_container__" >
+                    <Property Name="ContentArea" Value="l:41 t:24 r:311 b:158" />
+                    <Property Name="ChildExtentsArea" Value="l:41 t:24 r:311 b:158" />
+                    <Window Type="SleekSpace/FrameWindow" Name="Arguments/Turns" >
+                        <Property Name="Font" Value="BlueHighway-10" />
+                        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                        <Property Name="TitlebarEnabled" Value="False" />
+                        <Property Name="UnifiedAreaRect" Value="{{0.145073,0},{0.169212,0},{1.08774,0},{0.804504,0}}" />
+                        <Property Name="CloseButtonEnabled" Value="False" />
+                        <Window Type="SleekSpace/Editbox" Name="Arguments/Turns/Editbox" >
+                            <Property Name="Font" Value="BlueHighway-10" />
+                            <Property Name="Text" Value="0" />
+                            <Property Name="MaxTextLength" Value="1073741823" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.383963,0},{0.241015,0},{0.633963,0},{0.491015,0}}" />
+                        </Window>
+                        <Window Type="SleekSpace/Slider" Name="Arguments/Turns/Slider" >
+                            <Property Name="Font" Value="BlueHighway-10" />
+                            <Property Name="CurrentValue" Value="0" />
+                            <Property Name="MaximumValue" Value="1" />
+                            <Property Name="ClickStepSize" Value="0.01" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.275471,0},{0.510361,0},{0.728302,0},{0.727439,0}}" />
+                        </Window>
+                        <Window Type="SleekSpace/StaticText" Name="Arguments/Turns/Turns" >
+                            <Property Name="Font" Value="BlueHighway-10" />
+                            <Property Name="Text" Value="turns" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.663208,0},{0.236514,0},{0.913209,0},{0.486514,0}}" />
+                        </Window>
+                        <Window Type="SleekSpace/StaticText" Name="Arguments/Turns/Caption" >
+                            <Property Name="Font" Value="BlueHighway-10" />
+                            <Property Name="Text" Value="Test" />
+                            <Property Name="HorzFormatting" Value="HorzCentred" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.112264,0},{0.240603,0},{0.362263,0},{0.490602,0}}" />
+                        </Window>
+                    </Window>
+                    <Window Type="SleekSpace/FrameWindow" Name="Arguments/Position" >
+                        <Property Name="Font" Value="BlueHighway-10" />
+                        <Property Name="SizingEnabled" Value="False" />
+                        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                        <Property Name="TitlebarEnabled" Value="False" />
+                        <Property Name="UnifiedAreaRect" Value="{{0.145073,0},{0.169212,0},{1.08774,0},{0.804505,0}}" />
+                        <Property Name="CloseButtonEnabled" Value="False" />
+                        <Window Type="SleekSpace/StaticText" Name="Arguments/Position/Caption" >
+                            <Property Name="Font" Value="BlueHighway-10" />
+                            <Property Name="Text" Value="Test" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.0613217,0},{0.0812093,0},{0.311321,0},{0.331209,0}}" />
+                        </Window>
+                        <Window Type="SleekSpace/StaticText" Name="Arguments/Position/XLabel" >
+                            <Property Name="Font" Value="BlueHighway-10" />
+                            <Property Name="Text" Value="X" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.063208,0},{0.328859,0},{0.124529,0},{0.578859,0}}" />
+                        </Window>
+                        <Window Type="SleekSpace/Editbox" Name="Arguments/Position/X" >
+                            <Property Name="Font" Value="BlueHighway-10" />
+                            <Property Name="Text" Value="0" />
+                            <Property Name="MaxTextLength" Value="1073741823" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.125472,0},{0.353691,0},{0.333019,0},{0.603691,0}}" />
+                        </Window>
+                        <Window Type="SleekSpace/StaticText" Name="Arguments/Position/YLabel" >
+                            <Property Name="Font" Value="BlueHighway-10" />
+                            <Property Name="Text" Value="Y" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.35283,0},{0.328859,0},{0.409434,0},{0.578859,0}}" />
+                        </Window>
+                        <Window Type="SleekSpace/Editbox" Name="Arguments/Position/Y" >
+                            <Property Name="Font" Value="BlueHighway-10" />
+                            <Property Name="Text" Value="0" />
+                            <Property Name="MaxTextLength" Value="1073741823" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.415095,0},{0.353691,0},{0.622641,0},{0.603691,0}}" />
+                        </Window>
+                        <Window Type="SleekSpace/StaticText" Name="Arguments/Position/ZLabel" >
+                            <Property Name="Font" Value="BlueHighway-10" />
+                            <Property Name="Text" Value="Z" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.65283,0},{0.328859,0},{0.728301,0},{0.578859,0}}" />
+                        </Window>
+                        <Window Type="SleekSpace/Editbox" Name="Arguments/Position/Z" >
+                            <Property Name="Font" Value="BlueHighway-10" />
+                            <Property Name="Text" Value="0" />
+                            <Property Name="MaxTextLength" Value="1073741823" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.710377,0},{0.353691,0},{0.917924,0},{0.603691,0}}" />
+                        </Window>
+                    </Window>
+                    <Window Type="SleekSpace/FrameWindow" Name="Arguments/List" >
+                        <Property Name="Font" Value="BlueHighway-10" />
+                        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                        <Property Name="TitlebarEnabled" Value="False" />
+                        <Property Name="UnifiedAreaRect" Value="{{0.145073,0},{0.169212,0},{1.08774,0},{1.10621,0}}" />
+                        <Property Name="CloseButtonEnabled" Value="False" />
+                        <Window Type="SleekSpace/StaticText" Name="Arguments/List/Caption" >
+                            <Property Name="Font" Value="BlueHighway-10" />
+                            <Property Name="Text" Value="Test" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.050069,0},{0.0133704,0},{0.30007,0},{0.26337,0}}" />
+                        </Window>
+                        <Window Type="SleekSpace/MultiColumnList" Name="Arguments/List/Listbox" >
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.050023,0},{0.248565,0},{0.947485,0},{0.735284,0}}" />
+                        </Window>
+                        <Window Type="SleekSpace/Combobox" Name="Arguments/List/Selection" >
+                            <Property Name="Font" Value="BlueHighway-10" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="ClippedByParent" Value="False" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.057705,0},{0.756758,0},{0.476577,0},{1.27516,0}}" />
+                            <Property Name="MaxEditTextLength" Value="1073741823" />
+                        </Window>
+                        <Window Type="SleekSpace/Button" Name="Arguments/List/Add" >
+                            <Property Name="Font" Value="BlueHighway-10" />
+                            <Property Name="Text" Value="Add" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.521148,0},{0.756758,0},{0.65,0},{0.910136,0}}" />
+                        </Window>
+                        <Window Type="SleekSpace/Button" Name="Arguments/List/Remove" >
+                            <Property Name="Font" Value="BlueHighway-10" />
+                            <Property Name="Text" Value="Rm" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.65331,0},{0.756758,0},{0.782162,0},{0.910136,0}}" />
+                        </Window>
+                        <Window Type="SleekSpace/Button" Name="Arguments/List/Delete" >
+                            <Property Name="Font" Value="BlueHighway-10" />
+                            <Property Name="Text" Value="Del" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.782679,0},{0.756758,0},{0.911531,0},{0.910136,0}}" />
+                        </Window>
+                    </Window>
+                    <Window Type="SleekSpace/FrameWindow" Name="Arguments/String" >
+                        <Property Name="Font" Value="BlueHighway-10" />
+                        <Property Name="SizingEnabled" Value="False" />
+                        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                        <Property Name="TitlebarEnabled" Value="False" />
+                        <Property Name="UnifiedAreaRect" Value="{{0.145073,0},{0.169212,0},{1.08774,0},{0.734342,0}}" />
+                        <Property Name="CloseButtonEnabled" Value="False" />
+                        <Window Type="SleekSpace/StaticText" Name="Arguments/String/Caption" >
+                            <Property Name="Font" Value="BlueHighway-10" />
+                            <Property Name="Text" Value="Test" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.0747042,0},{0.0505314,0},{0.324702,0},{0.408878,0}}" />
+                        </Window>
+                        <Window Type="SleekSpace/Editbox" Name="Arguments/String/String" >
+                            <Property Name="Text" Value="Test" />
+                            <Property Name="MaxTextLength" Value="1073741823" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.0924936,0},{0.431704,0},{0.916035,0},{0.777635,0}}" />
+                        </Window>
+                    </Window>
+                    <Window Type="SleekSpace/FrameWindow" Name="Arguments/Objects" >
+                        <Property Name="SizingEnabled" Value="False" />
+                        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                        <Property Name="TitlebarEnabled" Value="False" />
+                        <Property Name="UnifiedAreaRect" Value="{{0.145073,0},{0.169212,0},{1.08774,0},{0.678209,0}}" />
+                        <Property Name="CloseButtonEnabled" Value="False" />
+                        <Window Type="SleekSpace/Combobox" Name="Arguments/Objects/Object" >
+                            <Property Name="Font" Value="BlueHighway-10" />
+                            <Property Name="ReadOnly" Value="True" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="ClippedByParent" Value="False" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.15485,0},{0.45574,0},{0.86876,0},{1.61553,0}}" />
+                            <Property Name="MaxEditTextLength" Value="1073741823" />
+                        </Window>
+                        <Window Type="SleekSpace/StaticText" Name="Arguments/Objects/Caption" >
+                            <Property Name="Font" Value="BlueHighway-10" />
+                            <Property Name="Text" Value="Test" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.0812389,0},{0.12269,0},{0.401753,0},{0.400259,0}}" />
+                        </Window>
+                    </Window>
+                </AutoWindow>
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Arguments/Cancel" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Cancel" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.687873,0},{0.807363,0},{0.937872,0},{0.940315,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Arguments/Save" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Confirm" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.427716,0},{0.807363,0},{0.677716,0},{0.940315,0}}" />
+            </Window>
+        </Window>
+        <Window Type="SleekSpace/FrameWindow" Name="Windows" >
+            <Property Name="Font" Value="BlueHighway-10" />
+            <Property Name="Alpha" Value="0.5" />
+            <Property Name="AlwaysOnTop" Value="True" />
+            <Property Name="SizingEnabled" Value="False" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="ClippedByParent" Value="False" />
+            <Property Name="TitlebarEnabled" Value="False" />
+            <Property Name="UnifiedAreaRect" Value="{{-0.00156248,0},{0.922867,0},{0.7125,0},{0.999949,0}}" />
+            <Property Name="CloseButtonEnabled" Value="False" />
+            <Window Type="SleekSpace/Button" Name="Windows/Orders" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Orders" />
+                <Property Name="InheritsAlpha" Value="False" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0288841,0},{0.246767,0},{0.208862,0},{0.739198,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Windows/Information" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Information" />
+                <Property Name="InheritsAlpha" Value="False" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.210175,0},{0.246767,0},{0.390153,0},{0.739198,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Windows/System" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="System" />
+                <Property Name="InheritsAlpha" Value="False" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.392834,0},{0.246767,0},{0.572812,0},{0.739198,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Windows/Messages" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Messages" />
+                <Property Name="InheritsAlpha" Value="False" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.574125,0},{0.246767,0},{0.754103,0},{0.739198,0}}" />
             </Window>
         </Window>
     </Window>
