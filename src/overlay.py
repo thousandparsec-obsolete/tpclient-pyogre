@@ -1,4 +1,9 @@
+import math
+
 import ogre.renderer.OGRE as ogre
+import ogre.gui.CEGUI as cegui
+
+import helpers
 
 class ObjectOverlay(object):
 	def __init__(self, node, object):
@@ -83,4 +88,91 @@ class ObjectOverlay(object):
 		return self.name.ColourValue
 	colour = property(getColour, setColour)
 
+class RadialMenu(object):
+	def __init__(self, camera):
+		self.camera = camera
+		self.buttons = []
+
+		image = cegui.ImagesetManager.getSingleton().createImagesetFromImageFile("Radial", "halo2.png")
+
+		wm = cegui.WindowManager.getSingleton()
+		self.menu = wm.createWindow("SleekSpace/StaticImage", "RadialMenu")
+		self.menu.size = cegui.UVector2(cegui.UDim(0.23, 0), cegui.UDim(0.3, 0))
+		self.menu.setProperty("Image", "set:Radial image:full_image")
+		self.menu.hide()
+
+	def add(self, caption, parent, handler):
+		wm = cegui.WindowManager.getSingleton()
+		index = len(self.buttons)
+		button = wm.createWindow("SleekSpace/Button", "RadialMenu/Button%i" % index)
+		button.size = cegui.UVector2(cegui.UDim(0.5, 0), cegui.UDim(0.2, 0))
+		button.text = caption
+		button.setProperty("ClippedByParent", "False")
+		self.menu.addChildWindow(button)
+		self.buttons.append(button)
+		self.arrange()
+		helpers.bindEvent("RadialMenu/Button%i" % index, parent, handler, cegui.PushButton.EventClicked)
+
+	def clear(self):
+		wm = cegui.WindowManager.getSingleton()
+		for button in self.buttons:
+			self.menu.removeChildWindow(button)
+			wm.destroyWindow(button)
+		self.buttons = []
+
+	def arrange(self):
+		i = 1
+		spacing = 360 / len(self.buttons)
+		for button in self.buttons:
+			position = [0.5, 0.5]
+			interval = spacing * i
+			interval = math.radians(interval)
+			x = 0.5 * math.cos(interval)
+			y = 0.5 * math.sin(interval)
+			position[0] += x
+			position[1] += y
+			i += 1
+			button.position = cegui.UVector2(cegui.UDim(position[0] - 0.25, 0), cegui.UDim(position[1] - 0.05, 0))
+
+	def toggle(self):
+		if self.menu.isVisible():
+			self.close()
+			return False
+		else:
+			self.open()
+			return True
+
+	def close(self):
+		self.clear()
+		self.menu.hide()
+
+	def open(self):
+		if not self.entity:
+			return
+
+		bbox = self.entity.getWorldBoundingBox(True)
+		corners = bbox.getAllCorners()
+		min = [1, 1]
+
+		for corner in corners:
+			corner = self.camera.viewMatrix * corner
+			x = corner.x / corner.z + 0.5
+			y = corner.y / corner.z + 0.5
+			x = 1 - x
+			if (x < min[0]):
+				min[0] = x
+			if (y < min[1]):
+				min[1] = y
+
+		if min[0] < 0:
+			min[0] = 0
+		if min[1] < 0:
+			min[1] = 0
+
+		self.menu.show()
+		# FIXME bad bad bad
+		self.update(800*min[0], 600*min[1])
+
+	def update(self, x, y):
+		self.menu.position = cegui.UVector2(cegui.UDim(-0.10, x), cegui.UDim(-0.12, y))
 

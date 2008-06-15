@@ -129,6 +129,9 @@ class Starmap(object):
 		node = self.nodes[object.id]
 		node.setPosition(pos)
 
+	def hasObject(self, id):
+		return id in self.nodes
+
 	def selectObject(self, object_id, colour_value = ogre.ColourValue.White, scale_factor=3):
 		"""Appends a scene node to the current selection and highlights it"""
 		scene_node = self.nodes[object_id]

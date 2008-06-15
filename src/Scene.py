@@ -242,11 +242,11 @@ class StarmapScene(MenuScene):
 		order_queue.addColumn("Turns left", 1, cegui.UDim(0.4, 0))
 		order_queue.setSelectionMode(cegui.MultiColumnList.RowSingle)
 
-		self.orders_menu = RadialMenu(self.camera)
+		self.orders_menu = overlay.RadialMenu(self.camera)
 		wm.getWindow("Starmap").addChildWindow(self.orders_menu.menu)
 
 		self.hide()
-	
+
 	def show(self):
 		Scene.show(self)
 
@@ -261,13 +261,7 @@ class StarmapScene(MenuScene):
 		wm = cegui.WindowManager.getSingleton()
 		listbox = wm.getWindow("System/SystemList")
 
-		# get number of designs by each player
-		designs = {}
-		for design in cache.designs.values():
-			if designs.has_key(design.owner):
-				designs[design.owner] += 1
-			else:
-				designs[design.owner] = 1
+		designs = self.getDesigns(cache)
 
 		for object in self.objects.values():
 			pos = ogre.Vector3(
@@ -294,7 +288,7 @@ class StarmapScene(MenuScene):
 			if object._subtype is PLANET:
 				# Get parent system and the number of other planets
 				parent = self.updateObjectIndex(object, "planets", PLANET)
-				if object.parent != 1:
+				if object.parent != 1 and self.starmap.hasObject(object.parent):
 					pos = self.starmap.nodes[object.parent].position
 				node = self.starmap.addPlanet(object, pos, parent)
 
@@ -304,7 +298,7 @@ class StarmapScene(MenuScene):
 				# Assign fleet type according to how many designs player has
 				fleet_type = (object.ships[0][0] - 1) % designs[object.owner]
 				print "ship_design: %i designs: %i fleet type: %i" % (object.ships[0][0], designs[object.owner], fleet_type)
-				if object.parent != 1:
+				if object.parent != 1 and self.starmap.hasObject(object.parent):
 					pos = self.starmap.nodes[object.parent].position
 				node = self.starmap.addFleet(object, pos, parent, fleet_type)
 
@@ -342,6 +336,16 @@ class StarmapScene(MenuScene):
 					exec("parent.%s += 1" % subtype_name)
 		return parent
 
+	def getDesigns(self, cache):
+		"""Get number of designs by each player"""
+		designs = {}
+		for design in cache.designs.values():
+			if designs.has_key(design.owner):
+				designs[design.owner] += 1
+			else:
+				designs[design.owner] = 1
+		return designs
+
 	def recreate(self, cache):
 		"""Update locations of objects
 		
@@ -351,6 +355,7 @@ class StarmapScene(MenuScene):
 		print "Updating starmap"
 		self.objects = cache.objects
 		self.starmap.clearLines()
+		designs = self.getDesigns(cache)
 
 		for object in cache.objects.values():
 			pos = ogre.Vector3(
@@ -364,7 +369,14 @@ class StarmapScene(MenuScene):
 				# Get parent system and the number of other fleets
 				# FIXME: What if a fleet is destroyed
 				parent = self.updateObjectIndex(object, "fleets", FLEET)
-				self.starmap.setFleet(object, pos, parent)
+				if object.parent != 1 and self.starmap.hasObject(object.parent):
+					pos = self.starmap.nodes[object.parent].position
+
+				if self.starmap.hasObject(object.id):
+					self.starmap.setFleet(object, pos, parent)
+				else:
+					fleet_type = (object.ships[0][0] - 1) % designs[object.owner]
+					self.starmap.addFleet(object, pos, parent, fleet_type)
 
 	def update(self, evt):
 		return self.starmap.update()
@@ -394,7 +406,7 @@ class StarmapScene(MenuScene):
 	def mousePressed(self, evt, id):
 		print self, "mousePressed"
 		self.mouse_delta -= self.mouse_delta
-	
+
 	def mouseMoved(self, evt):
 		"""Handles the MouseMoved event
 
@@ -472,7 +484,7 @@ class StarmapScene(MenuScene):
 							self.moveTo(current_id, oid)
 
 			return False
-	
+
 	def selectEntity(self, movable):
 		"""Highlights and selects the given Entity"""
 
@@ -493,6 +505,7 @@ class StarmapScene(MenuScene):
 		if self.current_object:
 			self.starmap.clearSelection()
 			self.current_object = None
+			self.orders_menu.close()
 
 		self.current_object = entity
 
@@ -545,6 +558,23 @@ class StarmapScene(MenuScene):
 
 		return True
 
+	def openOrdersMenu(self):
+		if not self.current_object:
+			return
+
+		id = self.getIDFromMovable(self.current_object)
+		object = self.objects[id]
+		if object.order_number > 0 or len(object.order_types) > 0:
+			self.orders_menu.entity = self.current_object
+			if self.orders_menu.toggle():
+				descs = OrderDescs()
+				for order_type in object.order_types:
+					if not descs.has_key(order_type):
+						continue
+					description = descs[order_type]
+					print description
+					self.orders_menu.add(description._name, self, "showOrder")
+
 	def keyPressed(self, evt):
 		if evt.key == ois.KC_A:
 			self.starmap.autofit()
@@ -560,8 +590,8 @@ class StarmapScene(MenuScene):
 		elif evt.key == ois.KC_I:
 			helpers.toggleWindow("Information")
 		elif evt.key == ois.KC_SPACE:
-			self.orders_menu.entity = self.current_object
-			self.orders_menu.toggle()
+			wm = cegui.WindowManager.getSingleton()
+			self.openOrdersMenu()
 		elif evt.key == ois.KC_F11:
 			cache = self.parent.application.cache
 			helpers.pickle_dump(cache.objects, "object")
@@ -750,50 +780,3 @@ class StarmapScene(MenuScene):
 		"""Returns the object id from an Entity node"""
 		return long(movable.getName()[6:])
 
-class RadialMenu(object):
-	def __init__(self, camera):
-		self.camera = camera
-		wm = cegui.WindowManager.getSingleton()
-		self.menu = wm.createWindow("SleekSpace/StaticImage", "RadialMenu")
-		self.menu.size = cegui.UVector2(cegui.UDim(0.23, 0), cegui.UDim(0.3, 0))
-		image = cegui.ImagesetManager.getSingleton().createImagesetFromImageFile("Radial", "halo2.png")
-		self.menu.setProperty("Image", "set:Radial image:full_image")
-		self.menu.hide()
-
-	def toggle(self):
-		if self.menu.isVisible():
-			self.close()
-		else:
-			self.open()
-
-	def close(self):
-		self.menu.hide()
-
-	def open(self):
-		if not self.entity:
-			return
-
-		bbox = self.entity.getWorldBoundingBox(True)
-		corners = bbox.getAllCorners()
-		min = [1, 1]
-
-		for corner in corners:
-			corner = self.camera.viewMatrix * corner
-			x = corner.x / corner.z + 0.5
-			y = corner.y / corner.z + 0.5
-			x = 1 - x
-			if (x < min[0]):
-				min[0] = x
-			if (y < min[1]):
-				min[1] = y
-
-		if min[0] < 0:
-			min[0] = 0
-		if min[1] < 0:
-			min[1] = 0
-
-		self.menu.show()
-		self.update(800*min[0], 600*min[1])
-
-	def update(self, x, y):
-		self.menu.position = cegui.UVector2(cegui.UDim(-0.10, x), cegui.UDim(-0.12, y))
