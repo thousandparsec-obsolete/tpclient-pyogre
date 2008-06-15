@@ -6,6 +6,7 @@ material console/background
       {
          diffuse 1 0 1 0.5
          ambient 0.4 0.4 0.4
+		 emissive 0.3 0.4 0.7 0.5
       }
  
    }

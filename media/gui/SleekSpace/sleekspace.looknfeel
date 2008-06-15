@@ -103,7 +103,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/RadioButton
@@ -225,7 +225,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/Checkbox
@@ -347,7 +347,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/Editbox
@@ -356,7 +356,7 @@
     <WidgetLook name="SleekSpace/Editbox">
         <Property name="MouseCursorImage" value="set:SleekSpace image:MouseTextBar" />
         <PropertyDefinition name="NormalTextColour" initialValue="FFFFFFFF" redrawOnWrite="true" />
-        <PropertyDefinition name="SelectedTextColour" initialValue="FF000000" redrawOnWrite="true" />
+        <PropertyDefinition name="SelectedTextColour" initialValue="FFFFFFFF" redrawOnWrite="true" />
         <PropertyDefinition name="ActiveSelectionColour" initialValue="FF607FFF" redrawOnWrite="true" />
         <PropertyDefinition name="InactiveSelectionColour" initialValue="FF808080" redrawOnWrite="true" />
         <NamedArea name="TextArea">
@@ -438,7 +438,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/Titlebar
@@ -567,7 +567,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/FrameWindow
@@ -815,7 +815,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/ProgressBar
@@ -887,7 +887,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/AlternateProgressBar
@@ -1058,7 +1058,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/VUMeter (progress bar)
@@ -1129,7 +1129,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/SliderThumb
@@ -1243,7 +1243,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/Slider
@@ -1348,7 +1348,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/HorizontalScrollbarThumb
@@ -1405,7 +1405,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/HorizontalScrollbar
@@ -1491,7 +1491,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/VerticalScrollbarThumb
@@ -1548,7 +1548,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/VerticalScrollbar
@@ -1635,7 +1635,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/Listbox
@@ -1772,7 +1772,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/ComboDropList
@@ -1911,7 +1911,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/ComboEditbox
@@ -1920,7 +1920,7 @@
     <WidgetLook name="SleekSpace/ComboEditbox">
         <Property name="MouseCursorImage" value="set:SleekSpace image:MouseTextBar" />
         <PropertyDefinition name="NormalTextColour" initialValue="FFFFFFFF" redrawOnWrite="true" />
-        <PropertyDefinition name="SelectedTextColour" initialValue="FF000000" redrawOnWrite="true" />
+        <PropertyDefinition name="SelectedTextColour" initialValue="FFFFFFFF" redrawOnWrite="true" />
         <PropertyDefinition name="ActiveSelectionColour" initialValue="FF607FFF" redrawOnWrite="true" />
         <PropertyDefinition name="InactiveSelectionColour" initialValue="FF808080" redrawOnWrite="true" />
         <NamedArea name="TextArea">
@@ -2001,7 +2001,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/Combobox
@@ -2056,7 +2056,7 @@
         <StateImagery name="Enabled" />
         <StateImagery name="Disabled" />
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/Spinner
@@ -2106,7 +2106,7 @@
         <StateImagery name="Enabled" />
         <StateImagery name="Disabled" />
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/StaticShared
@@ -2158,15 +2158,20 @@
             </ImageryComponent>
         </ImagerySection>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/StaticImage
     ***************************************************
     -->
     <WidgetLook name="SleekSpace/StaticImage">
-        <Property name="FrameEnabled" value="True" />
-        <Property name="BackgroundEnabled" value="True" />
+		<PropertyDefinition name="ImageColours" initialValue="tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF" redrawOnWrite="true" />
+		<PropertyDefinition name="FrameColours" initialValue="tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF" redrawOnWrite="true" />
+		<PropertyDefinition name="BackgroundColours" initialValue="tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF" redrawOnWrite="true" />
+        <PropertyDefinition name="VertFormatting" initialValue="Stretched" redrawOnWrite="true" />
+        <PropertyDefinition name="HorzFormatting" initialValue="Stretched" redrawOnWrite="true" />
+        <Property name="FrameEnabled" value="False" />
+        <Property name="BackgroundEnabled" value="False" />
         <NamedArea name="WithFrameImageRenderArea">
             <Area>
                 <Dim type="LeftEdge" ><ImageDim imageset="SleekSpace" image="StaticLeft" dimension="Width" /></Dim>
@@ -2195,6 +2200,46 @@
                 <Dim type="Height" ><UnifiedDim scale="1" type="Height" /></Dim>
             </Area>
         </NamedArea>
+        <ImagerySection name="image_withframe">
+            <ImageryComponent>
+                <Area>
+					<Dim type="LeftEdge" ><ImageDim imageset="SleekSpace" image="StaticLeft" dimension="Width" /></Dim>
+					<Dim type="TopEdge" ><ImageDim imageset="SleekSpace" image="StaticTop" dimension="Height" /></Dim>
+					<Dim type="RightEdge" >
+						<UnifiedDim scale="1" type="RightEdge">
+							<DimOperator op="Subtract">
+								<ImageDim imageset="SleekSpace" image="StaticRight" dimension="Width" />
+							</DimOperator>
+						</UnifiedDim>
+					</Dim>
+					<Dim type="BottomEdge" >
+						<UnifiedDim scale="1" type="BottomEdge">
+							<DimOperator op="Subtract">
+								<ImageDim imageset="SleekSpace" image="StaticBottom" dimension="Height" />
+							</DimOperator>
+						</UnifiedDim>
+					</Dim>
+				</Area>
+                <ImageProperty name="Image" />
+                <ColourRectProperty name="ImageColours" />
+                <VertFormatProperty name="VertFormatting" />
+                <HorzFormatProperty name="HorzFormatting" />
+            </ImageryComponent>
+        </ImagerySection>
+        <ImagerySection name="image_noframe">
+            <ImageryComponent>
+                <Area>
+					<Dim type="LeftEdge" ><AbsoluteDim value="0" /></Dim>
+					<Dim type="TopEdge" ><AbsoluteDim value="0" /></Dim>
+					<Dim type="Width" ><UnifiedDim scale="1" type="Width" /></Dim>
+					<Dim type="Height" ><UnifiedDim scale="1" type="Height" /></Dim>
+				</Area>
+                <ImageProperty name="Image" />
+                <ColourRectProperty name="ImageColours" />
+                <VertFormatProperty name="VertFormatting" />
+                <HorzFormatProperty name="HorzFormatting" />
+            </ImageryComponent>
+        </ImagerySection>
         <StateImagery name="Enabled" />
         <StateImagery name="Disabled" />
         <StateImagery name="EnabledFrame">
@@ -2217,16 +2262,36 @@
                 <Section look="SleekSpace/StaticShared" section="background" />
             </Layer>
         </StateImagery>
+        <StateImagery name="WithFrameEnabledBackground">
+            <Layer>
+                <Section look="SleekSpace/StaticShared" section="background" />
+            </Layer>
+        </StateImagery>
+        <StateImagery name="WithFrameDisabledBackground">
+            <Layer>
+                <Section look="SleekSpace/StaticShared" section="background" />
+            </Layer>
+        </StateImagery>
+        <StateImagery name="WithFrameImage">
+            <Layer>
+                <Section section="image_withframe" />
+            </Layer>
+        </StateImagery>
+        <StateImagery name="NoFrameImage">
+            <Layer>
+                <Section section="image_noframe" />
+            </Layer>
+        </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/StaticText
     ***************************************************
     -->
     <WidgetLook name="SleekSpace/StaticText">
-        <Property name="FrameEnabled" value="True" />
-        <Property name="BackgroundEnabled" value="True" />
+        <Property name="FrameEnabled" value="False" />
+        <Property name="BackgroundEnabled" value="False" />
         <NamedArea name="WithFrameTextRenderArea">
             <Area>
                 <Dim type="LeftEdge" ><ImageDim imageset="SleekSpace" image="StaticLeft" dimension="Width" /></Dim>
@@ -2348,7 +2413,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/ListHeaderSegment
@@ -2533,7 +2598,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/ListHeader
@@ -2544,7 +2609,7 @@
         <StateImagery name="Enabled" />
         <StateImagery name="Disabled" />
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/MultiColumnList
@@ -2695,7 +2760,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/MultiLineEditbox
@@ -2705,7 +2770,7 @@
         <Property name="MouseCursorImage" value="set:SleekSpace image:MouseTextBar" />
         <Property name="SelectionBrushImage" value="set:SleekSpace image:MultiLineEditboxSelectionBrush" />
         <PropertyDefinition name="NormalTextColour" initialValue="FFFFFFFF" redrawOnWrite="true" />
-        <PropertyDefinition name="SelectedTextColour" initialValue="FF000000" redrawOnWrite="true" />
+        <PropertyDefinition name="SelectedTextColour" initialValue="FFFFFFFF" redrawOnWrite="true" />
         <PropertyDefinition name="ActiveSelectionColour" initialValue="FF607FFF" redrawOnWrite="true" />
         <PropertyDefinition name="InactiveSelectionColour" initialValue="FF808080" redrawOnWrite="true" />
         <NamedArea name="TextArea">
@@ -2856,7 +2921,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/Tooltip
@@ -2940,7 +3005,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/ScrollablePane
@@ -3024,7 +3089,7 @@
         <StateImagery name="Enabled" />
         <StateImagery name="Disabled" />
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/TabButton
@@ -3116,7 +3181,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/TabPane
@@ -3153,7 +3218,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/TabControl
@@ -3180,7 +3245,7 @@
         <StateImagery name="Enabled" />
         <StateImagery name="Disabled" />
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/MenuItem
@@ -3326,7 +3391,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     ***************************************************
         SleekSpace/PopupMenu
     ***************************************************
@@ -3385,7 +3450,7 @@
     </WidgetLook>
 
     -->
-    
+
     <!--
     ***************************************************
         SleekSpace/LargeVerticalScrollbarThumb
@@ -3442,7 +3507,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
+
     <!--
     ***************************************************
         SleekSpace/LargeVerticalScrollbar
@@ -3622,3 +3687,4 @@
         </StateImagery>
     </WidgetLook>
 </Falagard>
+
