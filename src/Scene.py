@@ -215,7 +215,7 @@ class StarmapScene(MenuScene):
 		self.goto_index = 0
 		self.created = False
 		self.starmap = starmap.Starmap(self, self.sceneManager, self.rootNode)
-	
+
 		self.raySceneQuery = self.sceneManager.createRayQuery(ogre.Ray())
 		self.raySceneQuery.setSortByDistance(True, 10)
 		self.raySceneQuery.setQueryMask(self.SELECTABLE & ~self.UNSELECTABLE)
@@ -229,13 +229,11 @@ class StarmapScene(MenuScene):
 		helpers.bindEvent("Windows/Orders", self, "windowToggle", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Windows/Messages", self, "windowToggle", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Windows/System", self, "windowToggle", cegui.PushButton.EventClicked)
-		helpers.bindEvent("Messages/Next", self, "nextMessage", cegui.PushButton.EventClicked)
-		helpers.bindEvent("Messages/Prev", self, "prevMessage", cegui.PushButton.EventClicked)
-		helpers.bindEvent("Messages/Goto", self, "gotoMessageSubject", cegui.PushButton.EventClicked)
-		helpers.bindEvent("Messages/Delete", self, "deleteMessage", cegui.PushButton.EventClicked)
 		helpers.bindEvent("System/SystemList", self, "systemSelected", cegui.Listbox.EventSelectionChanged)
 		for window in ['Messages', 'Orders', 'System', 'Information']:
 			helpers.bindEvent(window, self, "closeClicked", cegui.FrameWindow.EventCloseClicked)
+
+		self.message_window = MessageWindow(self)
 
 		order_queue = wm.getWindow("Orders/OrderQueue")
 		order_queue.addColumn("Type", 0, cegui.UDim(0.4, 0))
@@ -302,17 +300,8 @@ class StarmapScene(MenuScene):
 					pos = self.starmap.nodes[object.parent].position
 				node = self.starmap.addFleet(object, pos, parent, fleet_type)
 
-		for val in cache.messages[0]:
-			self.messages.append(val)
-
-		if len(self.messages) > 0:
-			if len(self.messages) > self.message_index:
-				self.setCurrentMessage(self.messages[self.message_index])
-			else:
-				self.setCurrentMessage(self.messages[0])
-
+		self.message_window.create(cache)
 		self.created = True
-
 		self.starmap.autofit()
 
 	def updateObjectIndex(self, object, subtype_name, subtype_index):
@@ -574,6 +563,12 @@ class StarmapScene(MenuScene):
 					description = descs[order_type]
 					print description
 					self.orders_menu.add(description._name, self, "showOrder")
+	def sendOrder(self, id, order, action="create after"):
+		cache = self.parent.application.cache
+		network = self.parent.application.network
+		node = cache.orders[id].first
+		evt = cache.apply("orders", action, id, node, order)
+		self.parent.application.Post(evt, source=self)
 
 	def keyPressed(self, evt):
 		if evt.key == ois.KC_A:
@@ -649,77 +644,9 @@ class StarmapScene(MenuScene):
 						if t is ARG_OBJECT:
 							orderargs.append(destination)
 					order = descclass(*orderargs)
-
-					cache = self.parent.application.cache
-					network = self.parent.application.network
-					node = cache.orders[source].first
-					evt = cache.apply("orders", "create after", source, node, order)
-					network.Call(network.OnCacheDirty, evt)
-
+					self.sendOrder(source, order)
 					self.starmap.drawLine(source, destination)
 					break
-
-	def nextMessage(self, evt):
-		"""Sets messagebox to the next message if available"""
-		if len(self.messages) > 0 and self.message_index < len(self.messages) - 1:
-			self.message_index += 1
-			self.goto_index = 0
-			self.setCurrentMessage(self.messages[self.message_index])
-
-	def prevMessage(self, evt):
-		"""Sets messagebox to the previous message if available"""
-		if len(self.messages) > 0 and self.message_index > 0:
-			self.message_index -= 1
-			self.goto_index = 0
-			self.setCurrentMessage(self.messages[self.message_index])
-
-	def deleteMessage(self, evt):
-		"""Deletes the current message permanently and displays the next message, if any."""
-		cache = self.parent.application.cache
-		network = self.parent.application.network
-		current_message = self.messages[self.message_index]
-		change_node = cache.messages[0][current_message.id]
-		evt = cache.apply("messages", "remove", 0, change_node, None)
-		network.Call(network.OnCacheDirty, evt)
-		self.messages.remove(current_message)
-		if len(self.messages) > 0:
-			self.nextMessage(evt)
-		else:
-			helpers.setWidgetText("Messages/Message", "")
-
-	def gotoMessageSubject(self, evt):
-		"""Select and center on the subject of a message.
-
-		Cycles through available subjects if there are more than one.
-
-		"""
-		message = self.messages[self.message_index].CurrentOrder
-		refs = message.references
-		if self.goto_index >= len(refs):
-			self.goto_index = 0
-		i = 0
-		for reference in refs:
-			print reference
-		for reference in refs:
-			i += 1
-			if reference[0] is OBJECT:
-				id = reference[1]
-				if id is 1: # universe
-					continue
-				if i < self.goto_index + 1:
-					continue
-				if self.selectObjectById(id):
-					self.starmap.center(id)
-					self.goto_index = i
-					break
-
-	def setCurrentMessage(self, message_object):
-		"""Sets message text inside message window"""
-		message = message_object.CurrentOrder
-		text = "Subject: " + message.subject + "\n"
-		text += "\n"
-		text += message.body
-		helpers.setWidgetText("Messages/Message", text)
 
 	def setInformationText(self, object):
 		"""Sets text inside information window"""
@@ -779,4 +706,88 @@ class StarmapScene(MenuScene):
 	def getIDFromMovable(self, movable):
 		"""Returns the object id from an Entity node"""
 		return long(movable.getName()[6:])
+
+class MessageWindow(object):
+	def __init__(self, parent):
+		self.messages = []
+		self.message_index = 0
+		self.goto_index = 0
+		self.parent = parent
+
+		helpers.bindEvent("Messages/Next", self, "nextMessage", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Messages/Prev", self, "prevMessage", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Messages/Goto", self, "gotoMessageSubject", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Messages/Delete", self, "deleteMessage", cegui.PushButton.EventClicked)
+
+	def create(self, cache):
+		for val in cache.messages[0]:
+			self.messages.append(val)
+
+		if len(self.messages) > 0:
+			if len(self.messages) > self.message_index:
+				self.setCurrentMessage(self.messages[self.message_index])
+			else:
+				self.setCurrentMessage(self.messages[0])
+
+	def nextMessage(self, evt):
+		"""Sets messagebox to the next message if available"""
+		if len(self.messages) > 0 and self.message_index < len(self.messages) - 1:
+			self.message_index += 1
+			self.goto_index = 0
+			self.setCurrentMessage(self.messages[self.message_index])
+
+	def prevMessage(self, evt):
+		"""Sets messagebox to the previous message if available"""
+		if len(self.messages) > 0 and self.message_index > 0:
+			self.message_index -= 1
+			self.goto_index = 0
+			self.setCurrentMessage(self.messages[self.message_index])
+
+	def deleteMessage(self, evt):
+		"""Deletes the current message permanently and displays the next message, if any."""
+		cache = self.parent.parent.application.cache
+		network = self.parent.parent.application.network
+		current_message = self.messages[self.message_index]
+		change_node = cache.messages[0][current_message.id]
+		evt = cache.apply("messages", "remove", 0, change_node, None)
+		network.Call(network.OnCacheDirty, evt)
+		self.messages.remove(current_message)
+		if len(self.messages) > 0:
+			self.nextMessage(evt)
+		else:
+			helpers.setWidgetText("Messages/Message", "")
+
+	def gotoMessageSubject(self, evt):
+		"""Select and center on the subject of a message.
+
+		Cycles through available subjects if there are more than one.
+
+		"""
+		message = self.messages[self.message_index].CurrentOrder
+		refs = message.references
+		if self.goto_index >= len(refs):
+			self.goto_index = 0
+		i = 0
+		for reference in refs:
+			print reference
+		for reference in refs:
+			i += 1
+			if reference[0] is OBJECT:
+				id = reference[1]
+				if id is 1: # universe
+					continue
+				if i < self.goto_index + 1:
+					continue
+				if self.selectObjectById(id):
+					self.parent.starmap.center(id)
+					self.goto_index = i
+					break
+
+	def setCurrentMessage(self, message_object):
+		"""Sets message text inside message window"""
+		message = message_object.CurrentOrder
+		text = "Subject: " + message.subject + "\n"
+		text += "\n"
+		text += message.body
+		helpers.setWidgetText("Messages/Message", text)
 
