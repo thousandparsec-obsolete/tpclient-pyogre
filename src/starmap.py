@@ -54,7 +54,7 @@ class Starmap(object):
 		particleNode.attachObject(self.bg_particle1)
 
 	def addStar(self, object, position):
-		node = self.createObjectNode(position, object.id, 'sphere.mesh', 100, False)
+		node = self.createObjectNode(position, object.id, 'sphere_lod.mesh', 100, False)
 		self.nodes[object.id] = node
 		entityNode = self.sceneManager.getSceneNode("Object%i_EntityNode" % object.id)
 
@@ -82,7 +82,7 @@ class Starmap(object):
 
 	def addPlanet(self, object, position, parent):
 		pos = self.calculateRadialPosition(position, 300, 720, parent.planets, object.index)
-		node = self.createObjectNode(pos, object.id, 'sphere.mesh', 50)
+		node = self.createObjectNode(pos, object.id, 'sphere_lod.mesh', 50)
 		self.nodes[object.id] = node
 		self.planets.append(node)
 		entityNode = node.getChild(0)
