@@ -144,9 +144,13 @@ class Network(NetworkThread):
 		"""Connect to a given host using a certain username and password"""
 		def callback(*args, **kw):
 			print args, kw
+
 		NetworkThread.ConnectTo(self, host, username, password, debug, callback)
-		self.application.cache = Cache("tp://%s@%s:6923" % (username, host), new=True)
-		self.CacheUpdate()
+		try:
+			self.application.cache = Cache("tp://%s@%s:6923" % (username, host))
+			self.CacheUpdate()
+		except AttributeError, e:
+			print e
 	
 	def CacheUpdate(self):
 		"""Update the cache from the server"""
