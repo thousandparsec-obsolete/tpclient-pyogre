@@ -20,7 +20,11 @@ class Starmap(object):
 		self.bg_particle = None
 		self.zoom = 0
 		self.planets = []
+		self.fleets = []
+		self.stars = []
 		self.selection = {}
+		self.icons = {}
+		self.show_icon = False
 
 		self.flareBillboard = self.sceneManager.createBillboardSet("flare")
 		self.flareBillboard.setMaterialName("Billboards/Flares/flare")
@@ -56,6 +60,7 @@ class Starmap(object):
 	def addStar(self, object, position):
 		node = self.createObjectNode(position, object.id, 'sphere_lod.mesh', 100, False)
 		self.nodes[object.id] = node
+		self.stars.append(node)
 		entityNode = self.sceneManager.getSceneNode("Object%i_EntityNode" % object.id)
 
 		# Lens flare
@@ -72,6 +77,9 @@ class Starmap(object):
 		label.setColour(ogre.ColourValue(0.7, 0.9, 0.7))
 		self.overlays[object.id] = label
 
+		icon = overlay.IconOverlay(entityNode, object, "Starmap/Icons/Stars")
+		self.icons[object.id] = icon
+
 		random.seed(object.id)
 		star_type = random.choice(["Orange", "White", "Green"])
 
@@ -85,8 +93,11 @@ class Starmap(object):
 		node = self.createObjectNode(pos, object.id, 'sphere_lod.mesh', 50)
 		self.nodes[object.id] = node
 		self.planets.append(node)
-		entityNode = node.getChild(0)
+		entityNode = self.sceneManager.getSceneNode("Object%i_EntityNode" % object.id)
 		entityNode.pitch(ogre.Radian(1.57))
+
+		icon = overlay.IconOverlay(entityNode, object, "Starmap/Icons/Planets", 15, 15)
+		self.icons[object.id] = icon
 
 		random.seed(parent.id)
 		for i in range(object.index):
@@ -96,7 +107,7 @@ class Starmap(object):
 		entity = self.sceneManager.getEntity("Object%i" % object.id)
 		entity.setMaterialName("Starmap/Planet/%s" % planet_type)
 
-	def addFleet(self, object, position, parent, fleet_type = 0):
+	def addFleet(self, object, position, parent, fleet_type=0):
 		# rotate between 3 ship types
 		meshes = [('scout', 50), ('frigate', 75), ('plowshare', 75)]
 		fleet_type %= len(meshes)
@@ -104,9 +115,13 @@ class Starmap(object):
 		pos = self.calculateRadialPosition(position, 200, 360, parent.fleets, object.index)
 		node = self.createObjectNode(pos, object.id, '%s.mesh' % mesh[0], mesh[1])
 		self.nodes[object.id] = node
-		entityNode = node.getChild(0)
+		self.fleets.append(node)
+		entityNode = self.sceneManager.getSceneNode("Object%i_EntityNode" % object.id)
 		entityNode.yaw(ogre.Radian(1.57))
 		entityNode.roll(ogre.Radian(1.57))
+
+		icon = overlay.IconOverlay(entityNode, object, "Starmap/Icons/Fleets", 20, 20)
+		self.icons[object.id] = icon
 
 		owner = object.owner
 		random.seed(owner)
@@ -122,7 +137,7 @@ class Starmap(object):
 		entity.setMaterialName(material_name)
 
 		r = random.random
-		#material.setDiffuse(r(), r(), r(), 1)
+		material.setDiffuse(r(), r(), r(), 1)
 
 	def setFleet(self, object, position, parent):
 		pos = self.calculateRadialPosition(position, 200, 360, parent.fleets, object.index)
@@ -132,7 +147,18 @@ class Starmap(object):
 	def hasObject(self, id):
 		return id in self.nodes
 
-	def selectObject(self, object_id, colour_value = ogre.ColourValue.White, scale_factor=3):
+	def isIconClicked(self, x, y):
+		#print "isIconClicked", x, y
+		if not self.show_icon:
+			return None
+
+		for icon in self.icons.values():
+			element = icon.overlay.findElementAt(x, y)
+			if element:
+				return element
+		return None
+
+	def selectObject(self, object_id, colour_value=ogre.ColourValue.White, scale_factor=3):
 		"""Appends a scene node to the current selection and highlights it"""
 		scene_node = self.nodes[object_id]
 		position = scene_node.position
@@ -143,6 +169,7 @@ class Starmap(object):
 		billboard.setDimensions(scale * scale_factor, scale * scale_factor)
 
 		self.selection[object_id] = billboard
+		self.icons[object_id].setHighlight(True)
 
 	def unselectObject(self, object_id):
 		"""Remove an object from the current selection"""
@@ -150,10 +177,13 @@ class Starmap(object):
 			billboard = self.selection[object_id]
 			self.selectionBillboard.removeBillboard(billboard)
 			del self.selection[object_id]
+			self.icons[object_id].setHighlight(False)
 
 	def clearSelection(self):
 		"""Clears all selected objects"""
 		self.selectionBillboard.clear()
+		for id in self.selection.keys():
+			self.icons[id].setHighlight(False)
 		self.selection = {}
 
 	def mode(self, modes):
@@ -203,12 +233,38 @@ class Starmap(object):
 
 	def update(self):
 		camera = self.sceneManager.getCamera('PlayerCam')
+		self.parent.parent.renderWindow.debugText = "Z:%d" % self.zoom
+
+		if self.zoom < 10:
+			if not self.show_icon:
+				self.setIconView(True)
+		else:
+			if self.show_icon:
+				self.setIconView(False)
+		
+		for icon in self.icons.values():
+			icon.update(camera)
 		for label in self.overlays.values():
 			label.update(camera)
 		for planet in self.planets:
 			planet.getChild(0).roll(ogre.Radian(0.005))
 
 		return True
+
+	def setIconView(self, visible):
+		for fleet in self.fleets:
+			fleet.setVisible(not visible)
+		for planet in self.planets:
+			planet.setVisible(not visible)
+		for star in self.stars:
+			star.setVisible(not visible)
+		self.flareBillboard.setVisible(not visible)
+		self.selectionBillboard.setVisible(not visible)
+
+		for icon in self.icons.values():
+			icon.setVisible(visible)
+
+		self.show_icon = visible
 
 	def drawLine(self, id_start, id_end):
 		"""Draws a line showing the path of an object.
@@ -253,6 +309,9 @@ class Starmap(object):
 			self.sceneManager.destroyEntity("Object%i" % oid)
 		self.rootNode.removeAndDestroyAllChildren()
 		self.nodes = {}
+		self.planets = []
+		self.fleets = []
+		self.stars = []
 
 	def autofit(self):
 		"""Zooms out until all stars are visible"""
@@ -267,6 +326,7 @@ class Starmap(object):
 				if not self.camera.isVisible(object.getPosition()):
 					fit = False
 		self.zoom = 0
+		self.show_icon = False
 
 	def center(self, id):
 		"""Center on an object identified by object id"""

@@ -465,6 +465,15 @@ class StarmapScene(MenuScene):
 			x = float(state.X.abs) / float(state.width)
 			y = float(state.Y.abs) / float(state.height)
 			mouseRay = self.camera.getCameraToViewportRay(x, y)
+
+			icon = self.starmap.isIconClicked(x, y)
+			if icon:
+				if id == ois.MB_Left:
+					name = icon.name
+					oid = int(name.split('_')[2])
+					self.selectObjectById(oid)
+					return False
+
 			self.raySceneQuery.setRay(mouseRay)
 
 			print "Executing ray scene query"

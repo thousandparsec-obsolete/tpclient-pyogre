@@ -27,6 +27,51 @@ material Starmap/Stars
 	}
 }
 
+material Starmap/Icons/Planets
+{
+	technique
+	{
+		pass
+		{
+			scene_blend add
+			texture_unit
+			{
+				texture p_icon.png
+			}
+		}
+	}
+}
+
+material Starmap/Icons/Fleets
+{
+	technique
+	{
+		pass
+		{
+			scene_blend add
+			texture_unit
+			{
+				texture f_icon.png
+			}
+		}
+	}
+}
+
+material Starmap/Icons/Stars
+{
+	technique
+	{
+		pass
+		{
+			scene_blend add
+			texture_unit
+			{
+				texture s_icon.png
+			}
+		}
+	}
+}
+
 material Starmap/Sun
 {
 	technique

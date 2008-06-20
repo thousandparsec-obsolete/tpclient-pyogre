@@ -5,6 +5,71 @@ import ogre.gui.CEGUI as cegui
 
 import helpers
 
+class IconOverlay(object):
+	# FIXME: Repetition with ObjectOverlay
+
+	def __init__(self, node, object, material, width=25, height=25, colour=ogre.ColourValue.White):
+		self.node = node
+		self.original_material = material
+		self.highlight = False
+
+		overlayManager = ogre.OverlayManager.getSingleton()
+		panel = overlayManager.createOverlayElement("Panel", "Panel_Icon_%i" % object.id)
+		panel.metricsMode = ogre.GMM_PIXELS
+		panel.width = width
+		panel.height = height
+		panel.materialName = material
+		self.panel = panel
+
+		self.overlay = overlayManager.create("Overlay%i_Icon" % object.id)
+		self.overlay.add2D(self.panel)
+		self.overlay.show()
+
+	def setHighlight(self, highlight, colour=ogre.ColourValue.White):
+		material = self.panel.material
+		clone_material_name = "%s_highlight" % self.original_material
+		material_manager = ogre.MaterialManager.getSingleton()
+		if highlight:
+			if material_manager.resourceExists(clone_material_name):
+				material_clone = material_manager.getByName(clone_material_name)
+			else:
+				material_clone = material.clone(clone_material_name)
+				texture = material_clone.getTechnique(0).getPass(0).getTextureUnitState(0)
+				texture.setColourOperationEx(ogre.LBX_MODULATE_X4, ogre.LBS_TEXTURE, ogre.LBS_MANUAL, colour)
+			self.panel.materialName = material_clone.name
+		else:
+			self.panel.materialName = self.original_material
+			material_manager.remove(material)
+		self.highlight = highlight
+
+	def setVisible(self, visible):
+		if visible:
+			self.panel.show()
+		else:
+			self.panel.hide()
+
+	def update(self, camera):
+		entity = self.node.getAttachedObject(0)
+	
+		pos =  self.node._getWorldAABB().getMaximum()
+		pos = camera.viewMatrix*pos
+		pos = camera.projectionMatrix*pos
+
+		offset_x = -20
+		offset_y = -5
+	
+		if abs(pos[0]) < 1 and abs(pos[1]) < 1 and pos[2] < 1:
+			if not self.overlay.isVisible():
+				self.overlay.show()
+
+			pos /= 2
+
+			pos = ((0.5 + pos.x)*(camera.viewport.actualWidth) + offset_x, (0.5 - pos.y)*camera.viewport.actualHeight + offset_y)
+			self.panel.setPosition(pos[0], pos[1])
+		else:
+			if self.overlay.isVisible():
+				self.overlay.hide()
+
 class ObjectOverlay(object):
 	def __init__(self, node, object):
 		self.node = node
@@ -14,8 +79,6 @@ class ObjectOverlay(object):
 		overlayManager = ogre.OverlayManager.getSingleton()
 		panel = overlayManager.createOverlayElement("Panel", "Panel%i" % object.id)
 		panel.metricsMode = ogre.GMM_PIXELS
-		# FIXME: This should be calculated...
-		panel.dimensions = (100, 100)
 		self.panel = panel
 	
 		name = overlayManager.createOverlayElement("TextArea", "Name%i" % object.id)
@@ -67,7 +130,7 @@ class ObjectOverlay(object):
 		offset_x = 10
 		offset_y = 0
 	
-		if abs(pos[0]) < 1 and abs(pos[1]) < 1 and pos[2] < 1 and entity.visible:
+		if abs(pos[0]) < 1 and abs(pos[1]) < 1 and pos[2] < 1:
 			if not self.overlay.isVisible():
 				self.overlay.show()
 
@@ -170,8 +233,8 @@ class RadialMenu(object):
 			min[1] = 0
 
 		self.menu.show()
-		# FIXME bad bad bad
-		self.update(800*min[0], 600*min[1])
+		manager = ogre.OverlayManager.getSingleton()
+		self.update(manager.viewportWidth * min[0], manager.viewportHeight * min[1])
 
 	def update(self, x, y):
 		self.menu.position = cegui.UVector2(cegui.UDim(-0.10, x), cegui.UDim(-0.12, y))
