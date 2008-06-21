@@ -18,6 +18,7 @@ class Starmap(object):
 		self.lines = 0
 		self.overlays = {}
 		self.bg_particle = None
+		self.background_nodes = []
 		self.zoom = 0
 		self.planets = []
 		self.fleets = []
@@ -49,13 +50,11 @@ class Starmap(object):
 		"""Creates a starry background for the current scene"""
 		if self.bg_particle is None:
 			self.bg_particle = self.sceneManager.createParticleSystem("star_layer1", "Space/Stars/Large")
-		particleNode = self.rootNode.createChildSceneNode("StarryBackgroundLayer1")
+		self.bg_particle.keepParticlesInLocalSpace = True
+		particleNode = self.parent.camera_node.createChildSceneNode("StarryBackgroundLayer1")
 		particleNode.pitch(ogre.Radian(1.57))
 		particleNode.attachObject(self.bg_particle)
-		self.bg_particle1 = self.sceneManager.createParticleSystem("stars_layer2", "Space/Stars/Small")
-		particleNode = self.rootNode.createChildSceneNode("StarryBackgroundLayer2")
-		particleNode.pitch(ogre.Radian(1.57))
-		particleNode.attachObject(self.bg_particle1)
+		self.background_nodes.append(particleNode)
 
 	def addStar(self, object, position):
 		node = self.createObjectNode(position, object.id, 'sphere_lod.mesh', 100, False)
@@ -258,6 +257,8 @@ class Starmap(object):
 			planet.setVisible(not visible)
 		for star in self.stars:
 			star.setVisible(not visible)
+		for bg in self.background_nodes:
+			bg.setVisible(not visible)
 		self.flareBillboard.setVisible(not visible)
 		self.selectionBillboard.setVisible(not visible)
 

@@ -21,7 +21,7 @@ material Starmap/Stars
 
 			texture_unit
 			{
-				texture star.png
+				colour_op_ex modulate src_manual src_current 1 1 1
 			}
 		}
 	}
