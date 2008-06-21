@@ -136,9 +136,9 @@ class MenuScene(Scene):
 		Scene.hide(self)
 
 	def update(self, evt):
-		camera = self.sceneManager.getCamera( 'PlayerCam' )
-		camera.pitch(ogre.Radian(ogre.Degree(evt.timeSinceLastFrame*25)))
-		camera.yaw(ogre.Radian(ogre.Degree(evt.timeSinceLastFrame*-5)))
+		camera = self.sceneManager.getCamera('PlayerCam')
+		camera.pitch(ogre.Radian(ogre.Degree(evt.timeSinceLastFrame * 2)))
+		camera.yaw(ogre.Radian(ogre.Degree(evt.timeSinceLastFrame * -2)))
 
 		return True
 
@@ -160,6 +160,9 @@ class LoginScene(MenuScene):
 		helpers.bindEvent("Login/QuitButton", self, "onQuit", cegui.PushButton.EventClicked)
 
 		self.hide()
+
+	def onNetworkFailure(self, evt):
+		print "NetworkFailure", evt
 
 	def onFoundRemoteGame(self, evt):
 		"""Called when a remote game is found from the metaserver"""
@@ -206,8 +209,8 @@ class ConfigScene(MenuScene):
 class StarmapScene(MenuScene):
 	"""Manages the GUI and Starmap class"""
 
-	SELECTABLE = 2**1
-	UNSELECTABLE = 2**2
+	SELECTABLE = 1 << 0
+	UNSELECTABLE = 1 << 1
 
 	pan_speed = 500
 	tolerance_delta = 1
@@ -228,9 +231,14 @@ class StarmapScene(MenuScene):
 		self.starmap = starmap.Starmap(self, self.sceneManager, self.rootNode)
 		self.timeout = False
 
+		self.camera_node = self.rootNode.createChildSceneNode("CameraNode")
+		self.camera_node.attachObject(self.camera)
+
+		# FIXME: Shift to starmap
 		self.raySceneQuery = self.sceneManager.createRayQuery(ogre.Ray())
 		self.raySceneQuery.setSortByDistance(True, 10)
-		self.raySceneQuery.setQueryMask(self.SELECTABLE & ~self.UNSELECTABLE)
+		self.raySceneQuery.setQueryMask(self.SELECTABLE)
+		self.camera.setQueryFlags(self.UNSELECTABLE)
 
 		wm = cegui.WindowManager.getSingleton()
 		system = wm.loadWindowLayout("system.layout")
@@ -311,7 +319,7 @@ class StarmapScene(MenuScene):
 				print "ship_design: %i designs: %i fleet type: %i" % (object.ships[0][0], designs[object.owner], fleet_type)
 				if object.parent != 1 and self.starmap.hasObject(object.parent):
 					pos = self.starmap.nodes[object.parent].position
-				node = self.starmap.addFleet(object, pos, parent, fleet_type)
+				node = self.starmap.addFleet(object, pos, parent, fleet_type, self.SELECTABLE)
 
 		self.message_window.create(cache)
 		self.created = True
@@ -435,13 +443,17 @@ class StarmapScene(MenuScene):
 				adjusted_pan = self.pan_speed
 			self.camera.moveRelative(
 				ogre.Vector3(state.X.rel * adjusted_pan, -state.Y.rel * adjusted_pan, 0))
+			#self.camera_node.translate(
+				#ogre.Vector3(state.X.rel * adjusted_pan, -state.Y.rel * adjusted_pan, 0))
 		
 		elif state.Z.rel < 0 and self.starmap.zoom > self.max_zoom_out: # scroll down
-			self.camera.moveRelative(ogre.Vector3(0, 0, 2 * self.pan_speed))
+			#self.camera.moveRelative(ogre.Vector3(0, 0, 2 * self.pan_speed))
+			self.camera_node.translate(ogre.Vector3(0, 0, 2 * self.pan_speed))
 			self.starmap.zoom -= 1
 
 		elif state.Z.rel > 0 and self.starmap.zoom < self.min_zoom_in: # scroll up
-			self.camera.moveRelative(ogre.Vector3(0, 0, -2 * self.pan_speed))
+			#self.camera.moveRelative(ogre.Vector3(0, 0, -2 * self.pan_speed))
+			self.camera_node.translate(ogre.Vector3(0, 0, -2 * self.pan_speed))
 			self.starmap.zoom += 1
 
 		else:
@@ -457,7 +469,7 @@ class StarmapScene(MenuScene):
 		return False
 
 	def mouseReleased(self, evt, id):
-		print self, "mouseReleased"
+		#print self, "mouseReleased"
 
 		state = evt.get_state()
 		if self.mouse_delta[0] <= self.tolerance_delta and self.mouse_delta[1] <= self.tolerance_delta:
@@ -474,9 +486,10 @@ class StarmapScene(MenuScene):
 					self.selectObjectById(oid)
 					return False
 
+			# FIXME: Shift to starmap
 			self.raySceneQuery.setRay(mouseRay)
 
-			print "Executing ray scene query"
+			#print "Executing ray scene query", x, y
 
 			for o in self.raySceneQuery.execute():
 				if o.worldFragment:
@@ -714,6 +727,7 @@ class StarmapScene(MenuScene):
 
 	def setInformationText(self, object):
 		"""Sets text inside information window"""
+		# FIXME: Create information window class
 		text = "modify time: " + object.modify_time.ctime() + "\n"
 		text += "name: " + object.name + "\n"
 		text += "parent: " + str(object.parent) + "\n"
@@ -730,6 +744,7 @@ class StarmapScene(MenuScene):
 	def systemSelected(self, evt):
 		"""Updates information box with selected system info"""
 		print "System selected"
+		# FIXME: Create system window class
 		wm = cegui.WindowManager.getSingleton()
 		listbox = wm.getWindow("System/SystemList")
 		selected = listbox.getFirstSelectedItem()

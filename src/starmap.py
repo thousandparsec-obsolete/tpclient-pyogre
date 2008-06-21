@@ -106,7 +106,7 @@ class Starmap(object):
 		entity = self.sceneManager.getEntity("Object%i" % object.id)
 		entity.setMaterialName("Starmap/Planet/%s" % planet_type)
 
-	def addFleet(self, object, position, parent, fleet_type=0):
+	def addFleet(self, object, position, parent, fleet_type=0, query_flag=None):
 		# rotate between 3 ship types
 		meshes = [('scout', 50), ('frigate', 75), ('plowshare', 75)]
 		fleet_type %= len(meshes)
@@ -125,6 +125,8 @@ class Starmap(object):
 		owner = object.owner
 		random.seed(owner)
 		entity = self.sceneManager.getEntity("Object%i" % object.id)
+		if query_flag:
+			entity.setQueryFlags(query_flag)
 		material = entity.getSubEntity(0).getMaterial()
 		material_name = "%s_%i" % (material.getName(), owner)
 		material_manager = ogre.MaterialManager.getSingleton()
