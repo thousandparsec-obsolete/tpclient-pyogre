@@ -5,7 +5,7 @@ plugins = [
 		"Plugin_ParticleFX",
 		"Plugin_BSPSceneManager",
 		"Plugin_OctreeSceneManager",
-		"Plugin_CgProgramManager"
+		#"Plugin_CgProgramManager"
 	]
 
 default_windows_drive = "c:/"
@@ -49,6 +49,8 @@ def nt_config():
 			for plugin in plugins:
 				f.write("Plugin="+plugin+".dll")
 				f.write("\n")
+			f.write("Plugin=RenderSystem_Direct3D9.dll")
+			f.write("\n")
 		else:
 			print "Python Ogre not found"
 	finally:
