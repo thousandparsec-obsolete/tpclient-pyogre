@@ -294,7 +294,8 @@ class ArgumentsWindow(object):
 					queue.append(item)
 
 	def update(self):
-		if self.id and self.order_subtype:
+		#print "Updating list items"
+		if self.id != None and self.order_subtype != None:
 			order = self.parent.parent.application.cache.orders[self.id].last.CurrentOrder
 			for triplet in self.arguments_pending_update:
 				#print triplet
