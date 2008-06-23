@@ -218,9 +218,10 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 		if os.name.startswith("posix"):
 			options.append(("x11_mouse_grab", str("false")))
 		elif os.name.startswith("nt"):
+			pass
 			# FIXME: mouse problems in windows
-			options.append(("w32_mouse", str("DISCL_FOREGROUND")))
-			options.append(("w32_mouse", str("DISCL_NONEXCLUSIVE")))
+			#options.append(("w32_mouse", str("DISCL_FOREGROUND")))
+			#options.append(("w32_mouse", str("DISCL_NONEXCLUSIVE")))
 
 		self.inputManager = ois.createPythonInputSystem(options)
 		self.enableKeyboard = True
