@@ -218,6 +218,7 @@ class StarmapScene(MenuScene):
 	scroll_speed = 100
 	max_zoom_out = -5
 	min_zoom_in = 19
+	low_fps_threshold = 15
 
 	def __init__(self, parent, sceneManager):
 		Scene.__init__(self, parent, sceneManager)
@@ -389,7 +390,10 @@ class StarmapScene(MenuScene):
 					self.starmap.addFleet(object, pos, parent, fleet_type)
 
 	def update(self, evt):
-		return self.starmap.update()
+		self.starmap.update()
+		#if self.parent.renderWindow.lastFPS < self.low_fps_threshold:
+			#self.starmap.setIconView(True)
+		return True
 
 	def onNetworkTimeRemaining(self, evt):
 		"""Called whenever a NetworkTimeRemaining packet is received"""
