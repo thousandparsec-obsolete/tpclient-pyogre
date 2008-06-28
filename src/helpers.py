@@ -6,11 +6,15 @@ def toggleWindow(name, visible=None):
 
 	visible - Optional parameter to explicitly set visibility.
 
+	Returns the window that was changed
+
 	"""
 	wm = cegui.WindowManager.getSingleton()
 	if visible is None:
 		visible = not wm.getWindow(name).isVisible()
-	wm.getWindow(name).setVisible(visible)
+	window = wm.getWindow(name)
+	window.setVisible(visible)
+	return window
 
 def setWidgetText(name, text):
 	"""Shortcut for setting CEGUI widget text.

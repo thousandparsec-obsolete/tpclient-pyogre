@@ -4,6 +4,7 @@ import random
 import ogre.renderer.OGRE as ogre
 
 import overlay
+import settings
 
 class Starmap(object):
 	"""Responsible for handling the display of the starmap"""
@@ -267,7 +268,7 @@ class Starmap(object):
 		camera = self.sceneManager.getCamera('PlayerCam')
 		self.parent.parent.renderWindow.debugText = "Z:%d" % self.zoom
 
-		if self.zoom < 10:
+		if self.zoom < settings.icon_zoom_switch_level:
 			if not self.show_icon:
 				self.setIconView(True)
 		else:

@@ -11,6 +11,7 @@ import overlay
 import starmap
 import helpers
 import gui
+import settings
 
 UNIVERSE = 1
 STAR = 2
@@ -159,6 +160,9 @@ class LoginScene(MenuScene):
 		helpers.bindEvent("Login/ConfigButton", self, "onConfig", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Login/QuitButton", self, "onQuit", cegui.PushButton.EventClicked)
 
+		helpers.bindEvent("Config/OK", self, "onConfigSave", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Config/Cancel", self, "onConfigCancel", cegui.PushButton.EventClicked)
+
 		self.hide()
 
 	def onNetworkFailure(self, evt):
@@ -190,12 +194,28 @@ class LoginScene(MenuScene):
 	def onConfig(self, evt):
 		"""Called when user clicks on the config button"""
 		print "onConfig"
+		helpers.toggleWindow("Config").activate()
+
 		wm = cegui.WindowManager.getSingleton()
+		total_zoom = abs(settings.min_zoom_in) + abs(settings.max_zoom_out)
+		current_zoom = float(settings.icon_zoom_switch_level + abs(settings.max_zoom_out)) / float(total_zoom)
+		wm.getWindow("Config/Zoom").currentValue = current_zoom
 
 	def onQuit(self, evt):
 		"""Called when user clicks on the quit button"""
 		print "onQuit"
 		self.parent.Cleanup()
+
+	def onConfigCancel(self, evt):
+		helpers.toggleWindow("Config", False)
+
+	def onConfigSave(self, evt):
+		wm = cegui.WindowManager.getSingleton()
+		zoom = wm.getWindow("Config/Zoom").currentValue
+		total_zoom = abs(settings.min_zoom_in) + abs(settings.max_zoom_out)
+		settings.icon_zoom_switch_level = int(zoom * total_zoom - abs(settings.max_zoom_out))
+		print settings.icon_zoom_switch_level
+		helpers.toggleWindow("Config", False)
 
 	def setServer(self, host):
 		"""Sets the initial value of the host input field"""
