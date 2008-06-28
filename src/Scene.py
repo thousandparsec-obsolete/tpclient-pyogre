@@ -269,6 +269,11 @@ class StarmapScene(MenuScene):
 
 	def show(self):
 		Scene.show(self)
+		self.starmap.show()
+
+	def hide(self):
+		Scene.hide(self)
+		self.starmap.hide()
 
 	def create(self, cache):
 		"""Creates list of objects from cache"""
@@ -289,10 +294,10 @@ class StarmapScene(MenuScene):
 					object.pos[1] / self.distance_scale, 
 					object.pos[2] / self.distance_scale)
 
-			print "creating", object.id, object.name, "\ttype:", object._subtype, "at", pos
+			#print "creating", object.id, object.name, "\ttype:", object._subtype, "at", pos
 
-			if hasattr(object, "parent"):
-				print "parent of %s is %i" % (object.name, object.parent)
+			#if hasattr(object, "parent"):
+				#print "parent of %s is %i" % (object.name, object.parent)
 			
 			if object._subtype is STAR:
 				node = self.starmap.addStar(object, pos)

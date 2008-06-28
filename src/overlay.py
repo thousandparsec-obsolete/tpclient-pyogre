@@ -119,6 +119,12 @@ class ObjectOverlay(object):
 		for text in self.active:
 			text.show()
 
+	def setVisible(self, visible):
+		if visible:
+			self.panel.show()
+		else:
+			self.panel.hide()
+
 	def update(self, camera):
 		entity = self.node.getAttachedObject(0)
 	

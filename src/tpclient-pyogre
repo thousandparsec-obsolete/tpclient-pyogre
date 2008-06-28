@@ -14,6 +14,7 @@ from tp.client.cache import Cache
 
 import Framework
 import Scene
+from LoadingBar import *
 
 def traceback():
 	import sys, traceback, string
@@ -29,10 +30,12 @@ class GUI(Framework.Application):
 		self.application = application
 		self.guiRenderer = 0
 		self.guiSystem = 0
+		self.loading_bar = LoadingBar()
 
 		self.tocall = []
 		
 		self.start = self.go
+		self.screen_hidden = True
 
 	def start(self):
 		try:
@@ -90,6 +93,44 @@ class GUI(Framework.Application):
 		del self.root
 		del self.renderWindow		
 
+	def connectCallback(self, *args, **kw):
+		print "gui connect callback", args, kw
+		if not self.loading_bar.started:
+			self.loading_bar.start(self.renderWindow)
+			self.loading_bar.show()
+			self.loading_bar.setTitle("Connecting")
+		if len(args[0]) == 3:
+			self.loading_bar.setCaption(args[0][2])
+
+	def updateCallback(self, *args, **kw):
+		print "gui update callback", args, kw
+		if not self.loading_bar.started:
+			self.loading_bar.start(self.renderWindow)
+			self.loading_bar.show()
+			self.loading_bar.setTitle("Updating")
+		if args[1].has_key('message'):
+			self.loading_bar.setCaption(args[1]['message'])
+		if args[1].has_key('todownload'):
+			groups = args[1]['todownload']
+			self.loading_bar.setTitle("Updating %s" % args[0][0])
+			if groups > 0:
+				self.loading_bar.start(self.renderWindow, groups)
+		if args[0][1] == 'downloaded':
+			self.loading_bar.advance()
+
+	def loadingFinished(self):
+		self.loading_bar.finish()
+
+	def hideScreen(self):
+		if not self.screen_hidden:
+			self.screen_hidden = True
+			self.currentScene.hide()
+
+	def showScreen(self):
+		if self.screen_hidden:
+			self.screen_hidden = False
+			self.currentScene.show()
+	
 	def frameStarted(self, evt):
 		if not self.frameListener.keepRendering:
 			print "destroying"
@@ -130,9 +171,9 @@ class GUI(Framework.Application):
 	def changeScene(self, scene):
 		"""Function to change to a different scene"""
 		if hasattr(self, "currentScene"):
-			self.currentScene.hide()
+			self.hideScreen()
 		self.currentScene = scene
-		self.currentScene.show()
+		self.showScreen()
 
 class Network(NetworkThread):
 	## These are network events
@@ -143,24 +184,32 @@ class Network(NetworkThread):
 	def ConnectTo(self, host, username, password, debug=False):
 		"""Connect to a given host using a certain username and password"""
 		def callback(*args, **kw):
-			print args, kw
+			#print "connect callback", args, kw
+			gui.Call(gui.connectCallback, args, kw)
 
+		gui = self.application.gui
+		gui.Call(gui.hideScreen)
 		NetworkThread.ConnectTo(self, host, username, password, debug, callback)
 		try:
 			self.application.cache = Cache("tp://%s@%s:6923" % (username, host))
 			self.CacheUpdate()
 		except AttributeError, e:
 			print e
+			gui.Call(gui.showScreen)
+			gui.Call(gui.loadingFinished)
 	
 	def CacheUpdate(self):
 		"""Update the cache from the server"""
 		def callback(*args, **kw):
-			print args, kw
+			#print "update callback", args, kw
+			gui.Call(gui.updateCallback, args, kw)
 		
 		gui = self.application.gui
+		gui.Call(gui.hideScreen)
 		NetworkThread.CacheUpdate(self, callback)
 		gui.Call(gui.changeScene, gui.starmap)
 		self.application.Post(self.application.cache.CacheUpdateEvent(None))
+		gui.Call(gui.loadingFinished)
 		return
 
 class Application(ClientApplication):

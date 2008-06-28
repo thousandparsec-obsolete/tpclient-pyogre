@@ -46,6 +46,37 @@ class Starmap(object):
 		light.diffuseColour = (1, 1, 1)
 		light.direction = (0, 0, -1)
 
+	def show(self):
+		self.setOverlayVisibility(True)
+		self.setIconVisibility(True)
+		self.setObjectVisibility(True)
+		self.setIconView(self.show_icon)
+
+	def hide(self):
+		self.setOverlayVisibility(False)
+		self.setIconVisibility(False)
+		self.setObjectVisibility(False)
+
+	def setOverlayVisibility(self, visible):
+		self.flareBillboard.setVisible(visible)
+		self.selectionBillboard.setVisible(visible)
+		for ov in self.overlays.values():
+			ov.setVisible(visible)
+
+	def setIconVisibility(self, visible):
+		for icon in self.icons.values():
+			icon.setVisible(visible)
+
+	def setObjectVisibility(self, visible):
+		for fleet in self.fleets:
+			fleet.setVisible(visible)
+		for planet in self.planets:
+			planet.setVisible(visible)
+		for star in self.stars:
+			star.setVisible(visible)
+		for bg in self.background_nodes:
+			bg.setVisible(visible)
+
 	def createBackground(self):
 		"""Creates a starry background for the current scene"""
 		if self.bg_particle is None:
