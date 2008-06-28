@@ -5,6 +5,7 @@ import ogre.gui.CEGUI as cegui
 import ogre.io.OIS as ois
 
 import console
+from log import *
 
 class Application(object):
 	"""This class is the base for an Ogre application"""
@@ -38,6 +39,7 @@ class Application(object):
 		Returns false if the user hits "cancel" in the dialog box.
 		
 		"""
+		self._createLogger()
 		self.root = ogre.Root("plugins.cfg", "ogre.cfg")
 
 		self._setUpResources()
@@ -56,6 +58,16 @@ class Application(object):
 		self._createScene()
 		self._createFrameListener()
 		return True
+
+	def _createLogger(self):
+		self.logMgr = ogre.LogManager()
+		self.logListener = Logger()
+		self.log = ogre.LogManager.getSingletonPtr().createLog(
+				"dummy.log", 
+				True, 
+				False, 
+				False)
+		self.log.addListener(self.logListener)
 
 	def _setUpResources(self):
 		"""This sets up Ogre's resources, which are required to be in resources.cfg"""
