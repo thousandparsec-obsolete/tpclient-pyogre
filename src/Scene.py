@@ -251,6 +251,8 @@ class StarmapScene(MenuScene):
 		self.created = False
 		self.starmap = starmap.Starmap(self, self.sceneManager, self.rootNode)
 		self.timeout = False
+		self.timer = ogre.Timer()
+		self.remaining_time = 0
 
 		self.camera_node = self.rootNode.createChildSceneNode("CameraNode")
 		self.camera_node.attachObject(self.camera)
@@ -399,7 +401,7 @@ class StarmapScene(MenuScene):
 					object.pos[1] / self.distance_scale, 
 					object.pos[2] / self.distance_scale)
 
-			print "updating", object.id, object.name, object._subtype, "at", pos
+			#print "updating", object.id, object.name, object._subtype, "at", pos
 
 			if object._subtype is FLEET:
 				# Get parent system and the number of other fleets
@@ -416,15 +418,30 @@ class StarmapScene(MenuScene):
 
 	def update(self, evt):
 		self.starmap.update()
+		if self.remaining_time > 0 and self.timer.getMilliseconds() >= 1000:
+			self.remaining_time -= 1
+			minutes = int(self.remaining_time / 60)
+			seconds = int(self.remaining_time % 60)
+			helpers.setWidgetText("Windows/EOT", "EOT: %i:%02i" % (minutes, seconds))
+			self.timer.reset()
+			if self.remaining_time < 10:
+				helpers.setWindowProperty("Windows/EOT", "Alpha", 1) 
+			else:
+				helpers.setWindowProperty("Windows/EOT", "Alpha", 0.5) 
+
 		#if self.parent.renderWindow.lastFPS < self.low_fps_threshold:
 			#self.starmap.setIconView(True)
 		return True
 
 	def onNetworkTimeRemaining(self, evt):
 		"""Called whenever a NetworkTimeRemaining packet is received"""
-		print "onNetworkRemaining"
-		print evt.remaining
-		if evt.remaining == 0:
+		print "onNetworkTimeRemaining", evt.remaining
+		self.remaining_time = evt.remaining
+		minutes = int(self.remaining_time / 60)
+		seconds = int(self.remaining_time % 60)
+		helpers.setWidgetText("Windows/EOT", "EOT: %i:%02i" % (minutes, seconds))
+		self.timer.reset()
+		if self.remaining_time == 0:
 			print "End of turn"
 			self.timeout = True
 			network = self.parent.application.network
@@ -461,6 +478,8 @@ class StarmapScene(MenuScene):
 		Scrolling the mousewheel will zoom in and out.
 
 		"""
+		if self.timeout:
+			return False
 		state = evt.get_state()
 
 		self.mouse_delta += (abs(state.X.rel), abs(state.Y.rel))
@@ -499,6 +518,9 @@ class StarmapScene(MenuScene):
 
 	def mouseReleased(self, evt, id):
 		#print self, "mouseReleased"
+
+		if self.timeout:
+			return False
 
 		state = evt.get_state()
 		if self.mouse_delta[0] <= self.tolerance_delta and self.mouse_delta[1] <= self.tolerance_delta:

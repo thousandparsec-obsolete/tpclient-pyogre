@@ -29,6 +29,10 @@ def bindEvent(name, object, method, event):
 	wm = cegui.WindowManager.getSingleton()
 	wm.getWindow(name).subscribeEvent(event, object, method)
 
+def setWindowProperty(name, property, value):
+	wm = cegui.WindowManager.getSingleton()
+	wm.getWindow(name).setProperty(str(property), str(value))
+
 def copyWindow(window, prefix):
 	wm = cegui.WindowManager.getSingleton()
 	old_name = window.name.c_str()
