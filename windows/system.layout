@@ -375,5 +375,35 @@
                 <Property Name="UnifiedAreaRect" Value="{{0.927337,0},{0.300285,0},{0.97445,0},{0.744883,0}}" />
             </Window>
         </Window>
+        <Window Type="SleekSpace/FrameWindow" Name="TopBar" >
+            <Property Name="Font" Value="BlueHighway-10" />
+            <Property Name="Alpha" Value="0.5" />
+            <Property Name="AlwaysOnTop" Value="True" />
+            <Property Name="SizingEnabled" Value="False" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="ClippedByParent" Value="False" />
+            <Property Name="TitlebarEnabled" Value="False" />
+            <Property Name="UnifiedAreaRect" Value="{{-0.002344,0},{-0.00296,0},{0.177031,0},{0.0486767,0}}" />
+            <Property Name="CloseButtonEnabled" Value="False" />
+            <Window Type="SleekSpace/Button" Name="TopBar/MenuButton" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Menu" />
+                <Property Name="InheritsAlpha" Value="False" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="ClippedByParent" Value="False" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0327962,0},{0.148294,0},{0.427356,0},{0.746364,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Editbox" Name="TopBar/Turn" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Turn:" />
+                <Property Name="Alpha" Value="0.5" />
+                <Property Name="ReadOnly" Value="True" />
+                <Property Name="InheritsAlpha" Value="False" />
+                <Property Name="MaxTextLength" Value="1073741823" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="ClippedByParent" Value="False" />
+                <Property Name="UnifiedAreaRect" Value="{{0.483297,0},{0.148294,0},{0.84359,0},{0.746364,0}}" />
+            </Window>
+        </Window>
     </Window>
 </GUILayout>

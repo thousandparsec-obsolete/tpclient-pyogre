@@ -345,13 +345,15 @@ class StarmapScene(MenuScene):
 				parent = self.updateObjectIndex(object, "fleets", FLEET)
 				# Assign fleet type according to how many designs player has
 				fleet_type = (object.ships[0][0] - 1) % designs[object.owner]
-				print "ship_design: %i designs: %i fleet type: %i" % (object.ships[0][0], designs[object.owner], fleet_type)
+				#print "ship_design: %i designs: %i fleet type: %i" % (object.ships[0][0], designs[object.owner], fleet_type)
 				if object.parent != 1 and self.starmap.hasObject(object.parent):
 					pos = self.starmap.nodes[object.parent].position
 				node = self.starmap.addFleet(object, pos, parent, fleet_type, self.SELECTABLE)
 
 		self.message_window.create(cache)
 		self.created = True
+		if hasattr(self.objects[0], "turn"):
+			helpers.setWidgetText("TopBar/Turn", "Turn %i" % self.objects[0].turn)
 		self.starmap.autofit()
 
 	def updateObjectIndex(self, object, subtype_name, subtype_index):
@@ -416,6 +418,9 @@ class StarmapScene(MenuScene):
 				else:
 					fleet_type = (object.ships[0][0] - 1) % designs[object.owner]
 					self.starmap.addFleet(object, pos, parent, fleet_type)
+
+		if hasattr(self.objects[0], "turn"):
+			helpers.setWidgetText("TopBar/Turn", "Turn %i" % self.objects[0].turn)
 
 	def update(self, evt):
 		self.starmap.update()
