@@ -273,6 +273,7 @@ class StarmapScene(MenuScene):
 		helpers.bindEvent("Windows/Messages", self, "windowToggle", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Windows/System", self, "windowToggle", cegui.PushButton.EventClicked)
 		helpers.bindEvent("System/SystemList", self, "systemSelected", cegui.Listbox.EventSelectionChanged)
+		helpers.bindEvent("Windows/EndTurnButton", self, "requestEOT", cegui.PushButton.EventClicked)
 		for window in ['Messages', 'Orders', 'System', 'Information']:
 			helpers.bindEvent(window, self, "closeClicked", cegui.FrameWindow.EventCloseClicked)
 
@@ -443,6 +444,7 @@ class StarmapScene(MenuScene):
 		self.timer.reset()
 		if self.remaining_time == 0:
 			print "End of turn"
+			helpers.setWindowProperty("Windows/EndTurnButton", "Alpha", 1)
 			self.timeout = True
 			network = self.parent.application.network
 			network.Call(network.CacheUpdate)
@@ -466,6 +468,12 @@ class StarmapScene(MenuScene):
 
 	def onCacheDirty(self, evt):
 		print "OnCacheDirty", evt
+
+	def requestEOT(self, evt):
+		print "Requesting EOT"
+		helpers.setWindowProperty("Windows/EndTurnButton", "Alpha", 0.5)
+		network = self.parent.application.network
+		network.Call(network.RequestEOT)
 
 	def mousePressed(self, evt, id):
 		print self, "mousePressed"
@@ -520,6 +528,7 @@ class StarmapScene(MenuScene):
 		#print self, "mouseReleased"
 
 		if self.timeout:
+			print "timeout - mouse release not processed"
 			return False
 
 		state = evt.get_state()
