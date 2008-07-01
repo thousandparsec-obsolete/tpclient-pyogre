@@ -284,8 +284,10 @@ class Starmap(object):
 			icon.update(camera)
 		for label in self.overlays.values():
 			label.update(camera)
-		for planet in self.planets:
-			planet.getChild(0).roll(ogre.Radian(0.005))
+
+		if not self.show_icon:
+			for planet in self.planets:
+				planet.getChild(0).roll(ogre.Radian(0.005))
 
 		return True
 
