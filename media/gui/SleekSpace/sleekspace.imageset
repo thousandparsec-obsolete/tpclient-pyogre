@@ -136,9 +136,9 @@
 <Image Name="ProgressBarRight" XPos="216" YPos="43" Width="5" Height="17" />
 <Image Name="ProgressBarDimSegment" XPos="150" YPos="110" Width="11" Height="11" />
 <Image Name="ProgressBarLitSegment" XPos="164" YPos="47" Width="10" Height="10" />
-<Image Name="RadioButtonHover" XPos="100" YPos="98" Width="12" Height="12" />
-<Image Name="RadioButtonMark" XPos="120" YPos="98" Width="12" Height="12" />
-<Image Name="RadioButtonNormal" XPos="77" YPos="98" Width="12" Height="12" />
+<Image Name="RadioButtonHover" XPos="100" YPos="98" Width="13" Height="13" />
+<Image Name="RadioButtonMark" XPos="120" YPos="98" Width="14" Height="13" />
+<Image Name="RadioButtonNormal" XPos="77" YPos="98" Width="13" Height="13" />
 <Image Name="StaticTopLeft" XPos="10" YPos="10" Width="5" Height="5" />
 <Image Name="StaticTop" XPos="15" YPos="10" Width="45" Height="4" />
 <Image Name="StaticTopRight" XPos="60" YPos="10" Width="4" Height="4" />

@@ -163,6 +163,8 @@ class LoginScene(MenuScene):
 		helpers.bindEvent("Config/OK", self, "onConfigSave", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Config/Cancel", self, "onConfigCancel", cegui.PushButton.EventClicked)
 
+		helpers.setupRadioButtonGroup(["Config/StarsVisible_Y", "Config/StarsVisible_N"], 1, [1, 0], True)
+
 		self.hide()
 
 	def onNetworkFailure(self, evt):
@@ -214,7 +216,13 @@ class LoginScene(MenuScene):
 		zoom = wm.getWindow("Config/Zoom").currentValue
 		total_zoom = abs(settings.min_zoom_in) + abs(settings.max_zoom_out)
 		settings.icon_zoom_switch_level = int(zoom * total_zoom - abs(settings.max_zoom_out))
-		print settings.icon_zoom_switch_level
+
+		stars_visible = wm.getWindow("Config/StarsVisible_Y").getSelectedButtonInGroup().getID()
+		if stars_visible:
+			settings.show_stars_during_icon_view = True
+		else:
+			settings.show_stars_during_icon_view = False
+
 		helpers.toggleWindow("Config", False)
 
 	def setServer(self, host):
@@ -481,7 +489,7 @@ class StarmapScene(MenuScene):
 		network.Call(network.RequestEOT)
 
 	def mousePressed(self, evt, id):
-		print self, "mousePressed"
+		#print self, "mousePressed"
 		self.mouse_delta -= self.mouse_delta
 
 	def mouseMoved(self, evt):

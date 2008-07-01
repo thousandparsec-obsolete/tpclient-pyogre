@@ -108,8 +108,9 @@ class Starmap(object):
 		label.setColour(ogre.ColourValue(0.7, 0.9, 0.7))
 		self.overlays[object.id] = label
 
-		icon = overlay.IconOverlay(entityNode, object, "Starmap/Icons/Stars")
-		self.icons[object.id] = icon
+		if not settings.show_stars_during_icon_view:
+			icon = overlay.IconOverlay(entityNode, object, "Starmap/Icons/Stars")
+			self.icons[object.id] = icon
 
 		random.seed(object.id)
 		star_type = random.choice(["Orange", "White", "Green"])
@@ -202,7 +203,8 @@ class Starmap(object):
 		billboard.setDimensions(scale * scale_factor, scale * scale_factor)
 
 		self.selection[object_id] = billboard
-		self.icons[object_id].setHighlight(True)
+		if self.icons.has_key(object_id):
+			self.icons[object_id].setHighlight(True)
 
 	def unselectObject(self, object_id):
 		"""Remove an object from the current selection"""
@@ -210,13 +212,16 @@ class Starmap(object):
 			billboard = self.selection[object_id]
 			self.selectionBillboard.removeBillboard(billboard)
 			del self.selection[object_id]
-			self.icons[object_id].setHighlight(False)
+
+			if self.icons.has_key(object_id):
+				self.icons[object_id].setHighlight(False)
 
 	def clearSelection(self):
 		"""Clears all selected objects"""
 		self.selectionBillboard.clear()
 		for id in self.selection.keys():
-			self.icons[id].setHighlight(False)
+			if self.icons.has_key(id):
+				self.icons[id].setHighlight(False)
 		self.selection = {}
 
 	def mode(self, modes):
@@ -289,11 +294,12 @@ class Starmap(object):
 			fleet.setVisible(not visible)
 		for planet in self.planets:
 			planet.setVisible(not visible)
-		for star in self.stars:
-			star.setVisible(not visible)
-		for bg in self.background_nodes:
-			bg.setVisible(not visible)
-		self.flareBillboard.setVisible(not visible)
+		if not settings.show_stars_during_icon_view:
+			for star in self.stars:
+				star.setVisible(not visible)
+			for bg in self.background_nodes:
+				bg.setVisible(not visible)
+			self.flareBillboard.setVisible(not visible)
 		self.selectionBillboard.setVisible(not visible)
 
 		for icon in self.icons.values():

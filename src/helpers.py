@@ -33,6 +33,16 @@ def setWindowProperty(name, property, value):
 	wm = cegui.WindowManager.getSingleton()
 	wm.getWindow(name).setProperty(str(property), str(value))
 
+def setupRadioButtonGroup(pair, group_id, id_array=None, select=0):
+	wm = cegui.WindowManager.getSingleton()
+	for i in range(len(pair)):
+		radio_button = wm.getWindow(pair[i])
+		radio_button.setGroupID(group_id)
+		if i == select:
+			radio_button.setSelected(True)
+		if id_array:
+			radio_button.setID(id_array[i])
+
 def copyWindow(window, prefix):
 	wm = cegui.WindowManager.getSingleton()
 	old_name = window.name.c_str()

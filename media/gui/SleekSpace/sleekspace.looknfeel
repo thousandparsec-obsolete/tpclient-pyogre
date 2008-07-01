@@ -103,13 +103,17 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/RadioButton
     ***************************************************
     -->
     <WidgetLook name="SleekSpace/RadioButton">
+        <PropertyDefinition name="NormalTextColour" initialValue="FFFFFFFF" redrawOnWrite="true" />
+        <PropertyDefinition name="HoverTextColour" initialValue="FFFFFFFF" redrawOnWrite="true" />
+        <PropertyDefinition name="PushedTextColour" initialValue="FFFFFFFF" redrawOnWrite="true" />
+        <PropertyDefinition name="DisabledTextColour" initialValue="FF7F7F7F" redrawOnWrite="true" />
         <ImagerySection name="label">
             <TextComponent>
                 <Area>
@@ -225,7 +229,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/Checkbox
@@ -347,7 +351,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/Editbox
@@ -356,7 +360,7 @@
     <WidgetLook name="SleekSpace/Editbox">
         <Property name="MouseCursorImage" value="set:SleekSpace image:MouseTextBar" />
         <PropertyDefinition name="NormalTextColour" initialValue="FFFFFFFF" redrawOnWrite="true" />
-        <PropertyDefinition name="SelectedTextColour" initialValue="FFFFFFFF" redrawOnWrite="true" />
+        <PropertyDefinition name="SelectedTextColour" initialValue="FF000000" redrawOnWrite="true" />
         <PropertyDefinition name="ActiveSelectionColour" initialValue="FF607FFF" redrawOnWrite="true" />
         <PropertyDefinition name="InactiveSelectionColour" initialValue="FF808080" redrawOnWrite="true" />
         <NamedArea name="TextArea">
@@ -438,7 +442,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/Titlebar
@@ -567,7 +571,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/FrameWindow
@@ -815,7 +819,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/ProgressBar
@@ -887,7 +891,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/AlternateProgressBar
@@ -1058,7 +1062,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/VUMeter (progress bar)
@@ -1129,7 +1133,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/SliderThumb
@@ -1243,7 +1247,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/Slider
@@ -1348,7 +1352,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/HorizontalScrollbarThumb
@@ -1405,7 +1409,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/HorizontalScrollbar
@@ -1491,7 +1495,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/VerticalScrollbarThumb
@@ -1548,7 +1552,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/VerticalScrollbar
@@ -1635,7 +1639,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/Listbox
@@ -1772,7 +1776,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/ComboDropList
@@ -1911,7 +1915,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/ComboEditbox
@@ -1920,7 +1924,7 @@
     <WidgetLook name="SleekSpace/ComboEditbox">
         <Property name="MouseCursorImage" value="set:SleekSpace image:MouseTextBar" />
         <PropertyDefinition name="NormalTextColour" initialValue="FFFFFFFF" redrawOnWrite="true" />
-        <PropertyDefinition name="SelectedTextColour" initialValue="FFFFFFFF" redrawOnWrite="true" />
+        <PropertyDefinition name="SelectedTextColour" initialValue="FF000000" redrawOnWrite="true" />
         <PropertyDefinition name="ActiveSelectionColour" initialValue="FF607FFF" redrawOnWrite="true" />
         <PropertyDefinition name="InactiveSelectionColour" initialValue="FF808080" redrawOnWrite="true" />
         <NamedArea name="TextArea">
@@ -2001,7 +2005,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/Combobox
@@ -2056,7 +2060,7 @@
         <StateImagery name="Enabled" />
         <StateImagery name="Disabled" />
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/Spinner
@@ -2106,7 +2110,7 @@
         <StateImagery name="Enabled" />
         <StateImagery name="Disabled" />
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/StaticShared
@@ -2158,7 +2162,7 @@
             </ImageryComponent>
         </ImagerySection>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/StaticImage
@@ -2283,7 +2287,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/StaticText
@@ -2413,7 +2417,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/ListHeaderSegment
@@ -2598,7 +2602,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/ListHeader
@@ -2609,7 +2613,7 @@
         <StateImagery name="Enabled" />
         <StateImagery name="Disabled" />
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/MultiColumnList
@@ -2760,7 +2764,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/MultiLineEditbox
@@ -2770,7 +2774,7 @@
         <Property name="MouseCursorImage" value="set:SleekSpace image:MouseTextBar" />
         <Property name="SelectionBrushImage" value="set:SleekSpace image:MultiLineEditboxSelectionBrush" />
         <PropertyDefinition name="NormalTextColour" initialValue="FFFFFFFF" redrawOnWrite="true" />
-        <PropertyDefinition name="SelectedTextColour" initialValue="FFFFFFFF" redrawOnWrite="true" />
+        <PropertyDefinition name="SelectedTextColour" initialValue="FF000000" redrawOnWrite="true" />
         <PropertyDefinition name="ActiveSelectionColour" initialValue="FF607FFF" redrawOnWrite="true" />
         <PropertyDefinition name="InactiveSelectionColour" initialValue="FF808080" redrawOnWrite="true" />
         <NamedArea name="TextArea">
@@ -2921,7 +2925,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/Tooltip
@@ -3005,7 +3009,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/ScrollablePane
@@ -3089,7 +3093,7 @@
         <StateImagery name="Enabled" />
         <StateImagery name="Disabled" />
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/TabButton
@@ -3181,7 +3185,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/TabPane
@@ -3218,7 +3222,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/TabControl
@@ -3245,7 +3249,7 @@
         <StateImagery name="Enabled" />
         <StateImagery name="Disabled" />
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/MenuItem
@@ -3391,7 +3395,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     ***************************************************
         SleekSpace/PopupMenu
     ***************************************************
@@ -3450,7 +3454,7 @@
     </WidgetLook>
 
     -->
-
+    
     <!--
     ***************************************************
         SleekSpace/LargeVerticalScrollbarThumb
@@ -3507,7 +3511,7 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-
+    
     <!--
     ***************************************************
         SleekSpace/LargeVerticalScrollbar
@@ -3687,4 +3691,3 @@
         </StateImagery>
     </WidgetLook>
 </Falagard>
-
