@@ -27,6 +27,8 @@ class Starmap(object):
 		self.selection = {}
 		self.icons = {}
 		self.show_icon = False
+		self.last_clicked = None
+		self.last_clicked_selection = None
 
 		self.flareBillboard = self.sceneManager.createBillboardSet("flare")
 		self.flareBillboard.setMaterialName("Billboards/Flares/flare")
@@ -186,11 +188,27 @@ class Starmap(object):
 		if not self.show_icon:
 			return None
 
+		elements = []
 		for icon in self.icons.values():
+			#print icon.panel.getLeft(), icon.panel.getTop()
 			element = icon.overlay.findElementAt(x, y)
 			if element:
-				return element
-		return None
+				elements.append(element)
+
+		return_element = None
+
+		# rotate through icons on the same spot
+		if self.last_clicked and self.last_clicked[0] == x and self.last_clicked[1] == y:
+			if self.last_clicked_selection < len(elements) - 1:
+				self.last_clicked_selection += 1
+			else:
+				self.last_clicked_selection = 0
+		else:
+			self.last_clicked = [x, y]
+			self.last_clicked_selection = 0
+
+		return_element = elements[self.last_clicked_selection]
+		return return_element
 
 	def selectObject(self, object_id, colour_value=ogre.ColourValue.White, scale_factor=3):
 		"""Appends a scene node to the current selection and highlights it"""
