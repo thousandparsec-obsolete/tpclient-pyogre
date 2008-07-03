@@ -195,6 +195,9 @@ class Starmap(object):
 			if element:
 				elements.append(element)
 
+		if len(elements) == 0:
+			return None
+
 		return_element = None
 
 		# rotate through icons on the same spot
