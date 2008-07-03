@@ -305,7 +305,7 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 	def mouseMoved(self, evt):
 		"""Passes MouseMoved events to CEGUI and then the current scene"""
 		system = cegui.System.getSingleton()
-		system.injectMouseMove(evt.get_state().X.rel, evt.get_state().Y.rel) \
+		system.injectMousePosition(evt.get_state().X.abs, evt.get_state().Y.abs) \
 			or self.application.currentScene.mouseMoved(evt)
 		return True
 
