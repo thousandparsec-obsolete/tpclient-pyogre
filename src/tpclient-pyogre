@@ -130,6 +130,10 @@ class GUI(Framework.Application):
 		if self.screen_hidden:
 			self.screen_hidden = False
 			self.currentScene.show()
+
+	def showMessage(self, text):
+		if hasattr(self.currentScene, "showMessage"):
+			self.currentScene.showMessage(text)
 	
 	def frameStarted(self, evt):
 		if not self.frameListener.keepRendering:
@@ -189,11 +193,19 @@ class Network(NetworkThread):
 
 		gui = self.application.gui
 		gui.Call(gui.hideScreen)
-		NetworkThread.ConnectTo(self, host, username, password, debug, callback)
 		try:
-			self.application.cache = Cache("tp://%s@%s:6923" % (username, host))
-			self.CacheUpdate()
+			if NetworkThread.ConnectTo(self, host, username, password, debug, callback):
+				self.application.cache = Cache("tp://%s@%s:6923" % (username, host))
+				self.CacheUpdate()
+			else:
+				gui.Call(gui.showScreen)
+				gui.Call(gui.loadingFinished)
+				gui.Call(gui.showMessage, "Problem with connecting to the server.\nPlease check your user id, password, server url and try again.")
 		except AttributeError, e:
+			print e
+			gui.Call(gui.showScreen)
+			gui.Call(gui.loadingFinished)
+		except IOError, e:
 			print e
 			gui.Call(gui.showScreen)
 			gui.Call(gui.loadingFinished)

@@ -115,5 +115,24 @@
                 <Property Name="UnifiedAreaRect" Value="{{0.0626327,0},{0.295455,0},{0.358521,0},{0.430079,0}}" />
             </Window>
         </Window>
+        <Window Type="SleekSpace/FrameWindow" Name="Message" >
+            <Property Name="Text" Value="Message" />
+            <Property Name="Visible" Value="False" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="TitlebarEnabled" Value="True" />
+            <Property Name="UnifiedAreaRect" Value="{{0.21125,0},{0.335,0},{0.831247,0},{0.64,0}}" />
+            <Property Name="CloseButtonEnabled" Value="False" />
+            <Window Type="SleekSpace/StaticText" Name="Message/Text" >
+                <Property Name="Text" Value="Test" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="VertFormatting" Value="TopAligned" />
+                <Property Name="UnifiedAreaRect" Value="{{0.094998,0},{0.253334,0},{0.915002,0},{0.643333,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Message/OkButton" >
+                <Property Name="Text" Value="Ok" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.744925,0},{0.726666,0},{0.915002,0},{0.89,0}}" />
+            </Window>
+        </Window>
     </Window>
 </GUILayout>

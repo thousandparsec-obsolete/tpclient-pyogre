@@ -163,6 +163,8 @@ class LoginScene(MenuScene):
 		helpers.bindEvent("Config/OK", self, "onConfigSave", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Config/Cancel", self, "onConfigCancel", cegui.PushButton.EventClicked)
 
+		helpers.bindEvent("Message/OkButton", self, "onMessageOk", cegui.PushButton.EventClicked)
+
 		helpers.setupRadioButtonGroup(["Config/StarsVisible_Y", "Config/StarsVisible_N"], 1, [1, 0], True)
 
 		self.hide()
@@ -224,6 +226,13 @@ class LoginScene(MenuScene):
 			settings.show_stars_during_icon_view = False
 
 		helpers.toggleWindow("Config", False)
+
+	def onMessageOk(self, evt):
+		helpers.toggleWindow("Message", False)
+
+	def showMessage(self, text):
+		helpers.toggleWindow("Message", True).activate()
+		helpers.setWidgetText("Message/Text", str(text))
 
 	def setServer(self, host):
 		"""Sets the initial value of the host input field"""
