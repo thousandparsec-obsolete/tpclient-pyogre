@@ -51,7 +51,7 @@ class MessageWindow(object):
 
 	def deleteMessage(self, evt):
 		"""Deletes the current message permanently and displays the next message, if any."""
-		cache = self.parent.parent.application.cache
+		cache = self.parent.getCache()
 		network = self.parent.parent.application.network
 		current_message = self.messages[self.message_index]
 		change_node = cache.messages[0][current_message.id]
@@ -296,7 +296,7 @@ class ArgumentsWindow(object):
 	def update(self):
 		#print "Updating list items"
 		if self.id != None and self.order_subtype != None:
-			order = self.parent.parent.application.cache.orders[self.id].last.CurrentOrder
+			order = self.parent.getCache().orders[self.id].last.CurrentOrder
 			for triplet in self.arguments_pending_update:
 				#print triplet
 				arg_type = triplet[0]

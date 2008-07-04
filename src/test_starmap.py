@@ -17,6 +17,7 @@ class DummyCache(object):
 		self.designs = helpers.pickle_load("design")
 		self.players = helpers.pickle_load("player")
 		self.resources = helpers.pickle_load("resource")
+		self.orders = {}
 
 class DummyApplication(object):
 	pass

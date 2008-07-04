@@ -487,7 +487,7 @@ class StarmapScene(MenuScene):
 	def onCacheUpdate(self, evt):
 		"""Called whever the cache is updated"""
 		print "onCacheUpdate", evt
-		cache = self.parent.application.cache
+		cache = self.getCache()
 		if self.created:
 			if self.timeout:
 				self.recreate(cache)
@@ -624,6 +624,9 @@ class StarmapScene(MenuScene):
 
 			return False
 
+	def getCache(self):
+		return self.parent.application.cache
+
 	def selectEntity(self, movable):
 		"""Highlights and selects the given Entity"""
 
@@ -667,10 +670,11 @@ class StarmapScene(MenuScene):
 
 		self.order_queue_items = []
 
-		if not hasattr(self.parent, "application"):
+		cache = self.getCache()
+		if not cache.orders.has_key(id):
 			return True
 
-		for o_node in self.parent.application.cache.orders[id]:
+		for o_node in cache.orders[id]:
 			index = order_queue.addRow()
 			order = o_node.CurrentOrder
 			item = cegui.ListboxTextItem(order._name)
@@ -704,7 +708,7 @@ class StarmapScene(MenuScene):
 
 		target = self.objects[id]
 		self.information_overlay.add(target.name)
-		cache = self.parent.application.cache
+		cache = self.getCache()
 		if hasattr(target, "owner"):
 			if target.owner != -1:
 				owner_name = cache.players[target.owner].name
@@ -778,7 +782,7 @@ class StarmapScene(MenuScene):
 		# remember to close after an order
 
 	def sendOrder(self, id, order, action="create after"):
-		cache = self.parent.application.cache
+		cache = self.getCache()
 		network = self.parent.application.network
 		node = cache.orders[id].first
 		evt = cache.apply("orders", action, id, node, order)
@@ -802,7 +806,7 @@ class StarmapScene(MenuScene):
 			wm = cegui.WindowManager.getSingleton()
 			self.openOrdersMenu()
 		elif evt.key == ois.KC_F11:
-			cache = self.parent.application.cache
+			cache = self.getCache()
 			helpers.pickle_dump(cache.objects, "object")
 			helpers.pickle_dump(cache.designs, "design")
 			helpers.pickle_dump(cache.messages, "message")
