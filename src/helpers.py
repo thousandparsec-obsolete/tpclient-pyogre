@@ -1,6 +1,12 @@
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
 
+def makeUVector2(pair1=(0, 0), pair2=(0, 0)):
+	return cegui.UVector2(cegui.UDim(pair1[0], pair1[1]), cegui.UDim(pair2[0], pair2[1]))
+
+def makeUVector2Scale(x=0, y=0):
+	return cegui.UVector2(cegui.UDim(x, 0), cegui.UDim(y, 0))
+
 def toggleWindow(name, visible=None):
 	"""Toggles the visibility of a window.
 

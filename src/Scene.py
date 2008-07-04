@@ -253,9 +253,8 @@ class StarmapScene(MenuScene):
 	tolerance_delta = 1
 	distance_scale = 500000
 	scroll_speed = 100
-	max_zoom_out = -5
-	min_zoom_in = 19
 	low_fps_threshold = 15
+	mouseover_timeout = 1000
 
 	def __init__(self, parent, sceneManager):
 		Scene.__init__(self, parent, sceneManager)
@@ -268,8 +267,11 @@ class StarmapScene(MenuScene):
 		self.created = False
 		self.starmap = starmap.Starmap(self, self.sceneManager, self.rootNode)
 		self.timeout = False
-		self.timer = ogre.Timer()
+		self.remaining_time_timer = ogre.Timer()
 		self.remaining_time = 0
+		self.mouse_position = [0, 0]
+		self.mouseover_timer = ogre.Timer()
+		self.mouseover = None
 
 		self.camera_node = self.rootNode.createChildSceneNode("CameraNode")
 		self.camera_node.attachObject(self.camera)
@@ -304,6 +306,9 @@ class StarmapScene(MenuScene):
 
 		self.orders_menu = overlay.RadialMenu(self.camera)
 		wm.getWindow("Starmap").addChildWindow(self.orders_menu.menu)
+
+		self.information_overlay = overlay.InformationOverlay()
+		wm.getWindow("Starmap").addChildWindow(self.information_overlay.overlay)
 
 		self.hide()
 
@@ -441,12 +446,16 @@ class StarmapScene(MenuScene):
 
 	def update(self, evt):
 		self.starmap.update()
-		if self.remaining_time > 0 and self.timer.getMilliseconds() >= 1000:
+		if self.mouseover and self.mouseover_timer.getMilliseconds() > self.mouseover_timeout:
+			self.showInformationOverlay(self.mouseover)
+			self.information_overlay.update(*self.mouse_position)
+
+		if self.remaining_time > 0 and self.remaining_time_timer.getMilliseconds() >= 1000:
 			self.remaining_time -= 1
 			minutes = int(self.remaining_time / 60)
 			seconds = int(self.remaining_time % 60)
 			helpers.setWidgetText("Windows/EOT", "EOT: %i:%02i" % (minutes, seconds))
-			self.timer.reset()
+			self.remaining_time_timer.reset()
 			if self.remaining_time < 10:
 				helpers.setWindowProperty("Windows/EOT", "Alpha", 1) 
 			else:
@@ -463,7 +472,7 @@ class StarmapScene(MenuScene):
 		minutes = int(self.remaining_time / 60)
 		seconds = int(self.remaining_time % 60)
 		helpers.setWidgetText("Windows/EOT", "EOT: %i:%02i" % (minutes, seconds))
-		self.timer.reset()
+		self.remaining_time_timer.reset()
 		if self.remaining_time == 0:
 			print "End of turn"
 			helpers.setWindowProperty("Windows/EndTurnButton", "Alpha", 1)
@@ -513,6 +522,7 @@ class StarmapScene(MenuScene):
 		state = evt.get_state()
 
 		self.mouse_delta += (abs(state.X.rel), abs(state.Y.rel))
+		self.mouse_position = [state.X.abs, state.Y.abs]
 
 		if state.buttonDown(ois.MB_Middle):
 			if self.starmap.zoom != 0:
@@ -524,25 +534,41 @@ class StarmapScene(MenuScene):
 			#self.camera_node.translate(
 				#ogre.Vector3(state.X.rel * adjusted_pan, -state.Y.rel * adjusted_pan, 0))
 		
-		elif state.Z.rel < 0 and self.starmap.zoom > self.max_zoom_out: # scroll down
+		elif state.Z.rel < 0 and self.starmap.zoom > settings.max_zoom_out: # scroll down
 			#self.camera.moveRelative(ogre.Vector3(0, 0, 2 * self.pan_speed))
 			self.camera_node.translate(ogre.Vector3(0, 0, 2 * self.pan_speed))
 			self.starmap.zoom -= 1
 
-		elif state.Z.rel > 0 and self.starmap.zoom < self.min_zoom_in: # scroll up
+		elif state.Z.rel > 0 and self.starmap.zoom < settings.min_zoom_in: # scroll up
 			#self.camera.moveRelative(ogre.Vector3(0, 0, -2 * self.pan_speed))
 			self.camera_node.translate(ogre.Vector3(0, 0, -2 * self.pan_speed))
 			self.starmap.zoom += 1
 
-		else:
-			x = float(state.X.abs) / float(state.width)
-			y = float(state.Y.abs) / float(state.height)
-			mouseRay = self.camera.getCameraToViewportRay( x, y )
+		x = float(state.X.abs) / float(state.width)
+		y = float(state.Y.abs) / float(state.height)
+
+		found = False
+		mouseover_id = None
+		if not self.starmap.show_icon:
+			mouseRay = self.camera.getCameraToViewportRay(x, y)
 			self.raySceneQuery.setRay(mouseRay)
 			for o in self.raySceneQuery.execute():
 				if o.movable:
-					self.mouseover = o.movable
+					mouseover_id = self.getIDFromMovable(o.movable)
+					found = True
 					break
+		else:
+			elements = self.starmap.queryIcons(x, y)
+			if len(elements) > 0:
+				mouseover_id = self.getIDFromIcon(elements[0])
+				found = True
+
+		if not found:
+			self.mouseover = None
+			self.information_overlay.close()
+		elif self.mouseover != mouseover_id:
+			self.mouseover = mouseover_id
+			self.mouseover_timer.reset()
 		
 		return False
 
@@ -563,8 +589,7 @@ class StarmapScene(MenuScene):
 			icon = self.starmap.isIconClicked(x, y)
 			if icon:
 				if id == ois.MB_Left:
-					name = icon.name
-					oid = int(name.split('_')[2])
+					oid = self.getIDFromIcon(icon)
 					self.selectObjectById(oid)
 					return False
 
@@ -672,6 +697,36 @@ class StarmapScene(MenuScene):
 				order_list.addItem(item)
 
 		return True
+	
+	def showInformationOverlay(self, id):
+		if self.information_overlay.isVisible():
+			return
+
+		target = self.objects[id]
+		self.information_overlay.add(target.name)
+		cache = self.parent.application.cache
+		if hasattr(target, "owner"):
+			if target.owner != -1:
+				owner_name = cache.players[target.owner].name
+				race_name = cache.players[target.owner].race_name
+				self.information_overlay.add("Owner: %s(%s)" % (owner_name, race_name))
+			else:
+				self.information_overlay.add("Neutral")
+		if hasattr(target, "ships"):
+			ships = []
+			total = 0
+			for group in target.ships:
+				design_name = cache.designs[group[0]].name
+				self.information_overlay.add("%s: %i" % (design_name, group[1]))
+		if hasattr(target, "resources"):
+			resources = []
+			for resource in target.resources:
+				resources.append(cache.resources[resource[0]].name_plural)
+			resource_string = ", ".join(resources)
+			self.information_overlay.add("Resources: %s" % resource_string)
+		if hasattr(target, "planets"):
+			self.information_overlay.add("Planets: %i" % target.planets)
+		self.information_overlay.open()
 
 	def openOrdersMenu(self):
 		if not self.current_object:
@@ -867,4 +922,7 @@ class StarmapScene(MenuScene):
 	def getIDFromMovable(self, movable):
 		"""Returns the object id from an Entity node"""
 		return long(movable.getName()[6:])
+
+	def getIDFromIcon(self, icon):
+		return int(icon.name.split('_')[2])
 

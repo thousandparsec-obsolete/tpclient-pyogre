@@ -245,3 +245,61 @@ class RadialMenu(object):
 	def update(self, x, y):
 		self.menu.position = cegui.UVector2(cegui.UDim(-0.10, x), cegui.UDim(-0.12, y))
 
+class InformationOverlay(object):
+	name = "InfoOverlay"
+	transparency = 0.8
+	size_scale = (0.2, 0.2)
+	offset_scale = (0.02, 0)
+	text_size_scale = (1, 0.2)
+	text_position_scale = (0.1, 0)
+	text_left_scale = 0.1
+	text_y_spacing = 12
+
+	def __init__(self):
+		self.text = []
+		self.target = None
+
+		wm = cegui.WindowManager.getSingleton()
+		self.overlay = wm.createWindow("SleekSpace/FrameWindow", self.name)
+		self.overlay.size = cegui.UVector2(cegui.UDim(0.2, 0), cegui.UDim(0.2, 0))
+		self.overlay.setProperty("TitlebarEnabled", "False")
+		self.overlay.setProperty("CloseButtonEnabled", "False")
+		self.overlay.setProperty("FrameEnabled", "False")
+		self.overlay.setProperty("Alpha", "0.5")
+		self.overlay.hide()
+
+	def add(self, text):
+		wm = cegui.WindowManager.getSingleton()
+		text_element = wm.createWindow("SleekSpace/StaticText", "%s/Text%i" % (self.name, len(self.text)))
+		text_element.setProperty("ClippedByParent", "False")
+		text_element.size = helpers.makeUVector2Scale(*self.text_size_scale)
+		text_element.text = text
+		self.overlay.addChildWindow(text_element)
+
+		y_offset = len(self.text) * self.text_y_spacing
+		text_element.position = helpers.makeUVector2((self.text_left_scale, 0), (0, y_offset))
+
+		self.text.append(text_element)
+
+	def setTitle(self, text):
+		helpers.setWidgetText(self.name, text)
+
+	def isVisible(self):
+		return self.overlay.isVisible()
+
+	def open(self):
+		self.overlay.show()
+
+	def close(self):
+		self.overlay.hide()
+		wm = cegui.WindowManager.getSingleton()
+		for text_element in self.text:
+			wm.destroyWindow(text_element)
+		self.text = []
+		self.target = None
+
+	def update(self, x, y):
+		height = self.overlay.height
+		y_offset = (self.offset_scale[1] - height.d_scale, y)
+		self.overlay.position = helpers.makeUVector2((self.offset_scale[0], x), y_offset)
+

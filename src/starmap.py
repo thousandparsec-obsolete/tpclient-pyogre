@@ -183,18 +183,20 @@ class Starmap(object):
 	def hasObject(self, id):
 		return id in self.nodes
 
+	def queryIcons(self, x, y):
+		elements = []
+		for icon in self.icons.values():
+			element = icon.overlay.findElementAt(x, y)
+			if element:
+				elements.append(element)
+		return elements
+
 	def isIconClicked(self, x, y):
 		#print "isIconClicked", x, y
 		if not self.show_icon:
 			return None
 
-		elements = []
-		for icon in self.icons.values():
-			#print icon.panel.getLeft(), icon.panel.getTop()
-			element = icon.overlay.findElementAt(x, y)
-			if element:
-				elements.append(element)
-
+		elements = self.queryIcons(x, y)
 		if len(elements) == 0:
 			return None
 
