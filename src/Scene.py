@@ -806,6 +806,8 @@ class StarmapScene(MenuScene):
 			helpers.pickle_dump(cache.objects, "object")
 			helpers.pickle_dump(cache.designs, "design")
 			helpers.pickle_dump(cache.messages, "message")
+			helpers.pickle_dump(cache.players, "player")
+			helpers.pickle_dump(cache.resources, "resource")
 			print "cache dumped"
 		elif evt.key == ois.KC_ESCAPE:
 			self.clearAll()

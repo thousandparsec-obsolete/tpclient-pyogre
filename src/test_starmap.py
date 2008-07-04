@@ -15,6 +15,11 @@ class DummyCache(object):
 		self.objects = helpers.pickle_load("object")
 		self.messages = helpers.pickle_load("message")
 		self.designs = helpers.pickle_load("design")
+		self.players = helpers.pickle_load("player")
+		self.resources = helpers.pickle_load("resource")
+
+class DummyApplication(object):
+	pass
 
 class TestStarmap(Framework.Application):
 	"""Display the starmap without using a network connection"""
@@ -47,6 +52,9 @@ class TestStarmap(Framework.Application):
 		self.changeScene(self.starmap)
 		dummy_cache = DummyCache()
 		self.starmap.create(dummy_cache)
+
+		self.application = DummyApplication()
+		self.application.cache = dummy_cache
 
 		wmgr.getWindow("Windows").hide()
 
