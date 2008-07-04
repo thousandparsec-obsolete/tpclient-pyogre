@@ -130,7 +130,13 @@ class Starmap(object):
 		entityNode = self.sceneManager.getSceneNode("Object%i_EntityNode" % object.id)
 		entityNode.pitch(ogre.Radian(1.57))
 
-		icon = overlay.IconOverlay(entityNode, object, "Starmap/Icons/Planets", 15, 15)
+		colour = None
+		if object.owner != -1:
+			random.seed(object.owner)
+			r = random.random
+			colour = ogre.ColourValue(r(), r(), r(), 1)
+
+		icon = overlay.IconOverlay(entityNode, object, "Starmap/Icons/Planets", 15, 15, colour)
 		self.icons[object.id] = icon
 
 		random.seed(parent.id)
@@ -154,9 +160,6 @@ class Starmap(object):
 		entityNode.yaw(ogre.Radian(1.57))
 		entityNode.roll(ogre.Radian(1.57))
 
-		icon = overlay.IconOverlay(entityNode, object, "Starmap/Icons/Fleets", 20, 20)
-		self.icons[object.id] = icon
-
 		owner = object.owner
 		random.seed(owner)
 		entity = self.sceneManager.getEntity("Object%i" % object.id)
@@ -173,7 +176,11 @@ class Starmap(object):
 		entity.setMaterialName(material_name)
 
 		r = random.random
-		material.setDiffuse(r(), r(), r(), 1)
+		colour = ogre.ColourValue(r(), r(), r(), 1)
+		material.setDiffuse(colour)
+
+		icon = overlay.IconOverlay(entityNode, object, "Starmap/Icons/Fleets", 20, 20, colour)
+		self.icons[object.id] = icon
 
 	def setFleet(self, object, position, parent):
 		pos = self.calculateRadialPosition(position, 200, 360, parent.fleets, object.index)

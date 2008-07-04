@@ -8,9 +8,9 @@ import helpers
 class IconOverlay(object):
 	# FIXME: Repetition with ObjectOverlay
 
-	def __init__(self, node, object, material, width=25, height=25, colour=ogre.ColourValue.White):
+	def __init__(self, node, object, material_name, width=25, height=25, colour=None):
 		self.node = node
-		self.original_material = material
+		self.original_material = material_name
 		self.highlight = False
 
 		overlayManager = ogre.OverlayManager.getSingleton()
@@ -18,8 +18,20 @@ class IconOverlay(object):
 		panel.metricsMode = ogre.GMM_PIXELS
 		panel.width = width
 		panel.height = height
-		panel.materialName = material
 		self.panel = panel
+
+		if colour and hasattr(object, "owner"):
+			material_manager = ogre.MaterialManager.getSingleton()
+			new_material_name = "%s_%i" % (material_name, object.owner)
+			if not material_manager.resourceExists(new_material_name):
+				print new_material_name, colour
+				new_material = material_manager.getByName(material_name).clone(new_material_name)
+				texture = new_material.getTechnique(0).getPass(0).getTextureUnitState(1)
+				texture.setColourOperationEx(ogre.LBX_MODULATE_X2, ogre.LBS_MANUAL, ogre.LBS_CURRENT, colour)
+			self.panel.materialName = new_material_name
+			self.original_material = new_material_name
+		else:
+			self.panel.materialName = material_name
 
 		self.overlay = overlayManager.create("Overlay%i_Icon" % object.id)
 		self.overlay.add2D(self.panel)
@@ -30,13 +42,11 @@ class IconOverlay(object):
 		clone_material_name = "%s_highlight" % self.original_material
 		material_manager = ogre.MaterialManager.getSingleton()
 		if highlight:
-			if material_manager.resourceExists(clone_material_name):
-				material_clone = material_manager.getByName(clone_material_name)
-			else:
+			if not material_manager.resourceExists(clone_material_name):
 				material_clone = material.clone(clone_material_name)
 				texture = material_clone.getTechnique(0).getPass(0).getTextureUnitState(0)
 				texture.setColourOperationEx(ogre.LBX_MODULATE_X4, ogre.LBS_TEXTURE, ogre.LBS_MANUAL, colour)
-			self.panel.materialName = material_clone.name
+			self.panel.materialName = clone_material_name
 		else:
 			self.panel.materialName = self.original_material
 			material_manager.remove(material)
@@ -264,7 +274,7 @@ class InformationOverlay(object):
 		self.overlay.size = cegui.UVector2(cegui.UDim(0.2, 0), cegui.UDim(0.2, 0))
 		self.overlay.setProperty("TitlebarEnabled", "False")
 		self.overlay.setProperty("CloseButtonEnabled", "False")
-		self.overlay.setProperty("FrameEnabled", "False")
+		self.overlay.setProperty("FrameEnabled", "True")
 		self.overlay.setProperty("Alpha", "0.5")
 		self.overlay.hide()
 

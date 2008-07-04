@@ -36,7 +36,12 @@ material Starmap/Icons/Planets
 			scene_blend add
 			texture_unit
 			{
-				texture p_icon.png
+				texture s_icon.png
+				colour_op_ex modulate_x2 src_manual src_texture 1 1 1
+			}
+			texture_unit
+			{
+				colour_op_ex modulate src_manual src_current 1 1 1
 			}
 		}
 	}
@@ -52,6 +57,11 @@ material Starmap/Icons/Fleets
 			texture_unit
 			{
 				texture f_icon.png
+				colour_op_ex modulate_x2 src_manual src_texture 1 1 1
+			}
+			texture_unit
+			{
+				colour_op_ex modulate_x4 src_manual src_current 1 1 1
 			}
 		}
 	}
