@@ -255,6 +255,7 @@ class StarmapScene(MenuScene):
 	scroll_speed = 100
 	low_fps_threshold = 15
 	mouseover_timeout = 1000
+	camera_zoom_amount = 100
 
 	def __init__(self, parent, sceneManager):
 		Scene.__init__(self, parent, sceneManager)
@@ -275,6 +276,8 @@ class StarmapScene(MenuScene):
 
 		self.camera_node = self.rootNode.createChildSceneNode("CameraNode")
 		self.camera_node.attachObject(self.camera)
+		self.camera_target_node = self.rootNode.createChildSceneNode("CameraTarget")
+		self.camera_target_node.position = self.camera_node.position
 
 		# FIXME: Shift to starmap
 		self.raySceneQuery = self.sceneManager.createRayQuery(ogre.Ray())
@@ -446,6 +449,13 @@ class StarmapScene(MenuScene):
 
 	def update(self, evt):
 		self.starmap.update()
+		cam_z = self.camera_node.position.z
+		target_z = self.camera_target_node.position.z
+		if cam_z != target_z:
+			if cam_z < target_z:
+				self.camera_node.translate(0, 0, self.camera_zoom_amount)
+			else:
+				self.camera_node.translate(0, 0, -self.camera_zoom_amount)
 		if self.mouseover and self.mouseover_timer.getMilliseconds() > self.mouseover_timeout:
 			self.showInformationOverlay(self.mouseover)
 			self.information_overlay.update(*self.mouse_position)
@@ -536,12 +546,14 @@ class StarmapScene(MenuScene):
 		
 		elif state.Z.rel < 0 and self.starmap.zoom > settings.max_zoom_out: # scroll down
 			#self.camera.moveRelative(ogre.Vector3(0, 0, 2 * self.pan_speed))
-			self.camera_node.translate(ogre.Vector3(0, 0, 2 * self.pan_speed))
+			#self.camera_node.translate(ogre.Vector3(0, 0, 2 * self.pan_speed))
+			self.zoom(2 * self.pan_speed)
 			self.starmap.zoom -= 1
 
 		elif state.Z.rel > 0 and self.starmap.zoom < settings.min_zoom_in: # scroll up
 			#self.camera.moveRelative(ogre.Vector3(0, 0, -2 * self.pan_speed))
-			self.camera_node.translate(ogre.Vector3(0, 0, -2 * self.pan_speed))
+			#self.camera_node.translate(ogre.Vector3(0, 0, -2 * self.pan_speed))
+			self.zoom(-2 * self.pan_speed)
 			self.starmap.zoom += 1
 
 		x = float(state.X.abs) / float(state.width)
@@ -829,9 +841,9 @@ class StarmapScene(MenuScene):
 		if keyboard.isKeyDown(ois.KC_DOWN):
 			self.camera.moveRelative(ogre.Vector3(0, -self.scroll_speed, 0))
 		if keyboard.isKeyDown(ois.KC_EQUALS):
-			self.camera.moveRelative(ogre.Vector3(0, 0, -self.scroll_speed))
+			self.zoom(-self.scroll_speed)
 		if keyboard.isKeyDown(ois.KC_MINUS):
-			self.camera.moveRelative(ogre.Vector3(0, 0, self.scroll_speed))
+			self.zoom(self.scroll_speed)
 		if keyboard.isKeyDown(ois.KC_HOME):
 			self.camera.pitch(ogre.Radian(0.03))
 		if keyboard.isKeyDown(ois.KC_END):
@@ -931,4 +943,8 @@ class StarmapScene(MenuScene):
 
 	def getIDFromIcon(self, icon):
 		return int(icon.name.split('_')[2])
+
+	def zoom(self, amount):
+		"""Zoom in or out for a set amount. Negative amounts will zoom in."""
+		self.camera_target_node.translate(0, 0, amount)
 
