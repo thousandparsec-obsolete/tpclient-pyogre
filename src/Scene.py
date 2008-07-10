@@ -452,6 +452,7 @@ class StarmapScene(MenuScene):
 		cam_z = self.camera_node.position.z
 		target_z = self.camera_target_node.position.z
 		if cam_z != target_z:
+			self.starmap.zoom = -round(cam_z / 1000)
 			if cam_z < target_z:
 				self.camera_node.translate(0, 0, self.camera_zoom_amount)
 			else:
@@ -541,20 +542,12 @@ class StarmapScene(MenuScene):
 				adjusted_pan = self.pan_speed
 			self.camera.moveRelative(
 				ogre.Vector3(state.X.rel * adjusted_pan, -state.Y.rel * adjusted_pan, 0))
-			#self.camera_node.translate(
-				#ogre.Vector3(state.X.rel * adjusted_pan, -state.Y.rel * adjusted_pan, 0))
 		
-		elif state.Z.rel < 0 and self.starmap.zoom > settings.max_zoom_out: # scroll down
-			#self.camera.moveRelative(ogre.Vector3(0, 0, 2 * self.pan_speed))
-			#self.camera_node.translate(ogre.Vector3(0, 0, 2 * self.pan_speed))
+		elif state.Z.rel < 0:
 			self.zoom(2 * self.pan_speed)
-			self.starmap.zoom -= 1
 
-		elif state.Z.rel > 0 and self.starmap.zoom < settings.min_zoom_in: # scroll up
-			#self.camera.moveRelative(ogre.Vector3(0, 0, -2 * self.pan_speed))
-			#self.camera_node.translate(ogre.Vector3(0, 0, -2 * self.pan_speed))
+		elif state.Z.rel > 0:
 			self.zoom(-2 * self.pan_speed)
-			self.starmap.zoom += 1
 
 		x = float(state.X.abs) / float(state.width)
 		y = float(state.Y.abs) / float(state.height)
@@ -946,5 +939,8 @@ class StarmapScene(MenuScene):
 
 	def zoom(self, amount):
 		"""Zoom in or out for a set amount. Negative amounts will zoom in."""
-		self.camera_target_node.translate(0, 0, amount)
+		z = self.camera_target_node.position.z
+		if ((z < -settings.max_zoom_out * 1000 or amount < 0) and
+				(z > -settings.min_zoom_in * 1000 or amount > 0)):
+			self.camera_target_node.translate(0, 0, amount)
 
