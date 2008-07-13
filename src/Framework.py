@@ -217,6 +217,7 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 		self.application = application
 		self.keepRendering = True   # whether to continue rendering or not
 		self.sceneDetailIndex = 0
+		self.ceguiTimer = ogre.Timer()
 
 		root = self.application.root
 		self.console = console.Console(root)
@@ -275,6 +276,8 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 			self.keepRendering = False
 		
 		if self.keepRendering:
+			cegui.System.getSingleton().injectTimePulse(self.ceguiTimer.getMilliseconds() / 1000)
+			self.ceguiTimer.reset()
 			if self.enableMouse and self.mouse != None:
 				self.mouse.capture()
 

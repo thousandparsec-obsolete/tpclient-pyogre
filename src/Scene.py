@@ -297,6 +297,7 @@ class StarmapScene(MenuScene):
 		helpers.bindEvent("Windows/Messages", self, "windowToggle", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Windows/System", self, "windowToggle", cegui.PushButton.EventClicked)
 		helpers.bindEvent("System/SystemList", self, "systemSelected", cegui.Listbox.EventSelectionChanged)
+		helpers.bindEvent("System/SystemList", self, "systemSelected", cegui.Window.EventMouseDoubleClick)
 		helpers.bindEvent("Windows/EndTurnButton", self, "requestEOT", cegui.PushButton.EventClicked)
 		for window in ['Messages', 'Orders', 'System', 'Information']:
 			helpers.bindEvent(window, self, "closeClicked", cegui.FrameWindow.EventCloseClicked)
@@ -913,10 +914,13 @@ class StarmapScene(MenuScene):
 		wm = cegui.WindowManager.getSingleton()
 		listbox = wm.getWindow("System/SystemList")
 		selected = listbox.getFirstSelectedItem()
-		for obj in self.objects.values():
-			if obj.name == selected.text:
-				self.setInformationText(obj)
-				break
+		if selected:
+			for obj in self.objects.values():
+				if obj.name == selected.text:
+					if hasattr(evt, "clickCount"):
+						self.starmap.center(obj.id)
+					self.setInformationText(obj)
+					break
 
 	def closeClicked(self, evt):
 		"""Called when user clicks on the close button of a window"""
