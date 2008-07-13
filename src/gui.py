@@ -4,6 +4,7 @@ from tp.netlib.objects import OrderDescs
 from tp.netlib.objects.constants import *
 
 import helpers
+import Scene
 
 ARG_GUI_MAP = {
 		ARG_ABS_COORD:'Position',
@@ -78,13 +79,13 @@ class MessageWindow(object):
 			print reference
 		for reference in refs:
 			i += 1
-			if reference[0] is OBJECT:
+			if reference[0] is Scene.OBJECT:
 				id = reference[1]
-				if id is 1: # universe
+				if id is Scene.UNIVERSE: # universe
 					continue
 				if i < self.goto_index + 1:
 					continue
-				if self.selectObjectById(id):
+				if self.parent.selectObjectById(id):
 					self.parent.starmap.center(id)
 					self.goto_index = i
 					break
