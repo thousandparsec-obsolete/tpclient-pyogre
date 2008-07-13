@@ -72,7 +72,7 @@ class Starmap(object):
 
 	def setObjectVisibility(self, visible):
 		for fleet in self.fleets:
-			fleet.setVisible(visible)
+			self.nodes[fleet].setVisible(visible)
 		for planet in self.planets:
 			planet.setVisible(visible)
 		for star in self.stars:
@@ -94,7 +94,7 @@ class Starmap(object):
 		node = self.createObjectNode(position, object.id, 'sphere_lod.mesh', 100, False)
 		self.nodes[object.id] = node
 		self.stars.append(node)
-		entityNode = self.sceneManager.getSceneNode("Object%i_EntityNode" % object.id)
+		entity_node = self.sceneManager.getSceneNode("Object%i_EntityNode" % object.id)
 
 		# Lens flare
 		billboard = self.flareBillboard.createBillboard(position, ogre.ColourValue.White)
@@ -105,13 +105,13 @@ class Starmap(object):
 		light.setAttenuation(500, 1, 0, 0)
 
 		# Text overlays
-		label = overlay.ObjectOverlay(entityNode, object)
+		label = overlay.ObjectOverlay(entity_node, object)
 		label.show(label.name)
 		label.setColour(ogre.ColourValue(0.7, 0.9, 0.7))
 		self.overlays[object.id] = label
 
 		if not settings.show_stars_during_icon_view:
-			icon = overlay.IconOverlay(entityNode, object, "Starmap/Icons/Stars")
+			icon = overlay.IconOverlay(entity_node, object, "Starmap/Icons/Stars")
 			self.icons[object.id] = icon
 
 		random.seed(object.id)
@@ -127,8 +127,8 @@ class Starmap(object):
 		node = self.createObjectNode(pos, object.id, 'sphere_lod.mesh', 50)
 		self.nodes[object.id] = node
 		self.planets.append(node)
-		entityNode = self.sceneManager.getSceneNode("Object%i_EntityNode" % object.id)
-		entityNode.pitch(ogre.Radian(1.57))
+		entity_node = self.sceneManager.getSceneNode("Object%i_EntityNode" % object.id)
+		entity_node.pitch(ogre.Radian(1.57))
 
 		colour = None
 		if object.owner != -1:
@@ -136,7 +136,7 @@ class Starmap(object):
 			r = random.random
 			colour = ogre.ColourValue(r(), r(), r(), 1)
 
-		icon = overlay.IconOverlay(entityNode, object, "Starmap/Icons/Planets", 15, 15, colour)
+		icon = overlay.IconOverlay(entity_node, object, "Starmap/Icons/Planets", 15, 15, colour)
 		self.icons[object.id] = icon
 
 		random.seed(parent.id)
@@ -155,10 +155,11 @@ class Starmap(object):
 		pos = self.calculateRadialPosition(position, 200, 360, parent.fleets, object.index)
 		node = self.createObjectNode(pos, object.id, '%s.mesh' % mesh[0], mesh[1])
 		self.nodes[object.id] = node
-		self.fleets.append(node)
-		entityNode = self.sceneManager.getSceneNode("Object%i_EntityNode" % object.id)
-		entityNode.yaw(ogre.Radian(1.57))
-		entityNode.roll(ogre.Radian(1.57))
+		self.fleets.append(object.id)
+		entity_node = self.sceneManager.getSceneNode("Object%i_EntityNode" % object.id)
+		entity_node.yaw(ogre.Radian(1.57))
+		entity_node.roll(ogre.Radian(1.57))
+		target_node = node.createChildSceneNode("Object%i_Target" % object.id, pos)
 
 		owner = object.owner
 		random.seed(owner)
@@ -179,13 +180,15 @@ class Starmap(object):
 		colour = ogre.ColourValue(r(), r(), r(), 1)
 		material.setDiffuse(colour)
 
-		icon = overlay.IconOverlay(entityNode, object, "Starmap/Icons/Fleets", 20, 20, colour)
+		icon = overlay.IconOverlay(entity_node, object, "Starmap/Icons/Fleets", 20, 20, colour)
 		self.icons[object.id] = icon
 
 	def setFleet(self, object, position, parent):
 		pos = self.calculateRadialPosition(position, 200, 360, parent.fleets, object.index)
-		node = self.nodes[object.id]
-		node.setPosition(pos)
+		target = self.sceneManager.getSceneNode("Object%i_Target" % object.id)
+		target.position = pos
+		#node = self.nodes[object.id]
+		#node.setPosition(pos)
 
 	def hasObject(self, id):
 		return id in self.nodes
@@ -273,12 +276,12 @@ class Starmap(object):
 
 		"""
 		node = self.rootNode.createChildSceneNode("Object%i_Node" % oid, pos)
-		entityNode = node.createChildSceneNode("Object%i_EntityNode" % oid, ogre.Vector3(0, 0, 0))
+		entity_node = node.createChildSceneNode("Object%i_EntityNode" % oid, ogre.Vector3(0, 0, 0))
 		entity = self.sceneManager.createEntity("Object%i" % oid, mesh)
 		entity.setNormaliseNormals(normalise)
 		obj_scale = scale / entity.mesh.boundingSphereRadius
-		entityNode.setScale(ogre.Vector3(obj_scale, obj_scale, obj_scale))
-		entityNode.attachObject(entity)
+		entity_node.setScale(ogre.Vector3(obj_scale, obj_scale, obj_scale))
+		entity_node.attachObject(entity)
 
 		return node
 
@@ -319,11 +322,32 @@ class Starmap(object):
 			for planet in self.planets:
 				planet.getChild(0).roll(ogre.Radian(0.005))
 
+		for fleet in self.fleets:
+			node = self.sceneManager.getSceneNode("Object%i_Node" % fleet)
+			target = self.sceneManager.getSceneNode("Object%i_Target" % fleet)
+			move_speed = 100
+			node_pos = node.position
+			target_pos = target.position
+			if node_pos != target_pos:
+				if abs(node_pos.x - target_pos.x) < move_speed:
+					node.position.x = target_pos.x
+				elif node_pos.x < target_pos.x:
+					node.translate(move_speed, 0, 0)
+				elif node_pos.x > target_pos.x:
+					node.translate(-move_speed, 0, 0)
+
+				if abs(node_pos.y - target_pos.y) < move_speed:
+					node.position.y = target_pos.y
+				elif node_pos.y < target_pos.y:
+					node.translate(0, move_speed, 0)
+				elif node_pos.y > target_pos.y:
+					node.translate(0, -move_speed, 0)
+
 		return True
 
 	def setIconView(self, visible):
 		for fleet in self.fleets:
-			fleet.setVisible(not visible)
+			self.nodes[fleet].setVisible(not visible)
 		for planet in self.planets:
 			planet.setVisible(not visible)
 		if not settings.show_stars_during_icon_view:
