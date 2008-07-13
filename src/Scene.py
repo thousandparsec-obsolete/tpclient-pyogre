@@ -278,6 +278,8 @@ class StarmapScene(MenuScene):
 		self.camera_node.attachObject(self.camera)
 		self.camera_target_node = self.rootNode.createChildSceneNode("CameraTarget")
 		self.camera_target_node.position = self.camera_node.position
+		self.camera_focus_node = self.rootNode.createChildSceneNode("CameraFocus")
+		self.camera_focus_node.position = self.camera_node.position
 
 		# FIXME: Shift to starmap
 		self.raySceneQuery = self.sceneManager.createRayQuery(ogre.Ray())
@@ -449,14 +451,30 @@ class StarmapScene(MenuScene):
 
 	def update(self, evt):
 		self.starmap.update()
-		cam_z = self.camera_node.position.z
-		target_z = self.camera_target_node.position.z
-		if cam_z != target_z:
-			self.starmap.zoom = -round(cam_z / 1000)
-			if cam_z < target_z:
+		cam_pos = self.camera_node.position
+		target_pos = self.camera_target_node.position
+
+		if abs(cam_pos.x - target_pos.x) < self.pan_speed:
+			self.camera_node.position.x = target_pos.x
+		elif cam_pos.x < target_pos.x:
+			self.camera_node.translate(self.pan_speed, 0, 0)
+		elif cam_pos.x > target_pos.x:
+			self.camera_node.translate(-self.pan_speed, 0, 0)
+
+		if abs(cam_pos.y - target_pos.y) < self.pan_speed:
+			self.camera_node.position.y = target_pos.y
+		elif cam_pos.y < target_pos.y:
+			self.camera_node.translate(0, self.pan_speed, 0)
+		elif cam_pos.y > target_pos.y:
+			self.camera_node.translate(0, -self.pan_speed, 0)
+
+		if cam_pos.z != target_pos.z:
+			self.starmap.zoom = -round(cam_pos.z / 1000)
+			if cam_pos.z < target_pos.z:
 				self.camera_node.translate(0, 0, self.camera_zoom_amount)
 			else:
 				self.camera_node.translate(0, 0, -self.camera_zoom_amount)
+
 		if self.mouseover and self.mouseover_timer.getMilliseconds() > self.mouseover_timeout:
 			self.showInformationOverlay(self.mouseover)
 			self.information_overlay.update(*self.mouse_position)
@@ -540,9 +558,8 @@ class StarmapScene(MenuScene):
 				adjusted_pan = abs(self.pan_speed / (self.starmap.zoom * 2))
 			else:
 				adjusted_pan = self.pan_speed
-			self.camera.moveRelative(
-				ogre.Vector3(state.X.rel * adjusted_pan, -state.Y.rel * adjusted_pan, 0))
-		
+			self.pan(state.X.rel * adjusted_pan, -state.Y.rel * adjusted_pan)
+
 		elif state.Z.rel < 0:
 			self.zoom(2 * self.pan_speed)
 
@@ -943,4 +960,8 @@ class StarmapScene(MenuScene):
 		if ((z < -settings.max_zoom_out * 1000 or amount < 0) and
 				(z > -settings.min_zoom_in * 1000 or amount > 0)):
 			self.camera_target_node.translate(0, 0, amount)
+
+	def pan(self, x, y):
+		self.camera_node.translate(x, y, 0)
+		self.camera_target_node.translate(x, y, 0)
 

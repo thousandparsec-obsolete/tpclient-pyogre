@@ -405,6 +405,6 @@ class Starmap(object):
 		"""Center on an object identified by object id"""
 		node = self.nodes[id]
 		pos = node.getPosition()
-		cam = self.camera.getPosition()
-		self.camera.setPosition(ogre.Vector3(pos.x,pos.y,cam.z))
+		cam_target = self.sceneManager.getSceneNode("CameraTarget")
+		cam_target.position = ogre.Vector3(pos.x, pos.y, cam_target.position.z)
 
