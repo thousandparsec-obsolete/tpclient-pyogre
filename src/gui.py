@@ -1,5 +1,7 @@
-import ogre.gui.CEGUI as cegui
+import htmllib
+import formatter
 
+import ogre.gui.CEGUI as cegui
 from tp.netlib.objects import OrderDescs
 from tp.netlib.objects.constants import *
 
@@ -95,8 +97,25 @@ class MessageWindow(object):
 		message = message_object.CurrentOrder
 		text = "Subject: " + message.subject + "\n"
 		text += "\n"
-		text += message.body
+		text += self.format(message.body).output
 		helpers.setWidgetText("Messages/Message", text)
+
+	def format(self, text):
+		writer = SimpleWriter()
+		format = formatter.AbstractFormatter(writer)
+		parser = htmllib.HTMLParser(format)
+		parser.feed(text)
+		parser.close()
+		return writer
+
+class SimpleWriter(formatter.NullWriter):
+	output = ""
+
+	def send_flowing_data(self, data):
+		self.output += data
+
+	def send_line_break(self):
+		self.output += "\n"
 
 class ArgumentsWindow(object):
 	def __init__(self, parent):
