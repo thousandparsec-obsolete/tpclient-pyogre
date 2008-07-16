@@ -27,16 +27,62 @@ class MessageWindow(object):
 		helpers.bindEvent("Messages/Prev", self, "prevMessage", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Messages/Goto", self, "gotoMessageSubject", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Messages/Delete", self, "deleteMessage", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Messages/MessageList", self, "selectMessage", cegui.MultiColumnList.EventSelectionChanged)
+
+		wm = cegui.WindowManager.getSingleton()
+		message_list = wm.getWindow("Messages/MessageList")
+		message_list.addColumn("Subject", 0, cegui.UDim(0.7, 0))
+		message_list.addColumn("Turn", 1, cegui.UDim(0.1, 0))
+		message_list.setSelectionMode(cegui.MultiColumnList.RowSingle)
+		self.message_list = message_list
+		self.message_list_items = []
 
 	def create(self, cache):
 		for val in cache.messages[0]:
 			self.messages.append(val)
+
 
 		if len(self.messages) > 0:
 			if len(self.messages) > self.message_index:
 				self.setCurrentMessage(self.messages[self.message_index])
 			else:
 				self.setCurrentMessage(self.messages[0])
+			self.createMessageList()
+			self.updateMessageList()
+
+		self.updateTitlebar()
+
+	def createMessageList(self):
+		self.message_list.resetList()
+		self.message_list_items = []
+
+		for message_object in self.messages:
+			message = message_object.CurrentOrder
+			index = self.message_list.addRow()
+			item = cegui.ListboxTextItem(str(message.subject))
+			item.setAutoDeleted(False)
+			item.setSelectionBrushImage("SleekSpace", "MultiListSelectionBrush")
+			self.message_list.setItem(item, 0, index)
+			self.message_list_items.append(item)
+
+			item = cegui.ListboxTextItem(str(message.turn))
+			item.setAutoDeleted(False)
+			self.message_list.setItem(item, 1, index)
+			self.message_list_items.append(item)
+
+	def updateMessageList(self):
+		reference = cegui.MCLGridRef(self.message_index, 0)
+		self.message_list.setItemSelectState(reference, True)
+
+	def updateTitlebar(self):
+		helpers.setWidgetText("Messages", "Messages (%d/%d)" % (self.message_index + 1, len(self.messages)))
+
+	def selectMessage(self, evt):
+		selected = self.message_list.getFirstSelectedItem()
+		index = self.message_list.getItemRowIndex(selected)
+		self.setCurrentMessage(self.messages[index])
+		self.message_index = index
+		self.updateTitlebar()
 
 	def nextMessage(self, evt):
 		"""Sets messagebox to the next message if available"""
@@ -44,6 +90,8 @@ class MessageWindow(object):
 			self.message_index += 1
 			self.goto_index = 0
 			self.setCurrentMessage(self.messages[self.message_index])
+		self.updateTitlebar()
+		self.updateMessageList()
 
 	def prevMessage(self, evt):
 		"""Sets messagebox to the previous message if available"""
@@ -51,6 +99,8 @@ class MessageWindow(object):
 			self.message_index -= 1
 			self.goto_index = 0
 			self.setCurrentMessage(self.messages[self.message_index])
+		self.updateTitlebar()
+		self.updateMessageList()
 
 	def deleteMessage(self, evt):
 		"""Deletes the current message permanently and displays the next message, if any."""
@@ -65,6 +115,8 @@ class MessageWindow(object):
 			self.nextMessage(evt)
 		else:
 			helpers.setWidgetText("Messages/Message", "")
+		self.createMessageList()
+		self.updateTitlebar()
 
 	def gotoMessageSubject(self, evt):
 		"""Select and center on the subject of a message.
