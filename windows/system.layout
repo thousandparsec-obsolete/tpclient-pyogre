@@ -387,7 +387,7 @@
             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
             <Property Name="ClippedByParent" Value="False" />
             <Property Name="TitlebarEnabled" Value="False" />
-            <Property Name="UnifiedAreaRect" Value="{{-0.002344,0},{-0.00296,0},{0.177031,0},{0.0486767,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{-0.002344,0},{-0.00296,0},{0.210234,0},{0.0486767,0}}" />
             <Property Name="CloseButtonEnabled" Value="False" />
             <Window Type="SleekSpace/Button" Name="TopBar/MenuButton" >
                 <Property Name="Font" Value="BlueHighway-10" />
@@ -395,7 +395,7 @@
                 <Property Name="InheritsAlpha" Value="False" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="ClippedByParent" Value="False" />
-                <Property Name="UnifiedAreaRect" Value="{{0.0327962,0},{0.148294,0},{0.427356,0},{0.746364,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0327962,0},{0.148294,0},{0.413574,0},{0.746364,0}}" />
             </Window>
             <Window Type="SleekSpace/Editbox" Name="TopBar/Turn" >
                 <Property Name="Font" Value="BlueHighway-10" />
@@ -406,7 +406,7 @@
                 <Property Name="MaxTextLength" Value="1073741823" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="ClippedByParent" Value="False" />
-                <Property Name="UnifiedAreaRect" Value="{{0.483297,0},{0.148294,0},{0.84359,0},{0.746364,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.469515,0},{0.148294,0},{0.907905,0},{0.746364,0}}" />
             </Window>
         </Window>
     </Window>
