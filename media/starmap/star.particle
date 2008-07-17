@@ -8,7 +8,7 @@ Space/Stars/Large
    billboard_type  point
 
    // Area emitter
-   emitter Ellipsoid
+   emitter HollowEllipsoid
    {
        angle           30
        emission_rate   2000
@@ -20,7 +20,10 @@ Space/Stars/Large
        velocity       0.001
        width           100000
        height          100000
-       depth           100
+       depth           100000
+	   inner_width     1
+	   inner_height    1
+	   inner_depth     1
    }
 }
 

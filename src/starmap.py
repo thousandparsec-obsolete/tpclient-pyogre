@@ -86,7 +86,6 @@ class Starmap(object):
 			self.bg_particle = self.sceneManager.createParticleSystem("star_layer1", "Space/Stars/Large")
 		self.bg_particle.keepParticlesInLocalSpace = True
 		particleNode = self.parent.camera_node.createChildSceneNode("StarryBackgroundLayer1")
-		particleNode.pitch(ogre.Radian(1.57))
 		particleNode.attachObject(self.bg_particle)
 		self.background_nodes.append(particleNode)
 
