@@ -412,17 +412,19 @@ class Starmap(object):
 	def autofit(self):
 		"""Zooms out until all stars are visible"""
 		fit = False
-		self.camera.setPosition(ogre.Vector3(0,0,0))
+		camera_node = self.sceneManager.getSceneNode("CameraNode")
+		camera_node.position = ogre.Vector3(0,0,0)
 		while not fit:
-			self.camera.moveRelative(ogre.Vector3(0, 0, 500))
+			self.updateZoom()
+			camera_node.translate(0, 0, 500)
 
 			fit = True
 			for key in self.nodes:
 				object = self.nodes[key]
-				if not self.camera.isVisible(object.getPosition()):
+				if not self.camera.isVisible(object.position):
 					fit = False
-		self.zoom = 0
 		self.show_icon = False
+		self.sceneManager.getSceneNode("CameraTarget").position = camera_node.position
 
 	def center(self, id):
 		"""Center on an object identified by object id"""
@@ -430,4 +432,8 @@ class Starmap(object):
 		pos = node.getPosition()
 		cam_target = self.sceneManager.getSceneNode("CameraTarget")
 		cam_target.position = ogre.Vector3(pos.x, pos.y, cam_target.position.z)
+
+	def updateZoom(self):
+		camera_node = self.sceneManager.getSceneNode("CameraNode")
+		self.zoom = -round(camera_node.position.z / 1000)
 

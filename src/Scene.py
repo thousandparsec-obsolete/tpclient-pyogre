@@ -274,12 +274,13 @@ class StarmapScene(MenuScene):
 		self.mouseover_timer = ogre.Timer()
 		self.mouseover = None
 
-		self.camera_node = self.rootNode.createChildSceneNode("CameraNode")
-		self.camera_node.attachObject(self.camera)
-		self.camera_target_node = self.rootNode.createChildSceneNode("CameraTarget")
-		self.camera_target_node.position = self.camera_node.position
 		self.camera_focus_node = self.rootNode.createChildSceneNode("CameraFocus")
-		self.camera_focus_node.position = self.camera_node.position
+		self.camera_node = self.camera_focus_node.createChildSceneNode("CameraNode")
+		self.camera_node.attachObject(self.camera)
+		self.camera_target_node = self.camera_focus_node.createChildSceneNode("CameraTarget")
+		self.camera_target_node.position = self.camera_node.position
+		self.h_angle = 0
+		self.v_angle = 0
 
 		# FIXME: Shift to starmap
 		self.raySceneQuery = self.sceneManager.createRayQuery(ogre.Ray())
@@ -470,7 +471,7 @@ class StarmapScene(MenuScene):
 			self.camera_node.translate(0, -self.pan_speed, 0)
 
 		if cam_pos.z != target_pos.z:
-			self.starmap.zoom = -round(cam_pos.z / 1000)
+			self.starmap.updateZoom()
 			if cam_pos.z < target_pos.z:
 				self.camera_node.translate(0, 0, self.camera_zoom_amount)
 			else:
@@ -556,10 +557,13 @@ class StarmapScene(MenuScene):
 
 		if state.buttonDown(ois.MB_Middle):
 			if self.starmap.zoom != 0:
-				adjusted_pan = abs(self.pan_speed / (self.starmap.zoom * 2))
+				adjusted_pan = abs(self.pan_speed / (self.starmap.zoom * 5))
 			else:
 				adjusted_pan = self.pan_speed
 			self.pan(state.X.rel * adjusted_pan, -state.Y.rel * adjusted_pan)
+
+		elif state.buttonDown(ois.MB_Right):
+			self.rotate(state.X.rel, state.Y.rel)
 
 		elif state.Z.rel < 0:
 			self.zoom(2 * self.pan_speed)
@@ -966,6 +970,13 @@ class StarmapScene(MenuScene):
 			self.camera_target_node.translate(0, 0, amount)
 
 	def pan(self, x, y):
-		self.camera_node.translate(x, y, 0)
-		self.camera_target_node.translate(x, y, 0)
+		self.camera_focus_node.translate(x, y, 0, ogre.SceneNode.TransformSpace.TS_LOCAL)
+
+	def rotate(self, h_angle, v_angle):
+		self.v_angle += v_angle
+		self.h_angle += h_angle
+		q = ogre.Quaternion(ogre.Degree(self.h_angle), ogre.Vector3.UNIT_Z)
+		r = ogre.Quaternion(ogre.Degree(self.v_angle), ogre.Vector3.UNIT_X)
+		q = q * r
+		self.camera_focus_node.setOrientation(q)
 
