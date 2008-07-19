@@ -44,7 +44,7 @@ class Scene(object):
 		
 		# Create the root for this Scene
 		self.rootNode = sceneManager.rootSceneNode.createChildSceneNode((0, 0, 0))
-		self.camera = self.sceneManager.getCamera( 'PlayerCam' )
+		self.camera = self.sceneManager.getCamera('PlayerCam')
 		
 		# Where to store any GUI windows
 		self.windows = []
@@ -277,8 +277,6 @@ class StarmapScene(MenuScene):
 		self.camera_node.attachObject(self.camera)
 		self.camera_target_node = self.camera_focus_node.createChildSceneNode("CameraTarget")
 		self.camera_target_node.position = self.camera_node.position
-		self.h_angle = 0
-		self.v_angle = 0
 
 		# FIXME: Shift to starmap
 		self.raySceneQuery = self.sceneManager.createRayQuery(ogre.Ray())
@@ -381,6 +379,7 @@ class StarmapScene(MenuScene):
 		self.created = True
 		if hasattr(self.objects[0], "turn"):
 			helpers.setWidgetText("TopBar/Turn", "Turn %i" % self.objects[0].turn)
+		self.starmap.updateMapExtents()
 		self.starmap.autofit()
 
 	def updateObjectIndex(self, object, subtype_name, subtype_index):
@@ -448,6 +447,8 @@ class StarmapScene(MenuScene):
 
 		if hasattr(self.objects[0], "turn"):
 			helpers.setWidgetText("TopBar/Turn", "Turn %i" % self.objects[0].turn)
+
+		self.starmap.updateMapExtents()
 
 	def update(self, evt):
 		self.starmap.update()
@@ -554,20 +555,20 @@ class StarmapScene(MenuScene):
 		self.mouse_position = [state.X.abs, state.Y.abs]
 
 		if state.buttonDown(ois.MB_Middle):
-			if self.starmap.zoom != 0:
-				adjusted_pan = abs(self.pan_speed / (self.starmap.zoom * 5))
+			if self.starmap.zoom_level != 0:
+				adjusted_pan = abs(self.pan_speed / (self.starmap.zoom_level * 5))
 			else:
 				adjusted_pan = self.pan_speed
-			self.pan(state.X.rel * adjusted_pan, -state.Y.rel * adjusted_pan)
+			self.starmap.pan(state.X.rel * adjusted_pan, -state.Y.rel * adjusted_pan)
 
 		elif state.buttonDown(ois.MB_Right):
-			self.rotate(state.X.rel, state.Y.rel)
+			self.starmap.rotate(state.X.rel, state.Y.rel)
 
 		elif state.Z.rel < 0:
-			self.zoom(2 * self.pan_speed)
+			self.starmap.zoom(2 * self.pan_speed)
 
 		elif state.Z.rel > 0:
-			self.zoom(-2 * self.pan_speed)
+			self.starmap.zoom(-2 * self.pan_speed)
 
 		x = float(state.X.abs) / float(state.width)
 		y = float(state.Y.abs) / float(state.height)
@@ -854,9 +855,9 @@ class StarmapScene(MenuScene):
 		if keyboard.isKeyDown(ois.KC_DOWN):
 			self.camera.moveRelative(ogre.Vector3(0, -self.scroll_speed, 0))
 		if keyboard.isKeyDown(ois.KC_EQUALS):
-			self.zoom(-self.scroll_speed)
+			self.starmap.zoom(-self.scroll_speed)
 		if keyboard.isKeyDown(ois.KC_MINUS):
-			self.zoom(self.scroll_speed)
+			self.starmap.zoom(self.scroll_speed)
 		if keyboard.isKeyDown(ois.KC_HOME):
 			self.camera.pitch(ogre.Radian(0.03))
 		if keyboard.isKeyDown(ois.KC_END):
@@ -959,22 +960,4 @@ class StarmapScene(MenuScene):
 
 	def getIDFromIcon(self, icon):
 		return int(icon.name.split('_')[2])
-
-	def zoom(self, amount):
-		"""Zoom in or out for a set amount. Negative amounts will zoom in."""
-		z = self.camera_target_node.position.z
-		if ((z < -settings.max_zoom_out * 1000 or amount < 0) and
-				(z > -settings.min_zoom_in * 1000 or amount > 0)):
-			self.camera_target_node.translate(0, 0, amount)
-
-	def pan(self, x, y):
-		self.camera_focus_node.translate(x, y, 0, ogre.SceneNode.TransformSpace.TS_LOCAL)
-
-	def rotate(self, h_angle, v_angle):
-		self.v_angle += v_angle
-		self.h_angle += h_angle
-		q = ogre.Quaternion(ogre.Degree(self.h_angle), ogre.Vector3.UNIT_Z)
-		r = ogre.Quaternion(ogre.Degree(self.v_angle), ogre.Vector3.UNIT_X)
-		q = q * r
-		self.camera_focus_node.setOrientation(q)
 

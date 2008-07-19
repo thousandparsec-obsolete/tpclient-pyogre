@@ -13,14 +13,13 @@ class Starmap(object):
 		self.parent = parent
 		self.sceneManager = sceneManager
 		self.rootNode = rootNode
-		self.camera = self.sceneManager.getCamera( 'PlayerCam' )
 
 		self.nodes = {}
 		self.lines = 0
 		self.overlays = {}
 		self.bg_particle = None
 		self.background_nodes = []
-		self.zoom = 0
+		self.zoom_level = 0
 		self.planets = []
 		self.fleets = []
 		self.stars = []
@@ -29,6 +28,11 @@ class Starmap(object):
 		self.show_icon = False
 		self.last_clicked = None
 		self.last_clicked_selection = None
+
+		self.map_lower_left = [0, 0]
+		self.map_upper_right = [0, 0]
+		self.h_angle = 0
+		self.v_angle = 0
 
 		self.flareBillboard = self.sceneManager.createBillboardSet("flare")
 		self.flareBillboard.setMaterialName("Billboards/Flares/flare")
@@ -48,6 +52,17 @@ class Starmap(object):
 		light.type = ogre.Light.LT_DIRECTIONAL
 		light.diffuseColour = (1, 1, 1)
 		light.direction = (0, 0, -1)
+
+	def updateMapExtents(self):
+		for obj in self.nodes.values():
+			if obj.position.x < self.map_lower_left[0]:
+				self.map_lower_left[0] = obj.position.x
+			if obj.position.y < self.map_lower_left[1]:
+				self.map_lower_left[1] = obj.position.y
+			if obj.position.x > self.map_upper_right[0]:
+				self.map_upper_right[0] = obj.position.x
+			if obj.position.x > self.map_upper_right[1]:
+				self.map_upper_right[1] = obj.position.y
 
 	def show(self):
 		self.setOverlayVisibility(True)
@@ -302,10 +317,10 @@ class Starmap(object):
 		return position
 
 	def update(self):
-		camera = self.sceneManager.getCamera('PlayerCam')
-		self.parent.parent.renderWindow.debugText = "Z:%d" % self.zoom
+		camera = self.sceneManager.getCamera("PlayerCam")
+		self.parent.parent.renderWindow.debugText = "Z:%d" % self.zoom_level
 
-		if self.zoom < settings.icon_zoom_switch_level:
+		if self.zoom_level < settings.icon_zoom_switch_level:
 			if not self.show_icon:
 				self.setIconView(True)
 		else:
@@ -413,18 +428,19 @@ class Starmap(object):
 	def autofit(self):
 		"""Zooms out until all stars are visible"""
 		fit = False
+		self.center()
+		camera = self.sceneManager.getCamera("PlayerCam")
 		camera_node = self.sceneManager.getSceneNode("CameraNode")
-		camera_node.position = ogre.Vector3(0,0,0)
+		camera_node.position = ogre.Vector3(0, 0, 0)
 		while not fit:
+			camera_node.translate(0, 0, 1000)
 			self.updateZoom()
-			camera_node.translate(0, 0, 500)
 
 			fit = True
-			for key in self.nodes:
-				object = self.nodes[key]
-				if not self.camera.isVisible(object.position):
+			for obj in self.nodes.values():
+				if not camera.isVisible(obj.position):
 					fit = False
-		self.show_icon = False
+		self.setIconView(False)
 		self.sceneManager.getSceneNode("CameraTarget").position = camera_node.position
 
 	def center(self, id):
@@ -434,7 +450,40 @@ class Starmap(object):
 		cam_target = self.sceneManager.getSceneNode("CameraTarget")
 		cam_target.position = ogre.Vector3(pos.x, pos.y, cam_target.position.z)
 
+	def center(self):
+		"""Center on the map center"""
+		map_width = self.map_upper_right[0] - self.map_lower_left[0]
+		map_height = self.map_upper_right[1] - self.map_lower_left[1]
+		cam_focus = self.sceneManager.getSceneNode("CameraFocus")
+		cam_focus.resetOrientation()
+		self.h_angle = 0
+		self.v_angle = 0
+		x = self.map_upper_right[0] - map_width / 2
+		y = self.map_upper_right[1]
+		cam_focus.position = ogre.Vector3(x, y, 0)
+
 	def updateZoom(self):
 		camera_node = self.sceneManager.getSceneNode("CameraNode")
-		self.zoom = -round(camera_node.position.z / 1000)
+		self.zoom_level = -round(camera_node.position.z / 1000)
+
+	def zoom(self, amount):
+		"""Zoom in or out for a set amount. Negative amounts will zoom in."""
+		target = self.sceneManager.getSceneNode("CameraTarget")
+		z = target.position.z
+		if ((z < -settings.max_zoom_out * 1000 or amount < 0) and
+				(z > -settings.min_zoom_in * 1000 or amount > 0)):
+			target.translate(0, 0, amount)
+
+	def pan(self, x, y):
+		cam_focus = self.sceneManager.getSceneNode("CameraFocus")
+		cam_focus.translate(x, y, 0, ogre.SceneNode.TransformSpace.TS_LOCAL)
+
+	def rotate(self, h_angle, v_angle):
+		cam_focus = self.sceneManager.getSceneNode("CameraFocus")
+		self.v_angle += v_angle
+		self.h_angle += h_angle
+		q = ogre.Quaternion(ogre.Degree(self.h_angle), ogre.Vector3.UNIT_Z)
+		r = ogre.Quaternion(ogre.Degree(self.v_angle), ogre.Vector3.UNIT_X)
+		q = q * r
+		cam_focus.setOrientation(q)
 
