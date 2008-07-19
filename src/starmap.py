@@ -142,7 +142,6 @@ class Starmap(object):
 		self.nodes[object.id] = node
 		self.planets.append(node)
 		entity_node = self.sceneManager.getSceneNode("Object%i_EntityNode" % object.id)
-		entity_node.pitch(ogre.Radian(1.57))
 
 		colour = None
 		if object.owner != -1:
