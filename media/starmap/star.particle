@@ -1,8 +1,8 @@
 Space/Stars/Large
 {
    material        Starmap/Stars
-   particle_width  40
-   particle_height 40
+   particle_width  70
+   particle_height 70
    cull_each       true
    quota           2000
    billboard_type  point
@@ -21,9 +21,9 @@ Space/Stars/Large
        width           100000
        height          100000
        depth           100000
-	   inner_width     1
-	   inner_height    1
-	   inner_depth     1
+	   inner_width     0.9
+	   inner_height    0.9
+	   inner_depth     0.9
    }
 }
 
