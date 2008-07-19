@@ -372,6 +372,7 @@ class Starmap(object):
 		start_node = self.nodes[id_start]
 		end_node = self.nodes[id_end]
 		manual_object = self.sceneManager.createManualObject("line%i" % self.lines)
+		manual_object.setQueryFlags(self.parent.UNSELECTABLE)
 		scene_node = self.rootNode.createChildSceneNode("line%i_node" % self.lines)
 
 		material = ogre.MaterialManager.getSingleton().create("line%i_material" % self.lines, "default")
