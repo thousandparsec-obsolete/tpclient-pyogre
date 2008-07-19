@@ -95,3 +95,11 @@ def pickle_load(name="pickle"):
 		f.close()
 	return return_object
 
+def loadWindowLayout(name):
+	"""Load window layout to work around API differences between CEGUI 0.5 and 0.6"""
+	wm = cegui.WindowManager.getSingleton()
+	if cegui.CEGUI_version >= '0.6.0':
+		return wm.loadWindowLayout(name, False)
+	else:
+		return wm.loadWindowLayout(name)
+

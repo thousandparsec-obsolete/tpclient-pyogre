@@ -147,12 +147,10 @@ class LoginScene(MenuScene):
 	def __init__(self, parent, sceneManager):
 		Scene.__init__(self, parent, sceneManager)
 
-		wm = cegui.WindowManager.getSingleton()
-
 		# when populating a cegui list, must keep the references, otherwise segfault
 		self.servers = []
 
-		login = wm.loadWindowLayout("login.layout")
+		login = helpers.loadWindowLayout("login.layout")
 		self.guiSystem.getGUISheet().addChildWindow(login)
 		self.windows.append(login)
 
@@ -288,8 +286,7 @@ class StarmapScene(MenuScene):
 		self.raySceneQuery.setQueryMask(self.SELECTABLE)
 		self.camera.setQueryFlags(self.UNSELECTABLE)
 
-		wm = cegui.WindowManager.getSingleton()
-		system = wm.loadWindowLayout("system.layout")
+		system = helpers.loadWindowLayout("system.layout")
 		self.guiSystem.getGUISheet().addChildWindow(system)
 		self.windows.append(system)
 
@@ -306,6 +303,7 @@ class StarmapScene(MenuScene):
 		self.message_window = gui.MessageWindow(self)
 		self.arguments_window = gui.ArgumentsWindow(self)
 
+		wm = cegui.WindowManager.getSingleton()
 		order_queue = wm.getWindow("Orders/OrderQueue")
 		order_queue.addColumn("Type", 0, cegui.UDim(0.4, 0))
 		order_queue.addColumn("Turns left", 1, cegui.UDim(0.4, 0))
