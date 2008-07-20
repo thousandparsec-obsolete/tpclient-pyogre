@@ -442,24 +442,23 @@ class Starmap(object):
 		self.setIconView(False)
 		self.sceneManager.getSceneNode("CameraTarget").position = camera_node.position
 
-	def center(self, id):
-		"""Center on an object identified by object id"""
-		node = self.nodes[id]
-		pos = node.getPosition()
-		cam_target = self.sceneManager.getSceneNode("CameraTarget")
-		cam_target.position = ogre.Vector3(pos.x, pos.y, cam_target.position.z)
-
-	def center(self):
-		"""Center on the map center"""
-		map_width = self.map_upper_right[0] - self.map_lower_left[0]
-		map_height = self.map_upper_right[1] - self.map_lower_left[1]
-		cam_focus = self.sceneManager.getSceneNode("CameraFocus")
-		cam_focus.resetOrientation()
-		self.h_angle = 0
-		self.v_angle = 0
-		x = self.map_upper_right[0] - map_width / 2
-		y = self.map_upper_right[1]
-		cam_focus.position = ogre.Vector3(x, y, 0)
+	def center(self, id=None):
+		"""Center on an object identified by object id, or center on map if id is None"""
+		if id:
+			node = self.nodes[id]
+			pos = node.getPosition()
+			cam_focus = self.sceneManager.getSceneNode("CameraFocus")
+			cam_focus.position = ogre.Vector3(pos.x, pos.y, 0)
+		else:
+			map_width = self.map_upper_right[0] - self.map_lower_left[0]
+			map_height = self.map_upper_right[1] - self.map_lower_left[1]
+			cam_focus = self.sceneManager.getSceneNode("CameraFocus")
+			cam_focus.resetOrientation()
+			self.h_angle = 0
+			self.v_angle = 0
+			x = self.map_upper_right[0] - map_width / 2
+			y = self.map_upper_right[1]
+			cam_focus.position = ogre.Vector3(x, y, 0)
 
 	def updateZoom(self):
 		camera_node = self.sceneManager.getSceneNode("CameraNode")
