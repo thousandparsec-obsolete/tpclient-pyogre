@@ -814,13 +814,13 @@ class StarmapScene(MenuScene):
 
 	def keyDown(self, keyboard):
 		if keyboard.isKeyDown(ois.KC_LEFT):
-			self.camera.moveRelative(ogre.Vector3(-self.scroll_speed, 0, 0))
+			self.starmap.pan(-self.scroll_speed, 0)
 		if keyboard.isKeyDown(ois.KC_RIGHT):
-			self.camera.moveRelative(ogre.Vector3(self.scroll_speed, 0, 0))
+			self.starmap.pan(self.scroll_speed, 0)
 		if keyboard.isKeyDown(ois.KC_UP):
-			self.camera.moveRelative(ogre.Vector3(0, self.scroll_speed, 0))
+			self.starmap.pan(0, self.scroll_speed)
 		if keyboard.isKeyDown(ois.KC_DOWN):
-			self.camera.moveRelative(ogre.Vector3(0, -self.scroll_speed, 0))
+			self.starmap.pan(0, -self.scroll_speed)
 		if keyboard.isKeyDown(ois.KC_EQUALS):
 			self.starmap.zoom(-self.scroll_speed)
 		if keyboard.isKeyDown(ois.KC_MINUS):
