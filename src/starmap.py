@@ -34,6 +34,10 @@ class Starmap(object):
 		self.h_angle = 0
 		self.v_angle = 0
 
+		self.raySceneQuery = self.sceneManager.createRayQuery(ogre.Ray())
+		self.raySceneQuery.setSortByDistance(True, 10)
+		self.raySceneQuery.setQueryMask(self.parent.SELECTABLE)
+
 		self.flareBillboard = self.sceneManager.createBillboardSet("flare")
 		self.flareBillboard.setMaterialName("Billboards/Flares/flare")
 		self.flareBillboard.setCullIndividually(False)
@@ -52,6 +56,17 @@ class Starmap(object):
 		light.type = ogre.Light.LT_DIRECTIONAL
 		light.diffuseColour = (1, 1, 1)
 		light.direction = (0, 0, -1)
+
+	def queryObjects(self, x, y):
+		camera = self.sceneManager.getCamera("PlayerCam")
+		mouseRay = camera.getCameraToViewportRay(x, y)
+		self.raySceneQuery.setRay(mouseRay)
+		mouseover_id = None
+		for o in self.raySceneQuery.execute():
+			if o.movable:
+				mouseover_id = self.parent.getIDFromMovable(o.movable)
+				break
+		return mouseover_id
 
 	def updateMapExtents(self):
 		for obj in self.nodes.values():

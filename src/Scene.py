@@ -278,10 +278,6 @@ class StarmapScene(MenuScene):
 		self.camera_target_node = self.camera_focus_node.createChildSceneNode("CameraTarget")
 		self.camera_target_node.position = self.camera_node.position
 
-		# FIXME: Shift to starmap
-		self.raySceneQuery = self.sceneManager.createRayQuery(ogre.Ray())
-		self.raySceneQuery.setSortByDistance(True, 10)
-		self.raySceneQuery.setQueryMask(self.SELECTABLE)
 		self.camera.setQueryFlags(self.UNSELECTABLE)
 
 		system = helpers.loadWindowLayout("system.layout")
@@ -573,23 +569,15 @@ class StarmapScene(MenuScene):
 		x = float(state.X.abs) / float(state.width)
 		y = float(state.Y.abs) / float(state.height)
 
-		found = False
 		mouseover_id = None
 		if not self.starmap.show_icon:
-			mouseRay = self.camera.getCameraToViewportRay(x, y)
-			self.raySceneQuery.setRay(mouseRay)
-			for o in self.raySceneQuery.execute():
-				if o.movable:
-					mouseover_id = self.getIDFromMovable(o.movable)
-					found = True
-					break
+			mouseover_id = self.starmap.queryObjects(x, y)
 		else:
 			elements = self.starmap.queryIcons(x, y)
 			if len(elements) > 0:
 				mouseover_id = self.getIDFromIcon(elements[0])
-				found = True
 
-		if not found:
+		if not mouseover_id:
 			self.mouseover = None
 			self.information_overlay.close()
 		elif self.mouseover != mouseover_id:
@@ -610,7 +598,6 @@ class StarmapScene(MenuScene):
 			# The mouse hasn't moved much check if the person is clicking on something.
 			x = float(state.X.abs) / float(state.width)
 			y = float(state.Y.abs) / float(state.height)
-			mouseRay = self.camera.getCameraToViewportRay(x, y)
 
 			icon = self.starmap.isIconClicked(x, y)
 			if icon:
@@ -619,35 +606,15 @@ class StarmapScene(MenuScene):
 					self.selectObjectById(oid)
 					return False
 
-			# FIXME: Shift to starmap
-			self.raySceneQuery.setRay(mouseRay)
+			mouseover_id = self.starmap.queryObjects(x, y)
+			if mouseover_id:
+				if id == ois.MB_Left:
+					return self.selectObjectById(mouseover_id)
 
-			#print "Executing ray scene query", x, y
-
-			for o in self.raySceneQuery.execute():
-				if o.worldFragment:
-					print "WorldFragment:", o.worldFragment.singleIntersection
-
-				if o.movable:
-					# Check there is actually a collision
-					print o.movable.getWorldBoundingSphere()
-					if not mouseRay.intersects(o.movable.getWorldBoundingSphere()):
-						print "False Collision with MovableObject: ", o.movable.getName()
-						continue
-			
-					# We are clicking on something!
-					found = True
-					oid = self.getIDFromMovable(o.movable)
-					
-					if id == ois.MB_Left:
-						print "MovableObject: ", o.movable.getName()
-						return self.selectEntity(o.movable)
-
-					if id == ois.MB_Right:
-						if self.current_object:
-							current_id = self.getIDFromMovable(self.current_object)
-							self.moveTo(current_id, oid)
-
+				if id == ois.MB_Right:
+					if self.current_object:
+						current_id = self.getIDFromMovable(self.current_object)
+						self.moveTo(current_id, oid)
 			return False
 
 	def getCache(self):
