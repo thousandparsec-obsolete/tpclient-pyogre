@@ -1,4 +1,5 @@
 import math
+import random
 
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
@@ -272,6 +273,10 @@ class StarmapScene(MenuScene):
 		self.mouseover_timer = ogre.Timer()
 		self.mouseover = None
 
+		# store as [ListboxTextItem : design_id] pairs
+		self.design_list_items = {}
+		self.current_design_items = []
+
 		self.camera_focus_node = self.rootNode.createChildSceneNode("CameraFocus")
 		self.camera_node = self.camera_focus_node.createChildSceneNode("CameraNode")
 		self.camera_node.attachObject(self.camera)
@@ -288,10 +293,12 @@ class StarmapScene(MenuScene):
 		helpers.bindEvent("Windows/Orders", self, "windowToggle", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Windows/Messages", self, "windowToggle", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Windows/System", self, "windowToggle", cegui.PushButton.EventClicked)
+		helpers.bindEvent("TopBar/Designs", self, "windowToggle", cegui.PushButton.EventClicked)
 		helpers.bindEvent("System/SystemList", self, "systemSelected", cegui.Listbox.EventSelectionChanged)
 		helpers.bindEvent("System/SystemList", self, "systemSelected", cegui.Window.EventMouseDoubleClick)
 		helpers.bindEvent("Windows/EndTurnButton", self, "requestEOT", cegui.PushButton.EventClicked)
-		for window in ['Messages', 'Orders', 'System', 'Information']:
+		helpers.bindEvent("Designs/DesignList", self, "selectDesign", cegui.Listbox.EventSelectionChanged)
+		for window in ['Messages', 'Orders', 'System', 'Information', 'Designs']:
 			helpers.bindEvent(window, self, "closeClicked", cegui.FrameWindow.EventCloseClicked)
 
 		self.message_window = gui.MessageWindow(self)
@@ -302,6 +309,11 @@ class StarmapScene(MenuScene):
 		order_queue.addColumn("Type", 0, cegui.UDim(0.4, 0))
 		order_queue.addColumn("Turns left", 1, cegui.UDim(0.4, 0))
 		order_queue.setSelectionMode(cegui.MultiColumnList.RowSingle)
+
+		current_design = wm.getWindow("Designs/CurrentDesign")
+		current_design.addColumn("#", 0, cegui.UDim(0.3, 0))
+		current_design.addColumn("Component", 1, cegui.UDim(0.5, 0))
+		current_design.setSelectionMode(cegui.MultiColumnList.RowSingle)
 
 		self.orders_menu = overlay.RadialMenu(self.camera)
 		wm.getWindow("Starmap").addChildWindow(self.orders_menu.menu)
@@ -377,6 +389,7 @@ class StarmapScene(MenuScene):
 			helpers.setWidgetText("TopBar/Turn", "Turn %i" % self.objects[0].turn)
 		self.starmap.updateMapExtents()
 		self.starmap.autofit()
+		self.populateDesignsWindow()
 
 	def updateObjectIndex(self, object, subtype_name, subtype_index):
 		"""Finds how many siblings an object has and updates it's index accordingly
@@ -408,6 +421,74 @@ class StarmapScene(MenuScene):
 			else:
 				designs[design.owner] = 1
 		return designs
+
+	def populateDesignsWindow(self):
+		"""Fill the design window with designs"""
+		cache = self.getCache()
+		designs = self.getDesigns(self.getCache())
+		wm = cegui.WindowManager.getSingleton()
+		designlistbox = wm.getWindow("Designs/DesignList")
+		r = random.random
+
+		for design in cache.designs.values():
+			item = cegui.ListboxTextItem(design.name)
+			item.setSelectionBrushImage("SleekSpace", "ClientBrush")
+			item.setSelectionColours(cegui.colour(0.9, 0.9, 0.9))
+			item.setAutoDeleted(False)
+			random.seed(design.owner)
+			item.setTextColours(cegui.colour(r(), r(), r()))
+			self.design_list_items[item] = design.id
+			designlistbox.addItem(item)
+
+	def selectDesign(self, evt):
+		"""Select a design from the design list"""
+		wm = cegui.WindowManager.getSingleton()
+		designlistbox = wm.getWindow("Designs/DesignList")
+		selected = designlistbox.getFirstSelectedItem()
+
+		if selected:
+			current_design = wm.getWindow("Designs/CurrentDesign")
+			current_design.resetList()
+			self.current_design_items = []
+
+			design_id = self.design_list_items[selected]
+			design = self.getCache().designs[design_id]
+			owner = self.getCache().players[design.owner].name
+			helpers.setWidgetText("Designs", "Ship Designs - %s's %s" % (owner, design.name))
+
+			components = self.getCache().components
+			for component in design.components:
+				id = component[0]
+				total = component[1]
+				component_info = components[id]
+				index = current_design.addRow()
+
+				# The number of components
+				item = cegui.ListboxTextItem(str(total))
+				item.setAutoDeleted(False)
+				item.setSelectionBrushImage("SleekSpace", "MultiListSelectionBrush")
+				current_design.setItem(item, 0, index)
+				self.current_design_items.append(item)
+
+				# The name of the component
+				item = cegui.ListboxTextItem(component_info.name)
+				item.setAutoDeleted(False)
+				item.setSelectionBrushImage("SleekSpace", "MultiListSelectionBrush")
+				current_design.setItem(item, 1, index)
+				self.current_design_items.append(item)
+
+			information_string = ""
+			properties = self.getCache().properties
+			for property in design.properties:
+				id = property[0]
+				value = property[1]
+				new_line = properties[id].display_name
+				# TODO: Align values to the right-hand side
+				#new_line = new_line.ljust(100 - len(new_line))
+				new_line += " - "
+				new_line += "%s\n" % value
+				information_string += new_line
+			helpers.setWidgetText("Designs/Information", information_string)
 
 	def recreate(self, cache):
 		"""Update locations of objects
@@ -898,11 +979,14 @@ class StarmapScene(MenuScene):
 
 	def windowToggle(self, evt):
 		"""Toggles visibility of a window"""
-		wm = cegui.WindowManager.getSingleton()
 		# assume buttons and windows have the same name, minus prefix
 		name = evt.window.getName().c_str().split("/")[1]
 		if name != None:
 			helpers.toggleWindow(name)
+
+	def toggleDesignWindow(self, evt):
+		"""Shows the design window, or hides it"""
+		helpers.toggleWindow("Designs")
 
 	def clearGui(self):
 		"""Empty out all GUI textboxes and hide all windows"""
