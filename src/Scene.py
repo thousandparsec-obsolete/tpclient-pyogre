@@ -695,7 +695,7 @@ class StarmapScene(MenuScene):
 				if id == ois.MB_Right:
 					if self.current_object:
 						current_id = self.getIDFromMovable(self.current_object)
-						self.moveTo(current_id, oid)
+						self.moveTo(current_id, mouseover_id)
 			return False
 
 	def getCache(self):

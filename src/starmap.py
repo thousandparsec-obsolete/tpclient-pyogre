@@ -406,7 +406,7 @@ class Starmap(object):
 
 		material = ogre.MaterialManager.getSingleton().create("line%i_material" % self.lines, "default")
 		material.setReceiveShadows(False)
-		material.getTechnique(0).getPass(0).setAmbient(0,1,0)
+		material.getTechnique(0).getPass(0).setSelfIllumination(0, 1, 0)
 
 		manual_object.begin("line%i_material" % self.lines, ogre.RenderOperation.OT_LINE_LIST)
 		manual_object.position(start_node.position)
