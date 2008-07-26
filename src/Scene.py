@@ -280,6 +280,9 @@ class StarmapScene(MenuScene):
 		self.design_list_items = {}
 		self.current_design_items = []
 
+		# store as [ListboxTextItem : order node] pairs
+		self.order_queue_list = []
+
 		self.camera_focus_node = self.rootNode.createChildSceneNode("CameraFocus")
 		self.camera_node = self.camera_focus_node.createChildSceneNode("CameraNode")
 		self.camera_node.attachObject(self.camera)
@@ -301,6 +304,7 @@ class StarmapScene(MenuScene):
 		helpers.bindEvent("System/SystemList", self, "systemSelected", cegui.Window.EventMouseDoubleClick)
 		helpers.bindEvent("Windows/EndTurnButton", self, "requestEOT", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Designs/DesignList", self, "selectDesign", cegui.Listbox.EventSelectionChanged)
+		helpers.bindEvent("Orders/Delete", self, "deleteOrder", cegui.PushButton.EventClicked)
 		for window in ['Messages', 'Orders', 'System', 'Information', 'Designs']:
 			helpers.bindEvent(window, self, "closeClicked", cegui.FrameWindow.EventCloseClicked)
 
@@ -757,6 +761,7 @@ class StarmapScene(MenuScene):
 		order_list.resetList()
 
 		self.order_queue_items = []
+		self.order_queue_list = []
 
 		if focus:
 			# center and zoom in if double-clicked
@@ -773,6 +778,7 @@ class StarmapScene(MenuScene):
 		for o_node in cache.orders[id]:
 			index = order_queue.addRow()
 			order = o_node.CurrentOrder
+			self.order_queue_list.append(o_node)
 			item = cegui.ListboxTextItem(order._name)
 			item.setAutoDeleted(False)
 			item.setSelectionBrushImage("SleekSpace", "MultiListSelectionBrush")
@@ -829,6 +835,7 @@ class StarmapScene(MenuScene):
 		self.information_overlay.open()
 
 	def openOrdersMenu(self):
+		"""Open the radial menu"""
 		if not self.current_object:
 			return
 
@@ -848,6 +855,7 @@ class StarmapScene(MenuScene):
 				self.arguments_window.hide()
 
 	def showOrder(self, evt):
+		"""Show the arguments for a selected order"""
 		index = int(evt.window.name.c_str()[17:])
 		id = self.getIDFromMovable(self.current_object)
 		object = self.objects[id]
@@ -877,10 +885,22 @@ class StarmapScene(MenuScene):
 
 		# remember to close after an order
 
-	def sendOrder(self, id, order, action="create after"):
+	def deleteOrder(self, evt):
+		"""Delete an order in the selected order queue"""
+		id = self.getIDFromMovable(self.current_object)
+		object = self.objects[id]
+		wm = cegui.WindowManager.getSingleton()
+		order_queue = wm.getWindow("Orders/OrderQueue")
+		selected = order_queue.getFirstSelectedItem()
+		index = order_queue.getItemRowIndex(selected)
+		o_node = self.order_queue_list[index]
+		self.sendOrder(id, o_node.CurrentOrder, "remove", o_node)
+
+	def sendOrder(self, id, order, action="create after", node=None):
 		cache = self.getCache()
 		network = self.parent.application.network
-		node = cache.orders[id].first
+		if not node:
+			node = cache.orders[id].first
 		evt = cache.apply("orders", action, id, node, order)
 		self.parent.application.Post(evt, source=self)
 

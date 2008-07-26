@@ -30,6 +30,8 @@ class TestStarmap(Framework.Application):
 		
 		self.guiRenderer = 0
 		self.guiSystem = 0
+		self.application = DummyApplication()
+		self.application.cache = DummyCache()
 
 		self.tocall = []
 
@@ -51,11 +53,7 @@ class TestStarmap(Framework.Application):
 
 		self.starmap = Scene.StarmapScene(self, self.sceneManager)
 		self.changeScene(self.starmap)
-		dummy_cache = DummyCache()
-		self.starmap.create(dummy_cache)
-
-		self.application = DummyApplication()
-		self.application.cache = dummy_cache
+		self.starmap.create(self.application.cache)
 
 		wmgr.getWindow("Windows").hide()
 

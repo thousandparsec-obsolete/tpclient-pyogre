@@ -11,7 +11,7 @@
             <Property Name="Visible" Value="False" />
             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
             <Property Name="TitlebarEnabled" Value="True" />
-            <Property Name="UnifiedAreaRect" Value="{{0.0571317,0},{0.0372844,0},{0.315154,0},{0.633771,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.0581083,0},{0.0372844,0},{0.316131,0},{0.633771,0}}" />
             <Window Type="SleekSpace/MultiColumnList" Name="Orders/OrderQueue" >
                 <Property Name="Font" Value="BlueHighway-10" />
                 <Property Name="InheritsAlpha" Value="False" />
@@ -33,6 +33,20 @@
                 <Property Name="InheritsAlpha" Value="False" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.653886,0},{0.89835,0},{0.941075,0},{0.947686,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Orders/Edit" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Edit" />
+                <Property Name="InheritsAlpha" Value="False" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.34433,0},{0.82464,0},{0.631518,0},{0.873976,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Orders/Delete" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Delete" />
+                <Property Name="InheritsAlpha" Value="False" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.653886,0},{0.82464,0},{0.941075,0},{0.873976,0}}" />
             </Window>
         </Window>
         <Window Type="SleekSpace/FrameWindow" Name="System" >
