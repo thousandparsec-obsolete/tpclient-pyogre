@@ -255,6 +255,7 @@ class StarmapScene(MenuScene):
 	low_fps_threshold = 15
 	mouseover_timeout = 1000
 	camera_zoom_amount = 100
+	doubleclick_timeout = 1000
 
 	def __init__(self, parent, sceneManager):
 		Scene.__init__(self, parent, sceneManager)
@@ -272,6 +273,8 @@ class StarmapScene(MenuScene):
 		self.mouse_position = [0, 0]
 		self.mouseover_timer = ogre.Timer()
 		self.mouseover = None
+		self.doubleclick_timer = ogre.Timer()
+		self.singleclick = False
 
 		# store as [ListboxTextItem : design_id] pairs
 		self.design_list_items = {}
@@ -674,6 +677,17 @@ class StarmapScene(MenuScene):
 			print "timeout - mouse release not processed"
 			return False
 
+		focus = False
+
+		if id == ois.MB_Left:
+			if self.singleclick:
+				if self.doubleclick_timer.getMilliseconds() < self.doubleclick_timeout:
+					focus = True
+				self.singleclick = False
+			else:
+				self.doubleclick_timer.reset()
+				self.singleclick = True
+
 		state = evt.get_state()
 		if self.mouse_delta[0] <= self.tolerance_delta and self.mouse_delta[1] <= self.tolerance_delta:
 			# The mouse hasn't moved much check if the person is clicking on something.
@@ -684,13 +698,13 @@ class StarmapScene(MenuScene):
 			if icon:
 				if id == ois.MB_Left:
 					oid = self.getIDFromIcon(icon)
-					self.selectObjectById(oid)
+					self.selectObjectById(oid, focus)
 					return False
 
 			mouseover_id = self.starmap.queryObjects(x, y)
 			if mouseover_id:
 				if id == ois.MB_Left:
-					return self.selectObjectById(mouseover_id)
+					selected = self.selectObjectById(mouseover_id, focus)
 
 				if id == ois.MB_Right:
 					if self.current_object:
@@ -710,7 +724,7 @@ class StarmapScene(MenuScene):
 		if id != None:
 			self.selectObjectById(id)
 
-	def selectObjectById(self, id):
+	def selectObjectById(self, id, focus=False):
 		"""Selects the object given by id. Returns True if selected."""
 		try:
 			entity = self.sceneManager.getEntity("Object%i" % id)
@@ -743,6 +757,14 @@ class StarmapScene(MenuScene):
 		order_list.resetList()
 
 		self.order_queue_items = []
+
+		if focus:
+			# center and zoom in if double-clicked
+			self.starmap.center(id)
+			target = self.sceneManager.getSceneNode("CameraTarget")
+			position = target.position
+			position.z = 1000
+			target.position = position
 
 		cache = self.getCache()
 		if not cache.orders.has_key(id):
