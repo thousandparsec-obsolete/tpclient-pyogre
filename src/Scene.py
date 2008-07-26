@@ -305,6 +305,7 @@ class StarmapScene(MenuScene):
 		helpers.bindEvent("Windows/EndTurnButton", self, "requestEOT", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Designs/DesignList", self, "selectDesign", cegui.Listbox.EventSelectionChanged)
 		helpers.bindEvent("Orders/Delete", self, "deleteOrder", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Orders/NewOrder", self, "newOrder", cegui.PushButton.EventClicked)
 		for window in ['Messages', 'Orders', 'System', 'Information', 'Designs']:
 			helpers.bindEvent(window, self, "closeClicked", cegui.FrameWindow.EventCloseClicked)
 
@@ -835,7 +836,7 @@ class StarmapScene(MenuScene):
 		self.information_overlay.open()
 
 	def openOrdersMenu(self):
-		"""Open the radial menu"""
+		"""Open the radial menu which shows available orders"""
 		if not self.current_object:
 			return
 
@@ -854,9 +855,25 @@ class StarmapScene(MenuScene):
 			else:
 				self.arguments_window.hide()
 
-	def showOrder(self, evt):
-		"""Show the arguments for a selected order"""
-		index = int(evt.window.name.c_str()[17:])
+	def newOrder(self, evt):
+		"""Callback when user clicks the New button in orders window"""
+		wm = cegui.WindowManager.getSingleton()
+		order_list = wm.getWindow("Orders/OrderList")
+		index = order_list.getItemIndex(order_list.getSelectedItem())
+		self.showOrder(index=index)
+
+	def showOrder(self, evt=None, index=None):
+		"""Show the arguments for a selected order
+
+		evt is used if the method is a callback from CEGUI
+		index is used to indicate which of the available orders to show
+		Either evt or index will be used only, the other parameter can be None
+
+		"""
+		if evt:
+			index = int(evt.window.name.c_str()[17:])
+		if not index:
+			return None
 		id = self.getIDFromMovable(self.current_object)
 		object = self.objects[id]
 		descs = OrderDescs()
