@@ -176,6 +176,7 @@ class ArgumentsWindow(object):
 		self.parent = parent
 		self.id = None
 		self.order_subtype = None
+		self.order_node = None
 
 		self.selection_list = {}
 		self.listbox_queue = {}
@@ -191,6 +192,7 @@ class ArgumentsWindow(object):
 		self.hide()
 
 	def hide(self, evt=None):
+		"""Hide the argument window"""
 		helpers.toggleWindow("Arguments", False)
 		print self.arguments
 		for arg in self.arguments:
@@ -199,15 +201,12 @@ class ArgumentsWindow(object):
 		self.arguments_pending_update = []
 		self.order_subtype = None
 		self.id = None
+		self.order_node = None
 
-	def confirm(self, evt):
-		print "Sending Order"
+	def getArguments(self):
+		"""Return a list containing arguments for this order"""
 		wm = cegui.WindowManager.getSingleton()
-
-		order_description = OrderDescs()[self.order_subtype]
-		print order_description
-		orderargs = [0, self.id, -1, order_description.subtype, 0, []]
-
+		arguments = []
 		for argument in self.arguments:
 			name = argument.name.c_str()
 			base = name[name.rfind('/') + 1:]
@@ -220,7 +219,7 @@ class ArgumentsWindow(object):
 					value.append(long(text))
 			elif base == "Turns":
 				elem_widget = wm.getWindow("%s/Editbox" % name)
-				# FIXME
+				# FIXME using hardcoded values
 				value = [(long(elem_widget.text.c_str()), 100)]
 			elif base == "List":
 				elem_widget = wm.getWindow("%s/Listbox" % name)
@@ -237,7 +236,7 @@ class ArgumentsWindow(object):
 			elif base == "String":
 				elem_widget = wm.getWindow("%s/String" % name)
 				text = elem_widget.text.c_str()
-				# FIXME
+				# FIXME using hardcoded values
 				value = [1024, unicode(text)]
 			elif base == "Objects":
 				elem_widget = wm.getWindow("%s/Object" % name)
@@ -248,19 +247,40 @@ class ArgumentsWindow(object):
 					if not text.isdigit():
 						print "Error with object argument", text
 						self.hide()
-						return
+						return None
 				value = [long(text)]
 			else:
 				self.hide()
-				return
+				return None
+			arguments += value
 
-			orderargs += value
+		return arguments
+
+	def confirm(self, evt):
+		"""Fill an order with arguments and send to the server"""
+		print "Sending Order"
+		wm = cegui.WindowManager.getSingleton()
+
+		order_description = OrderDescs()[self.order_subtype]
+		print order_description
+		orderargs = [0, self.id, -1, order_description.subtype, 0, []]
+
+		orderargs += self.getArguments()
 
 		order = order_description(*orderargs)
-		self.parent.sendOrder(self.id, order, "change")
+		if self.order_node:
+			self.parent.sendOrder(self.id, order, "change", self.order_node)
+			self.order_node = None
+		else:
+			self.parent.sendOrder(self.id, order)
 		self.hide()
 
 	def show(self, name):
+		"""Display the argument window
+
+		name parameter sets the window title.
+
+		"""
 		wm = cegui.WindowManager.getSingleton()
 		args = wm.getWindow("Arguments")
 		args.show()
@@ -268,10 +288,16 @@ class ArgumentsWindow(object):
 		args.text = name
 
 	def setCurrentOrder(self, id, order_subtype):
+		"""Set the order type and object id for sending the order"""
 		self.id = id
 		self.order_subtype = order_subtype
 
 	def addArgument(self, caption, argument):
+		"""Add an argument widget to the argument window
+
+		argument parameter is one of the predefined TP arguments e.g. list, string, etc
+
+		"""
 		wm = cegui.WindowManager.getSingleton()
 		index = len(self.arguments)
 		parent = wm.getWindow("Arguments/Pane")
@@ -298,10 +324,11 @@ class ArgumentsWindow(object):
 			list_widget.setSelectionMode(cegui.MultiColumnList.RowSingle)
 			helpers.bindEvent("Argument%i/%s/Add" % prefix, self, "addItemToList", cegui.PushButton.EventClicked)
 		if argument is ARG_OBJECT:
+			# populate the listbox with universe items
 			list_widget = wm.getWindow("Argument%i/%s/Object" % prefix)
 			for id, obj in self.parent.objects.items():
 				item = cegui.ListboxTextItem("%s (%i)" % (obj.name, id))
-				print item.text
+				#print item.text
 				item.setAutoDeleted(False)
 				if prefix in self.object_list:
 					self.object_list[prefix].append(item)
@@ -309,6 +336,7 @@ class ArgumentsWindow(object):
 					self.object_list[prefix] = [item]
 				list_widget.addItem(item)
 
+		# push the new widget down so it doesn't overlap
 		offset_x = cegui.UDim(0, 0)
 		offset_y = cegui.UDim(0, 0)
 		for arg_widget in self.arguments:
@@ -319,6 +347,7 @@ class ArgumentsWindow(object):
 		return widget
 
 	def addItemToList(self, evt):
+		"""Append or add a new item to an existing list argument widget"""
 		#print "addItemToList", evt.window.name, evt.window.parent.name
 		prefix = evt.window.parent.name.c_str()
 		wm = cegui.WindowManager.getSingleton()
@@ -365,7 +394,69 @@ class ArgumentsWindow(object):
 					listbox.setItem(item, 1, index)
 					queue.append(item)
 
+	def setValues(self, order_node):
+		"""Update argument widgets with values from an order node"""
+		wm = cegui.WindowManager.getSingleton()
+		self.order_node = order_node
+		order = order_node.CurrentOrder
+		order_description = OrderDescs()[order._subtype]
+		widgets = self.arguments[:]
+
+		# assume that argument widgets are created in the same order as order_description
+		for name, argument in order_description.names:
+			widget = widgets[0]
+			del widgets[0]
+			prefix = widget.name.c_str()
+
+			base_name = ARG_GUI_MAP[argument]
+			print base_name, name
+			value = getattr(order, name)
+			print value
+
+			if base_name == "Position":
+				i = 0
+				for elem in ['X', 'Y', 'Z']:
+					wm.getWindow("%s/%s" % (prefix, elem)).setText(str(value[i]))
+					i += 1
+			elif base_name == "Turns":
+				elem_widget = wm.getWindow("%s/Editbox" % prefix)
+				elem_widget.setText(str(value))
+			elif base_name == "List":
+				elem_widget = wm.getWindow("%s/Listbox" % prefix)
+				index = elem_widget.addRow()
+				for tuple in value[1]:
+					selection_name = None
+					selection_id = tuple[0]
+					for selection in value[0]:
+						if selection[0] == selection_id:
+							selection_name = selection[1]
+					if not selection_name:
+						break
+					queue = []
+					self.listbox_queue[selection_name] = queue
+
+					item = cegui.ListboxTextItem(str(tuple[1]))
+					item.setAutoDeleted(False)
+					item.setSelectionBrushImage("SleekSpace", "MultiListSelectionBrush")
+					elem_widget.setItem(item, 0, index)
+					queue.append(item)
+
+					item = cegui.ListboxTextItem(selection_name)
+					item.setAutoDeleted(False)
+					item.setSelectionBrushImage("SleekSpace", "MultiListSelectionBrush")
+					elem_widget.setItem(item, 1, index)
+					queue.append(item)
+			elif base_name == "String":
+				elem_widget = wm.getWindow("%s/String" % prefix)
+				elem_widget.setText(str(value[1]))
+			elif base_name == "Objects":
+				elem_widget = wm.getWindow("%s/Object" % prefix)
+			else:
+				self.hide()
+				return None
+		
 	def update(self):
+		"""Updates any lists in the arguments window upon receiving from the server"""
 		#print "Updating list items"
 		if self.id != None and self.order_subtype != None:
 			order = self.parent.getCache().orders[self.id].last.CurrentOrder

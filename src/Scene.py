@@ -824,12 +824,12 @@ class StarmapScene(MenuScene):
 		Returns True if the window is updated successfully.
 
 		"""
-		print "Updating orders window"
 		wm = cegui.WindowManager.getSingleton()
 		order_queue = wm.getWindow("Orders/OrderQueue")
 		order_list = wm.getWindow("Orders/OrderList")
 		order_queue.resetList()
 		order_list.resetList()
+		order_list.setText("")
 
 		self.order_queue_items = []
 		self.order_queue_list = []
@@ -864,17 +864,19 @@ class StarmapScene(MenuScene):
 				description = descs[order_type]
 				item = cegui.ListboxTextItem(description._name)
 				item.setAutoDeleted(False)
-				self.orders[item] = order_type
+				self.orders[order_type] = item
 				order_list.addItem(item)
 
 		return True
 
-	def newOrder(self, evt):
+	def newOrder(self, evt=None):
 		"""Callback when user clicks the New button in orders window"""
 		wm = cegui.WindowManager.getSingleton()
 		order_list = wm.getWindow("Orders/OrderList")
-		index = order_list.getItemIndex(order_list.getSelectedItem())
-		self.showOrder(index=index)
+		item = order_list.getSelectedItem()
+		if item:
+			index = order_list.getItemIndex(item)
+			self.showOrder(index=index)
 
 	def showOrder(self, evt=None, index=None):
 		"""Show the arguments for a selected order
@@ -886,7 +888,8 @@ class StarmapScene(MenuScene):
 		"""
 		if evt:
 			index = int(evt.window.name.c_str()[17:])
-		if not index:
+		if index == None:
+			print "no valid index"
 			return None
 		id = self.getIDFromMovable(self.current_object)
 		object = self.objects[id]
@@ -906,30 +909,49 @@ class StarmapScene(MenuScene):
 
 		order = order_description(*orderargs)
 
+		# need to send an empty order to get allowable choices e.g. production
 		self.sendOrder(id, order)
 
-		for name, t in order_description.names:
-			self.arguments_window.addArgument(name, t)
+		for name, argument_type in order_description.names:
+			print "adding argument", name, argument_type
+			self.arguments_window.addArgument(name, argument_type)
 
 		self.arguments_window.show(order_description._name)
 		self.arguments_window.setCurrentOrder(id, order_description.subtype)
 
-		# remember to close after an order
+		# remove the empty order
+		self.sendOrder(id, order, "remove")
 
-	def deleteOrder(self, evt):
-		"""Callback which deletes an order in the selected order queue"""
+	def getCurrentOrder(self):
+		"""Return the order node selected in the order queue list"""
 		id = self.getIDFromMovable(self.current_object)
 		object = self.objects[id]
 		wm = cegui.WindowManager.getSingleton()
 		order_queue = wm.getWindow("Orders/OrderQueue")
 		selected = order_queue.getFirstSelectedItem()
-		index = order_queue.getItemRowIndex(selected)
-		o_node = self.order_queue_list[index]
-		self.sendOrder(id, o_node.CurrentOrder, "remove", o_node)
+		if selected:
+			index = order_queue.getItemRowIndex(selected)
+			o_node = self.order_queue_list[index]
+			return o_node
+		else:
+			return None
+
+	def deleteOrder(self, evt):
+		"""Callback which deletes an order in the selected order queue"""
+		o_node = self.getCurrentOrder()
+		if o_node:
+			self.sendOrder(o_node.CurrentOrder.id, o_node.CurrentOrder, "remove", o_node)
 
 	def editOrder(self, evt):
 		"""Callback which allows the user to edit an order"""
-		pass
+		o_node = self.getCurrentOrder()
+		if o_node:
+			order = o_node.CurrentOrder
+			item = self.orders[order._subtype]
+			wm = cegui.WindowManager.getSingleton()
+			index = wm.getWindow("Orders/OrderList").getItemIndex(item)
+			self.showOrder(index=index)
+			self.arguments_window.setValues(o_node)
 
 	def sendOrder(self, id, order, action="create after", node=None):
 		"""Sends an order to the server.
