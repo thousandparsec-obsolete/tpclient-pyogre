@@ -306,6 +306,7 @@ class StarmapScene(MenuScene):
 		helpers.bindEvent("Designs/DesignList", self, "selectDesign", cegui.Listbox.EventSelectionChanged)
 		helpers.bindEvent("Orders/Delete", self, "deleteOrder", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Orders/NewOrder", self, "newOrder", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Orders/Edit", self, "editOrder", cegui.PushButton.EventClicked)
 		for window in ['Messages', 'Orders', 'System', 'Information', 'Designs']:
 			helpers.bindEvent(window, self, "closeClicked", cegui.FrameWindow.EventCloseClicked)
 
@@ -609,6 +610,8 @@ class StarmapScene(MenuScene):
 				self.timeout = False
 			elif self.current_object:
 				self.arguments_window.update()
+				id = self.getIDFromMovable(self.current_object)
+				self.updateOrdersWindow(id)
 		else:
 			self.create(cache)
 
@@ -755,15 +758,6 @@ class StarmapScene(MenuScene):
 		object = self.objects[id]
 		self.setInformationText(object)
 
-		wm = cegui.WindowManager.getSingleton()
-		order_queue = wm.getWindow("Orders/OrderQueue")
-		order_list = wm.getWindow("Orders/OrderList")
-		order_queue.resetList()
-		order_list.resetList()
-
-		self.order_queue_items = []
-		self.order_queue_list = []
-
 		if focus:
 			# center and zoom in if double-clicked
 			self.starmap.center(id)
@@ -772,38 +766,7 @@ class StarmapScene(MenuScene):
 			position.z = 1000
 			target.position = position
 
-		cache = self.getCache()
-		if not cache.orders.has_key(id):
-			return True
-
-		for o_node in cache.orders[id]:
-			index = order_queue.addRow()
-			order = o_node.CurrentOrder
-			self.order_queue_list.append(o_node)
-			item = cegui.ListboxTextItem(order._name)
-			item.setAutoDeleted(False)
-			item.setSelectionBrushImage("SleekSpace", "MultiListSelectionBrush")
-			self.order_queue_items.append(item)
-			order_queue.setItem(item, 0, index) # col id, row id
-
-			item = cegui.ListboxTextItem(str(order.turns))
-			item.setAutoDeleted(False)
-			order_queue.setItem(item, 1, index)
-			self.order_queue_items.append(item)
-
-		if object.order_number > 0 or len(object.order_types) > 0:
-			self.orders = {}
-			descs = OrderDescs()
-			for order_type in object.order_types:
-				if not descs.has_key(order_type):
-					continue
-				description = descs[order_type]
-				item = cegui.ListboxTextItem(description._name)
-				item.setAutoDeleted(False)
-				self.orders[item] = order_type
-				order_list.addItem(item)
-
-		return True
+		return self.updateOrdersWindow(id)
 	
 	def showInformationOverlay(self, id):
 		if self.information_overlay.isVisible():
@@ -855,6 +818,57 @@ class StarmapScene(MenuScene):
 			else:
 				self.arguments_window.hide()
 
+	def updateOrdersWindow(self, id):
+		"""Update the order queue and available orders in the orders window
+
+		Returns True if the window is updated successfully.
+
+		"""
+		print "Updating orders window"
+		wm = cegui.WindowManager.getSingleton()
+		order_queue = wm.getWindow("Orders/OrderQueue")
+		order_list = wm.getWindow("Orders/OrderList")
+		order_queue.resetList()
+		order_list.resetList()
+
+		self.order_queue_items = []
+		self.order_queue_list = []
+
+		cache = self.getCache()
+		if not cache.orders.has_key(id):
+			return False
+
+		object = self.objects[id]
+
+		for o_node in cache.orders[id]:
+			index = order_queue.addRow()
+			order = o_node.CurrentOrder
+			self.order_queue_list.append(o_node)
+			item = cegui.ListboxTextItem(order._name)
+			item.setAutoDeleted(False)
+			item.setSelectionBrushImage("SleekSpace", "MultiListSelectionBrush")
+			self.order_queue_items.append(item)
+			order_queue.setItem(item, 0, index) # col id, row id
+
+			item = cegui.ListboxTextItem(str(order.turns))
+			item.setAutoDeleted(False)
+			order_queue.setItem(item, 1, index)
+			self.order_queue_items.append(item)
+
+		if object.order_number > 0 or len(object.order_types) > 0:
+			self.orders = {}
+			descs = OrderDescs()
+			for order_type in object.order_types:
+				if not descs.has_key(order_type):
+					continue
+				description = descs[order_type]
+				item = cegui.ListboxTextItem(description._name)
+				item.setAutoDeleted(False)
+				self.orders[item] = order_type
+				order_list.addItem(item)
+
+		return True
+
 	def newOrder(self, evt):
 		"""Callback when user clicks the New button in orders window"""
 		wm = cegui.WindowManager.getSingleton()
@@ -903,7 +917,7 @@ class StarmapScene(MenuScene):
 		# remember to close after an order
 
 	def deleteOrder(self, evt):
-		"""Delete an order in the selected order queue"""
+		"""Callback which deletes an order in the selected order queue"""
 		id = self.getIDFromMovable(self.current_object)
 		object = self.objects[id]
 		wm = cegui.WindowManager.getSingleton()
@@ -913,11 +927,20 @@ class StarmapScene(MenuScene):
 		o_node = self.order_queue_list[index]
 		self.sendOrder(id, o_node.CurrentOrder, "remove", o_node)
 
+	def editOrder(self, evt):
+		"""Callback which allows the user to edit an order"""
+		pass
+
 	def sendOrder(self, id, order, action="create after", node=None):
+		"""Sends an order to the server.
+
+		If node is None, append the order to the end of the queue.
+
+		"""
 		cache = self.getCache()
 		network = self.parent.application.network
 		if not node:
-			node = cache.orders[id].first
+			node = cache.orders[id].last
 		evt = cache.apply("orders", action, id, node, order)
 		self.parent.application.Post(evt, source=self)
 
