@@ -3,7 +3,7 @@ import os
 plugins = [
 		"RenderSystem_GL",
 		"Plugin_ParticleFX",
-		"Plugin_BSPSceneManager",
+		#"Plugin_BSPSceneManager",
 		"Plugin_OctreeSceneManager",
 		#"Plugin_CgProgramManager"
 	]
@@ -33,12 +33,14 @@ def posix_config():
 		f.close()
 
 def nt_config():
-	"Checks for Python-Ogre in default drive, else checks current drive"
+	"Searches current directory for OGRE plugins, then the python-ogre directory in C:, and then in the current drive"
 	try:
 		f = open("plugins.cfg", "w")
-		drive = default_windows_drive
-		path = os.path.join(drive, "PythonOgre", "plugins")
 
+		path = os.path.join(".", "plugins")
+		if not os.path.exists(path):
+			drive = default_windows_drive
+			path = os.path.join(drive, "PythonOgre", "plugins")
 		if not os.path.exists(path):
 			drive = os.path.splitdrive(os.getcwd())[0] + "/"
 			path = os.path.join(drive, "PythonOgre", "plugins")
