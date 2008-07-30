@@ -2,3 +2,5 @@
 *.swp
 *.pyc
 *~
+ogre.cfg
+plugins.cfg
