@@ -240,9 +240,9 @@ elif sys.platform == 'win32':
 		}],
 		options={
 			"py2exe": {
-				"dll_excludes": [], 
+				"dll_excludes": [ "MSVCP80.dll", "MSVCR80.dll" ], 
 				"packages": ["tp.netlib", "tp.client"], 
-				"excludes": ["Tkconstants", "Tkinter", "tcl", "pydoc" ],
+				"excludes": ["Tkconstants", "Tkinter", "tcl", "pydoc"],
 				"optimize": 2,
 				"compressed": 0,
 				"dist_dir": dist_folder,
@@ -251,7 +251,7 @@ elif sys.platform == 'win32':
 	)
 
 	# Link the dlls folder for those hard to find dlls
-	sys.path.append(os.path.join("..", "dlls"))
+	#sys.path.append(os.path.join("..", "dlls"))
 
 	# Attempt to find dlls from system directories
 	import ogre.renderer.OGRE as ogre

@@ -1,12 +1,13 @@
 import htmllib
 import formatter
+import random
 
 import ogre.gui.CEGUI as cegui
 from tp.netlib.objects import OrderDescs
 from tp.netlib.objects.constants import *
 
 import helpers
-import Scene
+import scene
 
 ARG_GUI_MAP = {
 		ARG_ABS_COORD:'Position',
@@ -133,9 +134,9 @@ class MessageWindow(object):
 			print reference
 		for reference in refs:
 			i += 1
-			if reference[0] is Scene.OBJECT:
+			if reference[0] is scene.OBJECT:
 				id = reference[1]
-				if id is Scene.UNIVERSE: # universe
+				if id is scene.UNIVERSE: # universe
 					continue
 				if i < self.goto_index + 1:
 					continue
@@ -486,4 +487,305 @@ class ArgumentsWindow(object):
 							self.selection_list[element[1]] = [item]
 
 			self.arguments_pending_update = []
+
+class DesignsWindow(object):
+	def __init__(self, parent):
+		self.parent = parent
+
+		# store as [ListboxTextItem : design_id] pairs
+		self.design_list_items = {}
+		self.current_design_items = []
+		helpers.bindEvent("Designs/DesignList", self, "selectDesign", cegui.Listbox.EventSelectionChanged)
+
+		current_design = cegui.WindowManager.getSingleton().getWindow("Designs/CurrentDesign")
+		current_design.addColumn("#", 0, cegui.UDim(0.3, 0))
+		current_design.addColumn("Component", 1, cegui.UDim(0.5, 0))
+		current_design.setSelectionMode(cegui.MultiColumnList.RowSingle)
+
+	def populateDesignsWindow(self, designs):
+		"""Fill the design window with designs"""
+		wm = cegui.WindowManager.getSingleton()
+		designlistbox = wm.getWindow("Designs/DesignList")
+		r = random.random
+
+		for design in designs.values():
+			item = cegui.ListboxTextItem(design.name)
+			item.setSelectionBrushImage("SleekSpace", "ClientBrush")
+			item.setSelectionColours(cegui.colour(0.9, 0.9, 0.9))
+			item.setAutoDeleted(False)
+			random.seed(design.owner)
+			item.setTextColours(cegui.colour(r(), r(), r()))
+			self.design_list_items[item] = design.id
+			designlistbox.addItem(item)
+
+	def selectDesign(self, evt):
+		"""Select a design from the design list"""
+		wm = cegui.WindowManager.getSingleton()
+		designlistbox = wm.getWindow("Designs/DesignList")
+		selected = designlistbox.getFirstSelectedItem()
+		cache = self.parent.getCache()
+
+		if selected:
+			current_design = wm.getWindow("Designs/CurrentDesign")
+			current_design.resetList()
+			self.current_design_items = []
+
+			design_id = self.design_list_items[selected]
+			design = cache.designs[design_id]
+			owner = cache.players[design.owner].name
+			helpers.setWidgetText("Designs", "Ship Designs - %s's %s" % (owner, design.name))
+
+			components = cache.components
+			for component in design.components:
+				id = component[0]
+				total = component[1]
+				component_info = components[id]
+				index = current_design.addRow()
+
+				# The number of components
+				item = cegui.ListboxTextItem(str(total))
+				item.setAutoDeleted(False)
+				item.setSelectionBrushImage("SleekSpace", "MultiListSelectionBrush")
+				current_design.setItem(item, 0, index)
+				self.current_design_items.append(item)
+
+				# The name of the component
+				item = cegui.ListboxTextItem(component_info.name)
+				item.setAutoDeleted(False)
+				item.setSelectionBrushImage("SleekSpace", "MultiListSelectionBrush")
+				current_design.setItem(item, 1, index)
+				self.current_design_items.append(item)
+
+			information_string = ""
+			properties = cache.properties
+			for property in design.properties:
+				id = property[0]
+				value = property[1]
+				new_line = properties[id].display_name
+				# TODO: Align values to the right-hand side
+				#new_line = new_line.ljust(100 - len(new_line))
+				new_line += " - "
+				new_line += "%s\n" % value
+				information_string += new_line
+			helpers.setWidgetText("Designs/Information", information_string)
+
+class InformationWindow(object):
+	def setText(self, object):
+		"""Sets text inside information window"""
+		text = "modify time: " + object.modify_time.ctime() + "\n"
+		text += "name: " + object.name + "\n"
+		text += "parent: " + str(object.parent) + "\n"
+		text += "position: " + str(object.pos) + "\n"
+		text += "velocity: " + str(object.vel) + "\n"
+		text += "id: " + str(object.id) + "\n"
+		text += "size: " + str(object.size) + "\n"
+		if hasattr(object, "owner"):
+			text += "owner: " + str(object.owner) + "\n"
+		if hasattr(object, "ships"):
+			text += "ships: " + str(object.ships) + "\n"
+		helpers.setWidgetText("Information/Text", text)
+
+class SystemWindow(object):
+	def __init__(self, parent):
+		self.parent = parent
+		self.system_list = []
+		helpers.bindEvent("System/SystemList", self, "systemSelected", cegui.Listbox.EventSelectionChanged)
+		helpers.bindEvent("System/SystemList", self, "systemSelected", cegui.Window.EventMouseDoubleClick)
+
+	def create(self, cache):
+		wm = cegui.WindowManager.getSingleton()
+		listbox = wm.getWindow("System/SystemList")
+
+		for object in cache.objects.values():
+			if object._subtype is scene.STAR:
+				item = cegui.ListboxTextItem(object.name)
+				item.setSelectionBrushImage("SleekSpace", "ClientBrush")
+				item.setSelectionColours(cegui.colour(0.9, 0.9, 0.9))
+				item.setAutoDeleted(False)
+				self.system_list.append(item)
+				listbox.addItem(item)
+
+	def systemSelected(self, evt):
+		"""Updates information box with selected system info"""
+		wm = cegui.WindowManager.getSingleton()
+		listbox = wm.getWindow("System/SystemList")
+		selected = listbox.getFirstSelectedItem()
+		if selected:
+			for obj in self.parent.objects.values():
+				if obj.name == selected.text:
+					if hasattr(evt, "clickCount"):
+						self.parent.selectObjectById(obj.id, True)
+					else:
+						self.parent.selectObjectById(obj.id, False)
+					break
+
+class OrdersWindow(object):
+	defaults = {
+		ARG_ABS_COORD: [0,0,0],
+		ARG_TIME: [0, 0],
+		ARG_OBJECT: [0],
+		ARG_PLAYER: [0,0],
+		ARG_STRING: [0, ""],
+		ARG_LIST: [[], []],
+		ARG_RANGE: [-1, -1, -1, -1],
+	}
+
+	def __init__(self, parent):
+		self.parent = parent
+
+		helpers.bindEvent("Orders/Delete", self, "deleteOrder", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Orders/NewOrder", self, "newOrder", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Orders/Edit", self, "editOrder", cegui.PushButton.EventClicked)
+
+		wm = cegui.WindowManager.getSingleton()
+		order_queue = wm.getWindow("Orders/OrderQueue")
+		order_queue.addColumn("Type", 0, cegui.UDim(0.4, 0))
+		order_queue.addColumn("Turns left", 1, cegui.UDim(0.4, 0))
+		order_queue.setSelectionMode(cegui.MultiColumnList.RowSingle)
+
+		# store as [ListboxTextItem : order node] pairs
+		self.order_queue_list = []
+
+		self.arguments_window = ArgumentsWindow(parent)
+
+	def update(self):
+		self.arguments_window.update()
+
+	def hideArguments(self):
+		self.arguments_window.hide()
+
+	def updateOrdersWindow(self, id, cache):
+		"""Update the order queue and available orders in the orders window
+
+		Returns True if the window is updated successfully.
+
+		"""
+		wm = cegui.WindowManager.getSingleton()
+		order_queue = wm.getWindow("Orders/OrderQueue")
+		order_list = wm.getWindow("Orders/OrderList")
+		order_queue.resetList()
+		order_list.resetList()
+		order_list.setText("")
+
+		self.order_queue_items = []
+		self.order_queue_list = []
+
+		if not cache.orders.has_key(id):
+			return False
+
+		object = cache.objects[id]
+
+		for o_node in cache.orders[id]:
+			index = order_queue.addRow()
+			order = o_node.CurrentOrder
+			self.order_queue_list.append(o_node)
+			item = cegui.ListboxTextItem(order._name)
+			item.setAutoDeleted(False)
+			item.setSelectionBrushImage("SleekSpace", "MultiListSelectionBrush")
+			self.order_queue_items.append(item)
+			order_queue.setItem(item, 0, index) # col id, row id
+
+			item = cegui.ListboxTextItem(str(order.turns))
+			item.setAutoDeleted(False)
+			order_queue.setItem(item, 1, index)
+			self.order_queue_items.append(item)
+
+		if object.order_number > 0 or len(object.order_types) > 0:
+			self.orders = {}
+			descs = OrderDescs()
+			for order_type in object.order_types:
+				if not descs.has_key(order_type):
+					continue
+				description = descs[order_type]
+				item = cegui.ListboxTextItem(description._name)
+				item.setAutoDeleted(False)
+				self.orders[order_type] = item
+				order_list.addItem(item)
+
+		return True
+
+	def newOrder(self, evt=None):
+		"""Callback when user clicks the New button in orders window"""
+		wm = cegui.WindowManager.getSingleton()
+		order_list = wm.getWindow("Orders/OrderList")
+		item = order_list.getSelectedItem()
+		if item:
+			index = order_list.getItemIndex(item)
+			self.showOrder(index=index)
+
+	def showOrder(self, evt=None, index=None):
+		"""Show the arguments for a selected order
+
+		evt is used if the method is a callback from CEGUI
+		index is used to indicate which of the available orders to show
+		Either evt or index will be used only, the other parameter can be None
+
+		"""
+		if evt:
+			index = int(evt.window.name.c_str()[17:])
+		if index == None:
+			print "no valid index"
+			return None
+		id = self.parent.getIDFromMovable(self.parent.current_object)
+		object = self.parent.getCache().objects[id]
+		descs = OrderDescs()
+		orders = []
+		for order_type in object.order_types:
+			if not descs.has_key(order_type):
+				continue
+			orders.append(descs[order_type])
+		order_description = orders[index]
+
+		self.arguments = []
+		orderargs = [0, id, -1, order_description.subtype, 0, []]
+		for name, t in order_description.names:
+			#print name, ARG_NAMEMAP[t]
+			orderargs += self.defaults[t]
+
+		order = order_description(*orderargs)
+
+		# need to send an empty order to get allowable choices e.g. production
+		self.parent.sendOrder(id, order)
+
+		for name, argument_type in order_description.names:
+			print "adding argument", name, argument_type
+			self.arguments_window.addArgument(name, argument_type)
+
+		self.arguments_window.show(order_description._name)
+		self.arguments_window.setCurrentOrder(id, order_description.subtype)
+
+		# remove the empty order
+		self.parent.sendOrder(id, order, "remove")
+
+	def getCurrentOrder(self):
+		"""Return the order node selected in the order queue list"""
+		id = self.parent.getIDFromMovable(self.parent.current_object)
+		cache = self.parent.getCache()
+		object = cache.objects[id]
+		wm = cegui.WindowManager.getSingleton()
+		order_queue = wm.getWindow("Orders/OrderQueue")
+		selected = order_queue.getFirstSelectedItem()
+		if selected:
+			index = order_queue.getItemRowIndex(selected)
+			o_node = self.order_queue_list[index]
+			return o_node
+		else:
+			return None
+
+	def deleteOrder(self, evt):
+		"""Callback which deletes an order in the selected order queue"""
+		o_node = self.getCurrentOrder()
+		if o_node:
+			self.sendOrder(o_node.CurrentOrder.id, o_node.CurrentOrder, "remove", o_node)
+
+	def editOrder(self, evt):
+		"""Callback which allows the user to edit an order"""
+		o_node = self.getCurrentOrder()
+		if o_node:
+			order = o_node.CurrentOrder
+			item = self.orders[order._subtype]
+			wm = cegui.WindowManager.getSingleton()
+			index = wm.getWindow("Orders/OrderList").getItemIndex(item)
+			self.showOrder(index=index)
+			self.arguments_window.setValues(o_node)
 

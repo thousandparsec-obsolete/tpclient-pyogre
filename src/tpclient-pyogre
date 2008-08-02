@@ -12,9 +12,9 @@ from tp.client.threads import NetworkThread, MediaThread, FinderThread
 from tp.client.threads import Application as ClientApplication
 from tp.client.cache import Cache
 
-import Framework
-import Scene
-from LoadingBar import *
+import framework
+import scene
+from loadingbar import *
 
 def traceback():
 	import sys, traceback, string
@@ -23,9 +23,9 @@ def traceback():
 	sys.stderr.flush()
 
 
-class GUI(Framework.Application):
+class GUI(framework.Application):
 	def __init__(self, application):
-		Framework.Application.__init__(self)
+		framework.Application.__init__(self)
 		
 		self.application = application
 		self.guiRenderer = 0
@@ -60,8 +60,8 @@ class GUI(Framework.Application):
 		root = wmgr.createWindow("DefaultWindow", "root")
 		self.guiSystem.setGUISheet(root)
 
-		self.login = Scene.LoginScene(self, self.sceneManager)
-		self.starmap = Scene.StarmapScene(self, self.sceneManager)
+		self.login = scene.LoginScene(self, self.sceneManager)
+		self.starmap = scene.StarmapScene(self, self.sceneManager)
 
 		self.guiSystem.injectMousePosition(0, 0)
 		self.changeScene(self.login)
@@ -75,7 +75,7 @@ class GUI(Framework.Application):
 		self.camera.setFixedYawAxis(True, ogre.Vector3.UNIT_Y)
 
 	def _createFrameListener(self):
-		self.frameListener = Framework.CEGUIFrameListener(self, self.renderWindow, self.camera)
+		self.frameListener = framework.CEGUIFrameListener(self, self.renderWindow, self.camera)
 		self.root.addFrameListener(self.frameListener)
 		self.frameListener.showDebugOverlay(False)
 

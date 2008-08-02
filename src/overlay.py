@@ -297,9 +297,6 @@ class InformationOverlay(object):
 	def isVisible(self):
 		return self.overlay.isVisible()
 
-	def open(self):
-		self.overlay.show()
-
 	def close(self):
 		self.overlay.hide()
 		wm = cegui.WindowManager.getSingleton()
@@ -312,4 +309,33 @@ class InformationOverlay(object):
 		height = self.overlay.height
 		y_offset = (self.offset_scale[1] - height.d_scale, y)
 		self.overlay.position = helpers.makeUVector2((self.offset_scale[0], x), y_offset)
+
+	def show(self, id, cache):
+		if self.isVisible():
+			return
+
+		target = cache.objects[id]
+		self.add(target.name)
+		if hasattr(target, "owner"):
+			if target.owner != -1:
+				owner_name = cache.players[target.owner].name
+				race_name = cache.players[target.owner].race_name
+				self.add("Owner: %s(%s)" % (owner_name, race_name))
+			else:
+				self.add("Neutral")
+		if hasattr(target, "ships"):
+			ships = []
+			total = 0
+			for group in target.ships:
+				design_name = cache.designs[group[0]].name
+				self.add("%s: %i" % (design_name, group[1]))
+		if hasattr(target, "resources"):
+			resources = []
+			for resource in target.resources:
+				resources.append(cache.resources[resource[0]].name_plural)
+			resource_string = ", ".join(resources)
+			self.add("Resources: %s" % resource_string)
+		if hasattr(target, "planets"):
+			self.add("Planets: %i" % target.planets)
+		self.overlay.show()
 

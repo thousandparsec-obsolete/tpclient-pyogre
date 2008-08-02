@@ -6,8 +6,8 @@ import sys
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
 
-import Framework
-import Scene
+import framework
+import scene
 import helpers
 
 class DummyCache(object):
@@ -22,11 +22,11 @@ class DummyCache(object):
 class DummyApplication(object):
 	pass
 
-class TestStarmap(Framework.Application):
+class TestStarmap(framework.Application):
 	"""Display the starmap without using a network connection"""
 
 	def __init__(self):
-		Framework.Application.__init__(self)
+		framework.Application.__init__(self)
 		
 		self.guiRenderer = 0
 		self.guiSystem = 0
@@ -51,7 +51,7 @@ class TestStarmap(Framework.Application):
 		root = wmgr.createWindow("DefaultWindow", "root")
 		self.guiSystem.setGUISheet(root)
 
-		self.starmap = Scene.StarmapScene(self, self.sceneManager)
+		self.starmap = scene.StarmapScene(self, self.sceneManager)
 		self.changeScene(self.starmap)
 		self.starmap.create(self.application.cache)
 
@@ -71,7 +71,7 @@ class TestStarmap(Framework.Application):
 		self.camera.setFixedYawAxis(True, ogre.Vector3.UNIT_Y)
 
 	def _createFrameListener(self):
-		self.frameListener = Framework.CEGUIFrameListener(self, self.renderWindow, self.camera)
+		self.frameListener = framework.CEGUIFrameListener(self, self.renderWindow, self.camera)
 		self.root.addFrameListener(self.frameListener)
 		self.frameListener.showDebugOverlay(True)
 
