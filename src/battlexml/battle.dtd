@@ -1,0 +1,47 @@
+<!ELEMENT battle (sides, rounds) >
+<!ATTLIST battle version CDATA #REQUIRED >
+<!ATTLIST battle media CDATA #REQUIRED >
+
+<!-- Who is in the battle -->
+<!ELEMENT sides (side+) >
+<!ELEMENT side (entity+) >
+<!ATTLIST side id ID #REQUIRED >
+
+<!ELEMENT entity (name, type?, description?, note*) >
+<!ATTLIST entity id ID #REQUIRED >
+<!-- 
+<!ELEMENT model (#PCDATA) >
+<!ELEMENT deathmedia (#PCDATA) >
+<!ELEMENT firing (#PCDATA) >
+<!ELEMENT weapontype (#PCDATA) >
+<!ELEMENT weaponpoints (pixel+)>
+<!ELEMENT pixel (#PCDATA) >
+<!ELEMENT weapon (#PCDATA) >
+<!ELEMENT entity (name, model, deathmedia?, firing?, weaponpoints?, weapontype?, weapon?) > 
+-->
+<!ELEMENT name (#PCDATA) >
+<!ELEMENT type (#PCDATA) >
+<!ELEMENT description (#PCDATA) >
+<!ELEMENT note (#PCDATA) >
+
+<!-- What happened in the battle -->
+<!ELEMENT rounds (round+) >
+<!ELEMENT round (log*, move*, (fire | damage | death)* ) >
+<!ATTLIST round number NMTOKEN #REQUIRED >
+
+<!-- Possible actions which can occur -->
+<!ELEMENT log (#PCDATA) >
+<!ELEMENT move (reference, position) >
+<!ELEMENT fire (source, destination) >
+<!ELEMENT damage (reference, amount) >
+<!ELEMENT death (reference) >
+
+<!-- Arguments for the actions -->
+<!ELEMENT reference EMPTY >
+<!ATTLIST reference ref IDREF #REQUIRED >
+<!ELEMENT position (#PCDATA) >
+<!ELEMENT source EMPTY>
+<!ATTLIST source ref IDREF #REQUIRED >
+<!ELEMENT destination EMPTY>
+<!ATTLIST destination ref IDREF #REQUIRED >
+<!ELEMENT amount (#PCDATA) >
