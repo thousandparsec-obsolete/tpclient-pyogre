@@ -3,6 +3,7 @@ import os
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
 import ogre.io.OIS as ois
+import ogre.sound.OgreAL as ogreal
 
 import console
 from log import *
@@ -51,6 +52,7 @@ class Application(object):
 		self._chooseSceneManager()
 		self._createCamera()
 		self._createViewports()
+		self._createSoundManager()
 
 		ogre.TextureManager.getSingleton().defaultNumMipmaps = 5
 
@@ -107,12 +109,16 @@ class Application(object):
 			self.renderWindow = self.root.initialise(True)
 		return carryOn
 
+	def _createSoundManager(self):
+		"""Creates the sound manager"""
+		self.soundManager = ogreal.SoundManager('Generic Software')
+
 	def _chooseSceneManager(self):
 		"""Chooses a default scene manager"""
 		self.sceneManager = self.root.createSceneManager(ogre.ST_GENERIC, "DefaultSM")
 
 	def _createCamera(self):
-		"""Creates the camera"""		
+		"""Creates the camera"""
 		self.camera = self.sceneManager.createCamera('PlayerCam')
 		self.camera.position = (0, 0, 500)
 		self.camera.lookAt((0, 0, -300))
@@ -372,3 +378,4 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 			return cegui.X1Button
 		else:
 			return cegui.LeftButton
+

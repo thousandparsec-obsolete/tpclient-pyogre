@@ -2,6 +2,7 @@ import math
 import random
 
 import ogre.renderer.OGRE as ogre
+import ogre.sound.OgreAL as ogreal
 
 import overlay
 import settings
@@ -25,6 +26,7 @@ class Starmap(object):
 		self.stars = []
 		self.selection = {}
 		self.icons = {}
+		self.sounds = {}
 		self.show_icon = False
 		self.last_clicked = None
 		self.last_clicked_selection = None
@@ -175,6 +177,8 @@ class Starmap(object):
 		entity = self.sceneManager.getEntity("Object%i" % object.id)
 		entity.setMaterialName("Starmap/Planet/%s" % planet_type)
 
+		return node
+
 	def addFleet(self, object, position, parent, fleet_type=0, query_flag=None):
 		# rotate between 3 ship types
 		meshes = [('scout', 50), ('frigate', 75), ('plowshare', 75)]
@@ -210,6 +214,20 @@ class Starmap(object):
 
 		icon = overlay.IconOverlay(entity_node, object, "Starmap/Icons/Fleets", 20, 20, colour)
 		self.icons[object.id] = icon
+
+		if settings.sound_effects:
+			sm = ogreal.SoundManager.getSingleton()
+			sound_name = "roar_%d" % object.id
+			if sm.hasSound(sound_name):
+				engine_fx = sm.getSound(sound_name)
+			else:
+				engine_fx = sm.createSound(sound_name, "roar.ogg", True)
+				engine_fx.setGain(0.5)
+				engine_fx.setRolloffFactor(5)
+			node.attachObject(engine_fx)
+			self.sounds[object.id] = engine_fx
+
+		return node
 
 	def setFleet(self, object, position, parent):
 		pos = self.calculateRadialPosition(position, 200, 360, parent.fleets, object.index)
@@ -388,6 +406,12 @@ class Starmap(object):
 
 		for icon in self.icons.values():
 			icon.setVisible(visible)
+
+		for sound in self.sounds.values():
+			if visible:
+				sound.stop()
+			else:
+				sound.play()
 
 		self.show_icon = visible
 

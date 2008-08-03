@@ -4,6 +4,7 @@ import random
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
 import ogre.io.OIS as ois
+import ogre.sound.OgreAL as ogreal
 
 from tp.netlib.objects import OrderDescs
 from tp.netlib.objects.constants import *
@@ -145,14 +146,14 @@ class LoginScene(MenuScene):
 		self.guiSystem.getGUISheet().addChildWindow(login)
 		self.windows.append(login)
 
-		helpers.bindEvent("Login/LoginButton", self, "onConnect", cegui.PushButton.EventClicked)
-		helpers.bindEvent("Login/ConfigButton", self, "onConfig", cegui.PushButton.EventClicked)
-		helpers.bindEvent("Login/QuitButton", self, "onQuit", cegui.PushButton.EventClicked)
+		helpers.bindButtonEvent("Login/LoginButton", self, "onConnect")
+		helpers.bindButtonEvent("Login/QuitButton", self, "onQuit")
+		helpers.bindButtonEvent("Login/ConfigButton", self, "onConfig")
 
-		helpers.bindEvent("Config/OK", self, "onConfigSave", cegui.PushButton.EventClicked)
-		helpers.bindEvent("Config/Cancel", self, "onConfigCancel", cegui.PushButton.EventClicked)
+		helpers.bindButtonEvent("Config/OK", self, "onConfigSave")
+		helpers.bindButtonEvent("Config/Cancel", self, "onConfigCancel")
 
-		helpers.bindEvent("Message/OkButton", self, "onMessageOk", cegui.PushButton.EventClicked)
+		helpers.bindButtonEvent("Message/OkButton", self, "onMessageOk")
 
 		helpers.setupRadioButtonGroup(["Config/StarsVisible_Y", "Config/StarsVisible_N"], 1, [1, 0], True)
 
@@ -258,6 +259,7 @@ class StarmapScene(MenuScene):
 		self.remaining_time_timer = ogre.Timer()
 		self.remaining_time = 0
 		self.mouse_position = [0, 0]
+		self.sounds = {}
 		# TODO: Shift to info overlay class
 		self.mouseover_timer = ogre.Timer()
 		self.mouseover = None
@@ -277,12 +279,12 @@ class StarmapScene(MenuScene):
 		self.windows.append(system)
 
 		# TODO: Shift to individual window classes
-		helpers.bindEvent("Windows/Information", self, "windowToggle", cegui.PushButton.EventClicked)
-		helpers.bindEvent("Windows/Orders", self, "windowToggle", cegui.PushButton.EventClicked)
-		helpers.bindEvent("Windows/Messages", self, "windowToggle", cegui.PushButton.EventClicked)
-		helpers.bindEvent("Windows/System", self, "windowToggle", cegui.PushButton.EventClicked)
-		helpers.bindEvent("TopBar/Designs", self, "windowToggle", cegui.PushButton.EventClicked)
-		helpers.bindEvent("Windows/EndTurnButton", self, "requestEOT", cegui.PushButton.EventClicked)
+		helpers.bindButtonEvent("Windows/Information", self, "windowToggle")
+		helpers.bindButtonEvent("Windows/Orders", self, "windowToggle")
+		helpers.bindButtonEvent("Windows/Messages", self, "windowToggle")
+		helpers.bindButtonEvent("Windows/System", self, "windowToggle")
+		helpers.bindButtonEvent("TopBar/Designs", self, "windowToggle")
+		helpers.bindButtonEvent("Windows/EndTurnButton", self, "requestEOT")
 		for window in ['Messages', 'Orders', 'System', 'Information', 'Designs']:
 			helpers.bindEvent(window, self, "closeClicked", cegui.FrameWindow.EventCloseClicked)
 
@@ -299,15 +301,26 @@ class StarmapScene(MenuScene):
 		self.information_overlay = overlay.InformationOverlay()
 		wm.getWindow("Starmap").addChildWindow(self.information_overlay.overlay)
 
+		sm = ogreal.SoundManager.getSingleton()
+		self.camera_node.attachObject(sm.getListener())
+		if settings.music:
+			self.bg_sound = sm.createSound("bg", "ambient.ogg", True)
+			self.bg_sound.setGain(0.5)
+			self.camera_node.attachObject(self.bg_sound)
+
 		self.hide()
 
 	def show(self):
 		Scene.show(self)
 		self.starmap.show()
+		if settings.music:
+			self.bg_sound.play()
 
 	def hide(self):
 		Scene.hide(self)
 		self.starmap.hide()
+		if settings.music:
+			self.bg_sound.stop()
 
 	def create(self, cache):
 		"""Creates list of objects from cache"""

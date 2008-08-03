@@ -1,6 +1,8 @@
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
 
+import sound
+
 def makeUVector2(pair1=(0, 0), pair2=(0, 0)):
 	return cegui.UVector2(cegui.UDim(pair1[0], pair1[1]), cegui.UDim(pair2[0], pair2[1]))
 
@@ -34,6 +36,10 @@ def bindEvent(name, object, method, event):
 	"""Shortcut for binding a CEGUI widget event to a method"""
 	wm = cegui.WindowManager.getSingleton()
 	wm.getWindow(name).subscribeEvent(event, object, method)
+
+def bindButtonEvent(name, object, method):
+	bindEvent(name, object, method, cegui.PushButton.EventClicked)
+	bindEvent(name, sound, "clickSound", cegui.PushButton.EventClicked)
 
 def setWindowProperty(name, property, value):
 	wm = cegui.WindowManager.getSingleton()
