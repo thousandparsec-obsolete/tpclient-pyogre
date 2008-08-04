@@ -63,17 +63,10 @@ Section -Main SEC0000
     File /r .\windows
     File .\LICENSE
     File .\README
-    FileOpen $0 $INSTDIR\run.bat w
-    IfErrors done
-    FileWrite $0 "echo off"
-    FileWriteByte $0 "13"
-    FileWriteByte $0 "10"
-    FileWrite $0 "cd $INSTDIR\bin"
-    FileWriteByte $0 "13"
-    FileWriteByte $0 "10"
-    FileWrite $0 "tpclient-pyogre.exe"
-    FileClose $0
-    done:
+
+	SetOutPath $INSTDIR\bin
+    CreateShortcut "$INSTDIR\$(^Name).lnk" $INSTDIR\bin\tpclient-pyogre.exe
+
     WriteRegStr HKLM "${REGKEY}\Components" Main 1
 SectionEnd
 
@@ -83,7 +76,21 @@ Section -post SEC0001
     WriteUninstaller $INSTDIR\uninstall.exe
     !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
     SetOutPath $SMPROGRAMS\$StartMenuGroup
-    CreateShortcut "$SMPROGRAMS\$StartMenuGroup\$(^Name).lnk" $INSTDIR\start.bat "#INSTDIR\bin\tpclient-pyogre.exe"
+    CreateShortcut "$SMPROGRAMS\$StartMenuGroup\$(^Name).lnk" $INSTDIR\$(^Name).lnk
+
+	FileOpen $0 setup.bat w
+	FileWrite $0 "echo off"
+	FileWriteByte $0 "13"
+	FileWriteByte $0 "10"
+	FileWrite $0 "cd $INSTDIR\bin"
+	FileWriteByte $0 "13"
+	FileWriteByte $0 "10"
+	FileWrite $0 "del ogre.cfg"
+	FileWriteByte $0 "13"
+	FileWriteByte $0 "10"
+	FileWrite $0 "tpclient-pyogre.exe"
+	FileClose $0
+
     CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Uninstall $(^Name).lnk" $INSTDIR\uninstall.exe
     !insertmacro MUI_STARTMENU_WRITE_END
     WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" DisplayName "$(^Name)"
