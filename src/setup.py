@@ -263,6 +263,10 @@ elif sys.platform == 'win32':
 	arguments["data_files"].append(os.path.join(cegui_path, "CEGUIExpatParser.dll"))
 	arguments["data_files"].append(os.path.join(cegui_path, "CEGUIFalagardWRBase.dll"))
 
+	import ogre.sound.OgreAL as ogreal
+	ogreal_path = os.path.dirname(ogreal.__file__)
+	arguments["data_files"].append(os.path.join(ogreal_path, "wrap_oal.dll"))
+
 else:
 	print "You shouldn't be running this (as it's only for Mac or Windows maintainers).."
 	sys.exit()
