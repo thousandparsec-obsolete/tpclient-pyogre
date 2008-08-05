@@ -5,6 +5,7 @@ import requirements
 
 import os
 import sys
+import time
 
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
@@ -34,13 +35,11 @@ class GUI(framework.Application):
 
 		self.tocall = []
 		
-		self.start = self.go
 		self.screen_hidden = True
 
 	def start(self):
 		try:
 			self.go()
-			print "Go finished!"
 		finally:
 			self.application.Exit()
 
@@ -171,6 +170,11 @@ class GUI(framework.Application):
 	def Cleanup(self):
 		self.frameListener.keepRendering = False
 		self.frameListener.destroy()
+		self.application.Exit()
+		self.application.finder.remote.exit()
+
+		while self.application.network.isAlive() or self.application.media.isAlive() or self.application.finder.isAlive():
+			time.sleep(0.1)
 
 	def changeScene(self, scene):
 		"""Function to change to a different scene"""
@@ -235,6 +239,11 @@ class Application(ClientApplication):
 		ClientApplication.__init__(self)
 		self.url = url
 
+if hasattr(sys, "frozen"):
+	# capture stdout and stderr when in .exe mode
+	sys.stdout = open("my_stdout.log", "w")
+	sys.stderr = open("my_stderr.log", "w")
+
 if __name__ == '__main__':
 	try:
 		url = name = passwd = None
@@ -243,6 +252,10 @@ if __name__ == '__main__':
 
 		app = Application(url)
 		app.Run()
-		app.Exit()
 	finally:
 		traceback()
+		import threading
+		while len(threading.enumerate()) != 1:
+			time.sleep(0.1)
+		sys.exit()
+
