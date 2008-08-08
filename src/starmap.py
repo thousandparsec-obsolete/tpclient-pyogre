@@ -215,17 +215,17 @@ class Starmap(object):
 		icon = overlay.IconOverlay(entity_node, object, "Starmap/Icons/Fleets", 20, 20, colour)
 		self.icons[object.id] = icon
 
-		if settings.sound_effects:
-			sm = ogreal.SoundManager.getSingleton()
-			sound_name = "roar_%d" % object.id
-			if sm.hasSound(sound_name):
-				engine_fx = sm.getSound(sound_name)
-			else:
-				engine_fx = sm.createSound(sound_name, "roar.ogg", True)
-				engine_fx.setGain(0.5)
-				engine_fx.setRolloffFactor(5)
-			node.attachObject(engine_fx)
-			self.sounds[object.id] = engine_fx
+		#if settings.sound_effects:
+			#sm = ogreal.SoundManager.getSingleton()
+			#sound_name = "roar_%d" % object.id
+			#if sm.hasSound(sound_name):
+				#engine_fx = sm.getSound(sound_name)
+			#else:
+				#engine_fx = sm.createSound(sound_name, "roar.ogg", True)
+				#engine_fx.setGain(0.5)
+				#engine_fx.setRolloffFactor(5)
+			#node.attachObject(engine_fx)
+			#self.sounds[object.id] = engine_fx
 
 		return node
 

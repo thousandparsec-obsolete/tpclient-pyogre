@@ -67,44 +67,39 @@ if sys.platform.startswith('linux') and "install" in sys.argv:
 
 	# Documentation goes to
 	#########################################################################
-	docpath_temp  = os.path.join(temp,   "share/doc/tpclient-pywx")
-	docpath       = os.path.join(prefix, "share/doc/tpclient-pywx")
+	docpath_temp  = os.path.join(temp,   "share/doc/tpclient-pyogre")
+	docpath       = os.path.join(prefix, "share/doc/tpclient-pyogre")
 	print 'docpath', docpath, "(copying to %s)" % docpath_temp
 
 	makedirs(docpath_temp)
-	docfiles = ['AUTHORS', 'doc/COPYING', 'LICENSE', 'doc/tips.txt']
+	docfiles = ['../LICENSE', '../README']
 	for file in docfiles:
 		shutil.copy2(file, docpath_temp)
 
-	# Locale files
+	# Media files
 	#########################################################################
-	localepath_temp = os.path.join(temp,   "share/locale/%s/LC_MESSAGES/")
-	localepath      = os.path.join(prefix, "share/locale/%s/LC_MESSAGES/")
-	print 'localepath', localepath, "(copying to %s)" % localepath_temp
+	mediapath_temp = os.path.join(temp,   "share/tpclient-pyogre/media")
+	mediapath      = os.path.join(prefix, "share/tpclient-pyogre/media") 
+	print 'mediapath', mediapath, "(copying to %s)" % mediapath_temp
 
-	for dir in os.listdir('locale'):
-		if os.path.isfile(os.path.join('locale', dir)):
-			continue
-		print "Installing language files for %s" % dir
+	if os.path.exists(mediapath_temp):
+		shutil.rmtree(mediapath_temp)
+	shutil.copytree('../media', mediapath_temp)
 
-		llocalepath = localepath_temp % dir
-		makedirs(llocalepath)
-		shutil.copy2(os.path.join('locale', dir, 'tpclient-pywx.mo'), llocalepath)
-
-	# Graphics files
+	# Window layout files
 	#########################################################################
-	graphicspath_temp = os.path.join(temp,   "share/tpclient-pywx/graphics")
-	graphicspath      = os.path.join(prefix, "share/tpclient-pywx/graphics") 
-	print 'graphicspath', graphicspath, "(copying to %s)" % graphicspath_temp
+	windowpath_temp = os.path.join(temp,   "share/tpclient-pyogre/windows")
+	windowpath      = os.path.join(prefix, "share/tpclient-pyogre/windows") 
+	print 'windowpath', windowpath, "(copying to %s)" % windowpath_temp
 
-	if os.path.exists(graphicspath_temp):
-		shutil.rmtree(graphicspath_temp)
-	shutil.copytree('graphics', graphicspath_temp)
+	if os.path.exists(windowpath_temp):
+		shutil.rmtree(windowpath_temp)
+	shutil.copytree('../windows', windowpath_temp)
 
 	# Private python file
 	#########################################################################
-	codepath_temp = os.path.join(temp,   "share/tpclient-pywx")
-	codepath      = os.path.join(prefix, "share/tpclient-pywx")
+	codepath_temp = os.path.join(temp,   "share/tpclient-pyogre/src")
+	codepath      = os.path.join(prefix, "share/tpclient-pyogre/src")
 	print 'librarypath', codepath, "(copying to %s)" % codepath_temp
 
 	try:
@@ -112,7 +107,9 @@ if sys.platform.startswith('linux') and "install" in sys.argv:
 	except OSError:
 		pass
 
-	privatefiles = ['tpclient-pywx', 'version.py', 'requirements.py', 'utils.py', 'windows', 'extra']
+	privatefiles = ['tpclient-pyogre', 'version.py', 'requirements.py', 'ogreconfig.py', 'resources.cfg']
+	privatefiles += ['console.py', 'framework.py', 'gui.py', 'helpers.py', 'loadingbar.py', 'overlay.py',
+			'log.py', 'scene.py', 'settings.py', 'sound.py', 'starmap.py']
 	for file in privatefiles:
 		if os.path.isfile(file):
 			shutil.copy2(file, codepath_temp)
@@ -125,21 +122,17 @@ if sys.platform.startswith('linux') and "install" in sys.argv:
 	# Fix the version path
 	os.system('python version.py --fix > %s' % os.path.join(codepath_temp, 'version.py'))
 
-	# Cleanup some files which shouldn't have been copied...
-	cleanupfiles = ['windows/xrc/generate.sh', 'windows/xrc/tp.pjd', 'windows/xrc/tp.xrc']
-	for file in cleanupfiles:
-		os.unlink(os.path.join(codepath_temp, file))
-
 	# Create the startup script
-	tpin = open(os.path.join('doc', 'tp-pywx-installed'), 'rb').read()
+	tpin = open(os.path.join('..', 'doc', 'tp-pyogre-installed'), 'rb').read()
 	tpin = tpin.replace("$$CODEPATH$$",     codepath)
-	tpin = tpin.replace("$$GRAPHICSPATH$$", graphicspath)
+	tpin = tpin.replace("$$MEDIAPATH$$",     mediapath)
+	tpin = tpin.replace("$$WINDOWPATH$$",     windowpath)
 	tpin = tpin.replace("$$DOCPATH$$",      docpath)
 
-	tpout = open(os.path.join(codepath_temp, 'tp-pywx-installed'), 'wb')
+	tpout = open(os.path.join(codepath_temp, 'tp-pyogre-installed'), 'wb')
 	tpout.write(tpin)
 	tpout.close()
-	os.chmod(os.path.join(codepath_temp, 'tp-pywx-installed'), 0755)
+	os.chmod(os.path.join(codepath_temp, 'tp-pyogre-installed'), 0755)
 
 
 	# Executables
@@ -149,10 +142,10 @@ if sys.platform.startswith('linux') and "install" in sys.argv:
 	print 'binpath', binpath, "(copying to %s)" % binpath_temp
 	makedirs(binpath_temp)
 	
-	binp = os.path.join(binpath_temp, 'tpclient-pywx')
+	binp = os.path.join(binpath_temp, 'tpclient-pyogre')
 	if os.path.exists(binp):
 		os.unlink(binp)
-	os.symlink(os.path.join(codepath, 'tp-pywx-installed'), binp)
+	os.symlink(os.path.join(codepath, 'tp-pyogre-installed'), binp)
 
 	print "Client installed!"
 
