@@ -9,6 +9,7 @@ import settings
 
 class Starmap(object):
 	"""Responsible for handling the display of the starmap"""
+	default_zoom = 4000
 
 	def __init__(self, parent, sceneManager, rootNode):
 		self.parent = parent
@@ -463,7 +464,7 @@ class Starmap(object):
 		self.fleets = []
 		self.stars = []
 
-	def autofit(self):
+	def autofit(self, evt=None):
 		"""Zooms out until all stars are visible"""
 		fit = False
 		self.center()
@@ -479,6 +480,7 @@ class Starmap(object):
 				if not camera.isVisible(obj.position):
 					fit = False
 		self.setIconView(False)
+		settings.max_zoom_out = self.zoom_level
 		self.sceneManager.getSceneNode("CameraTarget").position = camera_node.position
 
 	def center(self, id=None):
@@ -506,10 +508,33 @@ class Starmap(object):
 	def zoom(self, amount):
 		"""Zoom in or out for a set amount. Negative amounts will zoom in."""
 		target = self.sceneManager.getSceneNode("CameraTarget")
-		z = target.position.z
-		if ((z < -settings.max_zoom_out * 1000 or amount < 0) and
-				(z > -settings.min_zoom_in * 1000 or amount > 0)):
-			target.translate(0, 0, amount)
+		current = target.position
+		z = current.z
+		max_zoom = -settings.max_zoom_out * 1000
+		min_zoom = -settings.min_zoom_in * 1000
+		if ((z < max_zoom or amount < 0) and (z > min_zoom or amount > 0)):
+			if (amount > 0) and (z + amount > max_zoom):
+				current.z = max_zoom
+				target.setPosition(current)
+			elif (amount < 0) and (z + amount < min_zoom):
+				current.z = min_zoom
+				target.setPosition(current)
+			else:
+				target.translate(0, 0, amount)
+
+	def zoomIn(self, evt=None):
+		self.zoom(-self.default_zoom)
+		target = self.sceneManager.getSceneNode("CameraTarget")
+		camera = self.sceneManager.getSceneNode("CameraNode")
+		camera.setPosition(target.position)
+		self.updateZoom()
+
+	def zoomOut(self, evt=None):
+		self.zoom(self.default_zoom)
+		target = self.sceneManager.getSceneNode("CameraTarget")
+		camera = self.sceneManager.getSceneNode("CameraNode")
+		camera.setPosition(target.position)
+		self.updateZoom()
 
 	def pan(self, x, y):
 		cam_focus = self.sceneManager.getSceneNode("CameraFocus")

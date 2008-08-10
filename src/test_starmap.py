@@ -44,6 +44,7 @@ class TestStarmap(framework.Application):
 		cegui.Logger.getSingleton().loggingLevel = cegui.Insane
 
 		# Load Cegui Scheme
+		cegui.ImagesetManager.getSingleton().createImageset("thousandparsec.imageset")
 		cegui.SchemeManager.getSingleton().loadScheme("SleekSpace.scheme")
 		self.guiSystem.setDefaultMouseCursor("SleekSpace", "MouseArrow")
 

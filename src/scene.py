@@ -287,6 +287,11 @@ class StarmapScene(MenuScene):
 		helpers.bindButtonEvent("Windows/EndTurnButton", self, "requestEOT")
 		for window in ['Messages', 'Orders', 'System', 'Information', 'Designs']:
 			helpers.bindEvent(window, self, "closeClicked", cegui.FrameWindow.EventCloseClicked)
+		helpers.bindEvent("Navigation/ZoomIn", self.starmap, "zoomIn", cegui.Window.EventMouseButtonDown)
+		helpers.bindEvent("Navigation/ZoomOut", self.starmap, "zoomOut", cegui.Window.EventMouseButtonDown)
+		helpers.bindEvent("Navigation/Deselect", self, "unselect", cegui.Window.EventMouseButtonDown)
+		helpers.bindEvent("Navigation/Center", self, "focus", cegui.Window.EventMouseButtonDown)
+		helpers.bindEvent("Navigation/Autofit", self.starmap, "autofit", cegui.Window.EventMouseButtonDown)
 
 		self.message_window = gui.MessageWindow(self)
 		self.design_window = gui.DesignsWindow(self)
@@ -655,11 +660,11 @@ class StarmapScene(MenuScene):
 		self.info_window.setText(object)
 
 		if focus:
-			self.focus(id)
+			self.focus(id=id)
 
 		return self.orders_window.updateOrdersWindow(id, self.getCache())
 	
-	def unselect(self):
+	def unselect(self, evt=None):
 		"""Unselect the current object, if any"""
 		if self.current_object:
 			self.starmap.clearSelection()
@@ -687,13 +692,20 @@ class StarmapScene(MenuScene):
 			else:
 				self.orders_window.hideArguments()
 
-	def focus(self, id):
+	def focus(self, evt=None, id=None):
 		"""Center and zoom in on the given object"""
+		if id is None:
+			if self.current_object:
+				id = self.getIDFromMovable(self.current_object)
+			else:
+				return
 		self.starmap.center(id)
 		target = self.sceneManager.getSceneNode("CameraTarget")
 		position = target.position
 		position.z = 1000
-		target.position = position
+		target.setPosition(position)
+		self.sceneManager.getSceneNode("CameraNode").setPosition(position)
+		self.starmap.updateZoom()
 
 	def sendOrder(self, id, order, action="create after", node=None):
 		"""Sends an order to the server.

@@ -455,5 +455,52 @@
                 <Property Name="UnifiedAreaRect" Value="{{0.274526,0},{0.545414,0},{0.981161,0},{0.949819,0}}" />
             </Window>
         </Window>
+        <Window Type="SleekSpace/FrameWindow" Name="Navigation" >
+            <Property Name="Alpha" Value="0.5" />
+            <Property Name="SizingEnabled" Value="False" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="TitlebarEnabled" Value="False" />
+            <Property Name="UnifiedAreaRect" Value="{{0.949414,0},{0.670228,0},{0.999219,0},{1.00038,0}}" />
+            <Property Name="CloseButtonEnabled" Value="False" />
+            <Window Type="SleekSpace/StaticImage" Name="Navigation/ZoomIn" >
+                <Property Name="InheritsAlpha" Value="False" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.186275,0},{0.0375719,0},{0.789216,0},{0.148844,0}}" />
+                <Property Name="Image" Value="set:ThousandParsec image:ZoomIn" />
+                <Property Name="ClippedByParent" Value="False" />
+            </Window>
+            <Window Type="SleekSpace/StaticImage" Name="Navigation/ZoomOut" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="InheritsAlpha" Value="False" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.186275,0},{0.187764,0},{0.789216,0},{0.299036,0}}" />
+                <Property Name="Image" Value="set:ThousandParsec image:ZoomOut" />
+                <Property Name="ClippedByParent" Value="False" />
+            </Window>
+            <Window Type="SleekSpace/StaticImage" Name="Navigation/Deselect" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="InheritsAlpha" Value="False" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.186275,0},{0.341811,0},{0.789216,0},{0.453083,0}}" />
+                <Property Name="Image" Value="set:ThousandParsec image:Cancel" />
+                <Property Name="ClippedByParent" Value="False" />
+            </Window>
+            <Window Type="SleekSpace/StaticImage" Name="Navigation/Center" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="InheritsAlpha" Value="False" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.186275,0},{0.495858,0},{0.789215,0},{0.60713,0}}" />
+                <Property Name="Image" Value="set:ThousandParsec image:Center" />
+                <Property Name="ClippedByParent" Value="False" />
+            </Window>
+            <Window Type="SleekSpace/StaticImage" Name="Navigation/Autofit" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="InheritsAlpha" Value="False" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.186275,0},{0.64605,0},{0.789215,0},{0.757322,0}}" />
+                <Property Name="Image" Value="set:ThousandParsec image:Autofit" />
+                <Property Name="ClippedByParent" Value="False" />
+            </Window>
+        </Window>
     </Window>
 </GUILayout>

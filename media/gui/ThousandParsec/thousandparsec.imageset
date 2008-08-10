@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <Imageset Name="ThousandParsec" Imagefile="tp.png" NativeHorzRes="800" NativeVertRes="600" >
-    <Image Name="Logo" XPos="0" YPos="0" Width="65" Height="65" />
+    <Image Name="Logo" XPos="0" YPos="0" Width="64" Height="64" />
+    <Image Name="ZoomIn" XPos="64" YPos="0" Width="16" Height="16" />
+    <Image Name="ZoomOut" XPos="80" YPos="0" Width="16" Height="16" />
+    <Image Name="Cancel" XPos="96" YPos="0" Width="16" Height="16" />
+    <Image Name="Center" XPos="112" YPos="0" Width="16" Height="16" />
+    <Image Name="Autofit" XPos="128" YPos="0" Width="16" Height="16" />
 </Imageset>
