@@ -25,6 +25,8 @@ def traceback():
 
 
 class GUI(framework.Application):
+	window_title = "Thousand Parsec"
+
 	def __init__(self, application):
 		framework.Application.__init__(self)
 		

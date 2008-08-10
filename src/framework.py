@@ -10,6 +10,7 @@ from log import *
 
 class Application(object):
 	"""This class is the base for an Ogre application"""
+	window_title = "Render Window"
 
 	def __init__(self):
 		self.frameListener = None
@@ -106,7 +107,7 @@ class Application(object):
 			carryOn = self.root.showConfigDialog()
 
 		if carryOn:
-			self.renderWindow = self.root.initialise(True)
+			self.renderWindow = self.root.initialise(True, self.window_title)
 		return carryOn
 
 	def _createSoundManager(self):
