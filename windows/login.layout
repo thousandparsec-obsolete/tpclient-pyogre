@@ -8,7 +8,7 @@
         <Window Type="SleekSpace/FrameWindow" Name="Login" >
             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
             <Property Name="TitlebarEnabled" Value="False" />
-            <Property Name="UnifiedAreaRect" Value="{{0.0175,0},{0.0183333,0},{0.517499,0},{0.351666,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.48625,0},{0.651921,0},{0.986249,0},{0.985253,0}}" />
             <Property Name="CloseButtonEnabled" Value="False" />
             <Window Type="SleekSpace/StaticText" Name="Login/ServerText" >
                 <Property Name="Text" Value="Server:" />
@@ -133,6 +133,11 @@
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.744925,0},{0.726666,0},{0.915002,0},{0.89,0}}" />
             </Window>
+        </Window>
+        <Window Type="SleekSpace/StaticImage" Name="Root/Logo" >
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.416797,0},{0.289059,0},{0.613086,0},{0.539059,0}}" />
+            <Property Name="Image" Value="set:ThousandParsec image:Logo" />
         </Window>
     </Window>
 </GUILayout>
