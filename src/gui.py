@@ -777,7 +777,7 @@ class OrdersWindow(object):
 		"""Callback which deletes an order in the selected order queue"""
 		o_node = self.getCurrentOrder()
 		if o_node:
-			self.sendOrder(o_node.CurrentOrder.id, o_node.CurrentOrder, "remove", o_node)
+			self.parent.sendOrder(o_node.CurrentOrder.id, o_node.CurrentOrder, "remove", o_node)
 
 	def editOrder(self, evt):
 		"""Callback which allows the user to edit an order"""
