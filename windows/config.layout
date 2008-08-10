@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout>
+    <Window Type="DefaultWindow" Name="ConfigRoot" >
+        <Property Name="InheritsAlpha" Value="False" />
+        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+        <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+        <Window Type="SleekSpace/FrameWindow" Name="Config" >
+            <Property Name="Font" Value="BlueHighway-10" />
+            <Property Name="Text" Value="Preferences" />
+            <Property Name="Visible" Value="False" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="TitlebarEnabled" Value="True" />
+            <Property Name="UnifiedAreaRect" Value="{{0.27625,0},{0.315,0},{0.750001,0},{0.681667,0}}" />
+            <Window Type="SleekSpace/StaticText" Name="Config/ZoomLabel" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Icon zoom threshold" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0626327,0},{0.14856,0},{0.304966,0},{0.243566,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Slider" Name="Config/Zoom" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="CurrentValue" Value="0" />
+                <Property Name="MaximumValue" Value="1" />
+                <Property Name="ClickStepSize" Value="0.01" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.358289,0},{0.16098,0},{0.608289,0},{0.238141,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Config/OK" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Save" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.679986,0},{0.821428,0},{0.80182,0},{0.911322,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Config/Cancel" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Cancel" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.810463,0},{0.821428,0},{0.932297,0},{0.911322,0}}" />
+            </Window>
+            <Window Type="SleekSpace/RadioButton" Name="Config/StarsVisible_Y" >
+                <Property Name="Text" Value="Yes" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.378629,0},{0.295455,0},{0.541557,0},{0.430079,0}}" />
+            </Window>
+            <Window Type="SleekSpace/RadioButton" Name="Config/StarsVisible_N" >
+                <Property Name="Font" Value="DejaVuSans-10" />
+                <Property Name="Text" Value="No" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.513062,0},{0.295455,0},{0.67599,0},{0.430079,0}}" />
+            </Window>
+            <Window Type="SleekSpace/StaticText" Name="Config/UpdateLabel2" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Stars visible in icon view" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0626327,0},{0.295455,0},{0.358521,0},{0.430079,0}}" />
+            </Window>
+        </Window>
+    </Window>
+</GUILayout>

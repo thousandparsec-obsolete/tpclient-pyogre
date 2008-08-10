@@ -145,17 +145,13 @@ class LoginScene(MenuScene):
 		login = helpers.loadWindowLayout("login.layout")
 		self.guiSystem.getGUISheet().addChildWindow(login)
 		self.windows.append(login)
+		self.login = login
 
 		helpers.bindButtonEvent("Login/LoginButton", self, "onConnect")
 		helpers.bindButtonEvent("Login/QuitButton", self, "onQuit")
 		helpers.bindButtonEvent("Login/ConfigButton", self, "onConfig")
 
-		helpers.bindButtonEvent("Config/OK", self, "onConfigSave")
-		helpers.bindButtonEvent("Config/Cancel", self, "onConfigCancel")
-
 		helpers.bindButtonEvent("Message/OkButton", self, "onMessageOk")
-
-		helpers.setupRadioButtonGroup(["Config/StarsVisible_Y", "Config/StarsVisible_N"], 1, [1, 0], True)
 
 		self.hide()
 
@@ -188,34 +184,12 @@ class LoginScene(MenuScene):
 	def onConfig(self, evt):
 		"""Called when user clicks on the config button"""
 		print "onConfig"
-		helpers.toggleWindow("Config").activate()
-
-		wm = cegui.WindowManager.getSingleton()
-		total_zoom = abs(settings.min_zoom_in) + abs(settings.max_zoom_out)
-		current_zoom = float(settings.icon_zoom_switch_level + abs(settings.max_zoom_out)) / float(total_zoom)
-		wm.getWindow("Config/Zoom").currentValue = current_zoom
+		self.config = gui.ConfigWindow(self, self.login)
 
 	def onQuit(self, evt):
 		"""Called when user clicks on the quit button"""
 		print "onQuit"
 		self.parent.Cleanup()
-
-	def onConfigCancel(self, evt):
-		helpers.toggleWindow("Config", False)
-
-	def onConfigSave(self, evt):
-		wm = cegui.WindowManager.getSingleton()
-		zoom = wm.getWindow("Config/Zoom").currentValue
-		total_zoom = abs(settings.min_zoom_in) + abs(settings.max_zoom_out)
-		settings.icon_zoom_switch_level = int(zoom * total_zoom - abs(settings.max_zoom_out))
-
-		stars_visible = wm.getWindow("Config/StarsVisible_Y").getSelectedButtonInGroup().getID()
-		if stars_visible:
-			settings.show_stars_during_icon_view = True
-		else:
-			settings.show_stars_during_icon_view = False
-
-		helpers.toggleWindow("Config", False)
 
 	def onMessageOk(self, evt):
 		helpers.toggleWindow("Message", False)

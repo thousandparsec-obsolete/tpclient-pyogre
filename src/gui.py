@@ -8,6 +8,7 @@ from tp.netlib.objects.constants import *
 
 import helpers
 import scene
+import settings
 
 ARG_GUI_MAP = {
 		ARG_ABS_COORD:'Position',
@@ -788,4 +789,39 @@ class OrdersWindow(object):
 			index = wm.getWindow("Orders/OrderList").getItemIndex(item)
 			self.showOrder(index=index)
 			self.arguments_window.setValues(o_node)
+
+class ConfigWindow(object):
+	def __init__(self, parent, window):
+		self.parent = parent
+		self.config = helpers.loadWindowLayout("config.layout")
+		window.addChildWindow(self.config)
+		helpers.bindButtonEvent("Config/OK", self, "onConfigSave")
+		helpers.bindButtonEvent("Config/Cancel", self, "onConfigCancel")
+		helpers.setupRadioButtonGroup(["Config/StarsVisible_Y", "Config/StarsVisible_N"], 1, [1, 0], True)
+
+		helpers.toggleWindow("Config").activate()
+		wm = cegui.WindowManager.getSingleton()
+		total_zoom = abs(settings.min_zoom_in) + abs(settings.max_zoom_out)
+		current_zoom = float(settings.icon_zoom_switch_level + abs(settings.max_zoom_out)) / float(total_zoom)
+		wm.getWindow("Config/Zoom").currentValue = current_zoom
+
+	def destroy(self):
+		wm = cegui.WindowManager.getSingleton()
+		wm.destroyWindow(self.config)
+
+	def onConfigCancel(self, evt):
+		self.destroy()
+
+	def onConfigSave(self, evt):
+		wm = cegui.WindowManager.getSingleton()
+		zoom = wm.getWindow("Config/Zoom").currentValue
+		total_zoom = abs(settings.min_zoom_in) + abs(settings.max_zoom_out)
+		settings.icon_zoom_switch_level = int(zoom * total_zoom - abs(settings.max_zoom_out))
+
+		stars_visible = wm.getWindow("Config/StarsVisible_Y").getSelectedButtonInGroup().getID()
+		if stars_visible:
+			settings.show_stars_during_icon_view = True
+		else:
+			settings.show_stars_during_icon_view = False
+		self.destroy()
 
