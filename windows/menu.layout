@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout >
+    <Window Type="DefaultWindow" Name="MenuRoot" >
+        <Property Name="InheritsAlpha" Value="False" />
+        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+        <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+        <Window Type="SleekSpace/FrameWindow" Name="Menu" >
+            <Property Name="SizingEnabled" Value="False" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="TitlebarEnabled" Value="False" />
+            <Property Name="UnifiedAreaRect" Value="{{0.374219,0},{0.305089,0},{0.624219,0},{0.715394,0}}" />
+            <Property Name="CloseButtonEnabled" Value="False" />
+            <Window Type="SleekSpace/Button" Name="Menu/Main" >
+                <Property Name="Text" Value="Exit to main menu" />
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.269531,0},{0.366667,0},{0.746094,0},{0.458527,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Menu/Config" >
+                <Property Name="Text" Value="Configuration" />
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.269531,0},{0.242636,0},{0.746094,0},{0.334496,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Menu/Desktop" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Exit to desktop" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.269531,0},{0.491473,0},{0.746094,0},{0.583334,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Menu/Back" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Return to game" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.269531,0},{0.618993,0},{0.746094,0},{0.710853,0}}" />
+            </Window>
+        </Window>
+    </Window>
+</GUILayout>

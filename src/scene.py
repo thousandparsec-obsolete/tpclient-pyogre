@@ -105,6 +105,10 @@ class Scene(object):
 	def keyDown(self, keyboard):
 		return False
 
+	def quit(self, evt=None):
+		"""Quit the client"""
+		self.parent.Cleanup()
+
 class MenuScene(Scene):
 	"""Menu Scenes all share a common backdrop
 	
@@ -148,7 +152,7 @@ class LoginScene(MenuScene):
 		self.login = login
 
 		helpers.bindButtonEvent("Login/LoginButton", self, "onConnect")
-		helpers.bindButtonEvent("Login/QuitButton", self, "onQuit")
+		helpers.bindButtonEvent("Login/QuitButton", self, "quit")
 		helpers.bindButtonEvent("Login/ConfigButton", self, "onConfig")
 
 		helpers.bindButtonEvent("Message/OkButton", self, "onMessageOk")
@@ -183,13 +187,7 @@ class LoginScene(MenuScene):
 
 	def onConfig(self, evt):
 		"""Called when user clicks on the config button"""
-		print "onConfig"
-		self.config = gui.ConfigWindow(self, self.login)
-
-	def onQuit(self, evt):
-		"""Called when user clicks on the quit button"""
-		print "onQuit"
-		self.parent.Cleanup()
+		self.config = gui.ConfigWindow(self.login)
 
 	def onMessageOk(self, evt):
 		helpers.toggleWindow("Message", False)
@@ -248,16 +246,29 @@ class StarmapScene(MenuScene):
 		self.camera_target_node.position = self.camera_node.position
 		self.camera.setQueryFlags(self.UNSELECTABLE)
 
+		self.createGui()
+
+		sm = ogreal.SoundManager.getSingleton()
+		self.camera_node.attachObject(sm.getListener())
+		if settings.music:
+			self.bg_sound = sm.createSound("bg", "ambient.ogg", True)
+			self.bg_sound.setGain(0.5)
+			self.camera_node.attachObject(self.bg_sound)
+
+		self.hide()
+
+	def createGui(self):
 		system = helpers.loadWindowLayout("system.layout")
 		self.guiSystem.getGUISheet().addChildWindow(system)
-		self.windows.append(system)
+		self.windows = [system]
+		self.system = system
 
-		# TODO: Shift to individual window classes
 		helpers.bindButtonEvent("Windows/Information", self, "windowToggle")
 		helpers.bindButtonEvent("Windows/Orders", self, "windowToggle")
 		helpers.bindButtonEvent("Windows/Messages", self, "windowToggle")
 		helpers.bindButtonEvent("Windows/System", self, "windowToggle")
 		helpers.bindButtonEvent("TopBar/Designs", self, "windowToggle")
+		helpers.bindButtonEvent("TopBar/MenuButton", self, "openMainMenu")
 		helpers.bindButtonEvent("Windows/EndTurnButton", self, "requestEOT")
 		for window in ['Messages', 'Orders', 'System', 'Information', 'Designs']:
 			helpers.bindEvent(window, self, "closeClicked", cegui.FrameWindow.EventCloseClicked)
@@ -279,15 +290,6 @@ class StarmapScene(MenuScene):
 
 		self.information_overlay = overlay.InformationOverlay()
 		wm.getWindow("Starmap").addChildWindow(self.information_overlay.overlay)
-
-		sm = ogreal.SoundManager.getSingleton()
-		self.camera_node.attachObject(sm.getListener())
-		if settings.music:
-			self.bg_sound = sm.createSound("bg", "ambient.ogg", True)
-			self.bg_sound.setGain(0.5)
-			self.camera_node.attachObject(self.bg_sound)
-
-		self.hide()
 
 	def show(self):
 		Scene.show(self)
@@ -720,10 +722,7 @@ class StarmapScene(MenuScene):
 			helpers.pickle_dump(cache.resources, "resource")
 			print "cache dumped"
 		elif evt.key == ois.KC_ESCAPE:
-			self.clearAll()
-			self.created = False
-			self.parent.application.network.connection.disconnect()
-			self.parent.changeScene(self.parent.login)
+			self.returnToMain()
 
 	def keyDown(self, keyboard):
 		if keyboard.isKeyDown(ois.KC_LEFT):
@@ -774,6 +773,17 @@ class StarmapScene(MenuScene):
 					self.starmap.drawLine(source, destination)
 					break
 
+	def returnToMain(self):
+		"""Return to the login screen"""
+		self.clearAll()
+		self.created = False
+		self.parent.application.network.connection.disconnect()
+		self.parent.changeScene(self.parent.login)
+
+	def openMainMenu(self, evt=None):
+		if not cegui.WindowManager.getSingleton().isWindowPresent("MenuRoot"):
+			self.main_menu = gui.MenuWindow(self, self.system)
+
 	def closeClicked(self, evt):
 		"""Called when user clicks on the close button of a window"""
 		evt.window.setVisible(not evt.window.isVisible())
@@ -788,12 +798,8 @@ class StarmapScene(MenuScene):
 	def clearGui(self):
 		"""Empty out all GUI textboxes and hide all windows"""
 		wm = cegui.WindowManager.getSingleton()
-		wm.getWindow("Orders/OrderList").resetList()
-		wm.getWindow("System/SystemList").resetList()
-		wm.getWindow("Messages/Message").setText("")
-		wm.getWindow("Information/Text").setText("")
-		for window in ['Orders', 'System', 'Messages', 'Information']:
-			wm.getWindow(window).hide()
+		wm.destroyWindow(self.system)
+		self.createGui()
 
 	def clearAll(self):
 		"""Clears the entire starmap scene"""

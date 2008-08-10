@@ -791,8 +791,7 @@ class OrdersWindow(object):
 			self.arguments_window.setValues(o_node)
 
 class ConfigWindow(object):
-	def __init__(self, parent, window):
-		self.parent = parent
+	def __init__(self, window):
 		self.config = helpers.loadWindowLayout("config.layout")
 		window.addChildWindow(self.config)
 		helpers.bindButtonEvent("Config/OK", self, "onConfigSave")
@@ -824,4 +823,31 @@ class ConfigWindow(object):
 		else:
 			settings.show_stars_during_icon_view = False
 		self.destroy()
+
+class MenuWindow(object):
+	def __init__(self, parent, window):
+		self.parent = parent
+		self.menu = helpers.loadWindowLayout("menu.layout")
+		window.addChildWindow(self.menu)
+		helpers.bindButtonEvent("Menu/Main", self, "onQuitToMain")
+		helpers.bindButtonEvent("Menu/Desktop", self, "onQuitToDesktop")
+		helpers.bindButtonEvent("Menu/Back", self, "onBack")
+		helpers.bindButtonEvent("Menu/Config", self, "onConfig")
+		helpers.toggleWindow("Menu", True).activate()
+	
+	def destroy(self):
+		wm = cegui.WindowManager.getSingleton()
+		wm.destroyWindow(self.menu)
+
+	def onConfig(self, evt):
+		self.config = ConfigWindow(self.menu)
+
+	def onBack(self, evt):
+		self.destroy()
+
+	def onQuitToDesktop(self, evt):
+		self.parent.quit()
+
+	def onQuitToMain(self, evt):
+		self.parent.returnToMain()
 

@@ -24,6 +24,7 @@ class Starmap(object):
 		self.zoom_level = 0
 		self.planets = []
 		self.fleets = []
+		self.fleet_colours = []
 		self.stars = []
 		self.selection = {}
 		self.icons = {}
@@ -116,10 +117,18 @@ class Starmap(object):
 	def createBackground(self):
 		"""Creates a starry background for the current scene"""
 		if self.bg_particle is None:
-			self.bg_particle = self.sceneManager.createParticleSystem("star_layer1", "Space/Stars/Large")
-		self.bg_particle.keepParticlesInLocalSpace = False
-		particleNode = self.sceneManager.getSceneNode("CameraFocus").createChildSceneNode("StarryBackgroundLayer1")
-		particleNode.attachObject(self.bg_particle)
+			layer_name = "star_layer1"
+			if self.sceneManager.hasParticleSystem(layer_name):
+				self.bg_particle = self.sceneManager.getParticleSystem(layer_name)
+			else:
+				self.bg_particle = self.sceneManager.createParticleSystem(layer_name, "Space/Stars/Large")
+				self.bg_particle.keepParticlesInLocalSpace = False
+		node_name = "StarryBackgroundLayer1"
+		if not self.sceneManager.hasSceneNode(node_name):
+			particleNode = self.sceneManager.getSceneNode("CameraFocus").createChildSceneNode(node_name)
+			particleNode.attachObject(self.bg_particle)
+		else:
+			particleNode = self.sceneManager.getSceneNode(node_name)
 		self.background_nodes.append(particleNode)
 
 	def addStar(self, object, position):
@@ -194,6 +203,7 @@ class Starmap(object):
 		entity_node.roll(ogre.Radian(1.57))
 		target_node = node.createChildSceneNode("Object%i_Target" % object.id, pos)
 
+		# create a copy of the entity material so we can change it's colour
 		owner = object.owner
 		random.seed(owner)
 		entity = self.sceneManager.getEntity("Object%i" % object.id)
@@ -204,6 +214,7 @@ class Starmap(object):
 		material_manager = ogre.MaterialManager.getSingleton()
 		if not material_manager.resourceExists(material_name):
 			material = material.clone(material_name)
+			self.fleet_colours.append(material)
 		else:
 			material = material_manager.getByName(material_name)
 
@@ -453,12 +464,27 @@ class Starmap(object):
 		"""Clears all the object labels"""
 		for ov in self.overlays.values():
 			ov.destroy()
+		for icon in self.icons.values():
+			icon.destroy()
 		self.overlays = {}
+		self.icons = {}
 
 	def clearObjects(self):
+		sm = self.sceneManager
 		for oid in self.nodes:
-			self.sceneManager.destroyEntity("Object%i" % oid)
-		self.rootNode.removeAndDestroyAllChildren()
+			sm.destroyEntity("Object%i" % oid)
+			sm.destroySceneNode("Object%i_Node" % oid)
+			sm.destroySceneNode("Object%i_EntityNode" % oid)
+			if sm.hasSceneNode("Object%i_Target" % oid):
+				sm.destroySceneNode("Object%i_Target" % oid)
+			if sm.hasLight("Object%i_Light" % oid):
+				sm.destroyLight("Object%i_Light" % oid)
+		mm = ogre.MaterialManager.getSingleton()
+		for material in self.fleet_colours:
+			mm.remove(material)
+
+		#self.rootNode.removeAndDestroyAllChildren()
+		self.flareBillboard.clear()
 		self.nodes = {}
 		self.planets = []
 		self.fleets = []

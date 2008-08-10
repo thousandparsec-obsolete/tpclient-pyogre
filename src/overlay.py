@@ -12,6 +12,7 @@ class IconOverlay(object):
 		self.node = node
 		self.original_material = material_name
 		self.highlight = False
+		self.modified_colour = False
 
 		overlayManager = ogre.OverlayManager.getSingleton()
 		panel = overlayManager.createOverlayElement("Panel", "Panel_Icon_%i" % object.id)
@@ -30,6 +31,7 @@ class IconOverlay(object):
 				texture.setColourOperationEx(ogre.LBX_MODULATE_X2, ogre.LBS_MANUAL, ogre.LBS_CURRENT, colour)
 			self.panel.materialName = new_material_name
 			self.original_material = new_material_name
+			self.modified_colour = True
 		else:
 			self.panel.materialName = material_name
 
@@ -49,7 +51,7 @@ class IconOverlay(object):
 			self.panel.materialName = clone_material_name
 		else:
 			self.panel.materialName = self.original_material
-			material_manager.remove(material)
+			material_manager.remove(clone_material_name)
 		self.highlight = highlight
 
 	def setVisible(self, visible):
@@ -79,6 +81,17 @@ class IconOverlay(object):
 		else:
 			if self.overlay.isVisible():
 				self.overlay.hide()
+
+	def destroy(self):
+		"""Destroy and remove this overlay"""
+		overlayManager = ogre.OverlayManager.getSingleton()
+		overlayManager.destroyOverlayElement(self.panel)
+		overlayManager.destroy(self.overlay)
+		mm = ogre.MaterialManager.getSingleton()
+		if self.modified_colour:
+			print "Removing", self.original_material
+			mm.remove(self.original_material)
+		mm.remove("%s_highlight" % self.original_material)
 
 class ObjectOverlay(object):
 	def __init__(self, node, object):
@@ -168,29 +181,41 @@ class ObjectOverlay(object):
 	colour = property(getColour, setColour)
 
 class RadialMenu(object):
+	imageset = "Radial"
+	window_name = "RadialMenu"
+
 	def __init__(self, camera):
 		self.camera = camera
 		self.buttons = []
 
-		image = cegui.ImagesetManager.getSingleton().createImagesetFromImageFile("Radial", "halo2.png")
+		im = cegui.ImagesetManager.getSingleton()
+		if im.isImagesetPresent(self.imageset):
+			image = im.getImageset(self.imageset)
+		else:
+			image = im.createImagesetFromImageFile(self.imageset, "halo2.png")
 
+		# TODO: Import into ThousandParsec imageset
 		wm = cegui.WindowManager.getSingleton()
-		self.menu = wm.createWindow("SleekSpace/StaticImage", "RadialMenu")
+		self.menu = wm.createWindow("SleekSpace/StaticImage", self.window_name)
 		self.menu.size = cegui.UVector2(cegui.UDim(0.23, 0), cegui.UDim(0.3, 0))
 		self.menu.setProperty("Image", "set:Radial image:full_image")
 		self.menu.hide()
 
+	def destroy(self):
+		cegui.ImagesetManager.getSingleton().destroyImageset(self.imageset)
+		cegui.WindowManager.getSingleton().destroyWindow(self.window_name)
+
 	def add(self, caption, parent, handler):
 		wm = cegui.WindowManager.getSingleton()
 		index = len(self.buttons)
-		button = wm.createWindow("SleekSpace/Button", "RadialMenu/Button%i" % index)
+		button = wm.createWindow("SleekSpace/Button", "%s/Button%i" % (self.window_name, index))
 		button.size = cegui.UVector2(cegui.UDim(0.5, 0), cegui.UDim(0.2, 0))
 		button.text = caption
 		button.setProperty("ClippedByParent", "False")
 		self.menu.addChildWindow(button)
 		self.buttons.append(button)
 		self.arrange()
-		helpers.bindEvent("RadialMenu/Button%i" % index, parent, handler, cegui.PushButton.EventClicked)
+		helpers.bindEvent("%s/Button%i" % (self.window_name, index), parent, handler, cegui.PushButton.EventClicked)
 
 	def clear(self):
 		wm = cegui.WindowManager.getSingleton()
