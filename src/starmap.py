@@ -154,9 +154,8 @@ class Starmap(object):
 		label.setColour(ogre.ColourValue(0.7, 0.9, 0.7))
 		self.overlays[object.id] = label
 
-		if not settings.show_stars_during_icon_view:
-			icon = overlay.IconOverlay(entity_node, object, "Starmap/Icons/Stars")
-			self.icons[object.id] = icon
+		icon = overlay.IconOverlay(entity_node, object, "Starmap/Icons/Stars")
+		self.icons[object.id] = icon
 
 		random.seed(object.id)
 		star_type = random.choice(["Orange", "White", "Green"])
@@ -412,12 +411,15 @@ class Starmap(object):
 			self.nodes[fleet].setVisible(not visible)
 		for planet in self.planets:
 			planet.setVisible(not visible)
+		for star in self.stars:
+			star.setVisible(not visible)
+		self.flareBillboard.setVisible(not visible)
 		if not settings.show_stars_during_icon_view:
-			for star in self.stars:
-				star.setVisible(not visible)
 			for bg in self.background_nodes:
 				bg.setVisible(not visible)
-			self.flareBillboard.setVisible(not visible)
+		else:
+			for bg in self.background_nodes:
+				bg.setVisible(True)
 		self.selectionBillboard.setVisible(not visible)
 
 		for icon in self.icons.values():

@@ -792,6 +792,9 @@ class OrdersWindow(object):
 			self.arguments_window.setValues(o_node)
 
 class ConfigWindow(object):
+	max_zoom_speed = 10
+	min_zoom_speed = 1
+
 	def __init__(self, window):
 		self.config = helpers.loadWindowLayout("config.layout")
 		window.addChildWindow(self.config)
@@ -809,11 +812,13 @@ class ConfigWindow(object):
 		helpers.bindEvent("Graphics", self, "onGraphicsCancel", cegui.FrameWindow.EventCloseClicked)
 		helpers.bindButtonEvent("Graphics/Cancel", self, "onGraphicsCancel")
 		helpers.bindButtonEvent("Graphics/OK", self, "onGraphicsSave")
-		#helpers.setupRadioButtonGroup(["Config/StarsVisible_Y", "Config/StarsVisible_N"], 1, [1, 0], True)
 
 		helpers.toggleWindow("Config").activate()
 		wm = cegui.WindowManager.getSingleton()
 		wm.getWindow("Config/Zoom").currentValue = settings.icon_zoom_switch_level
+		wm.getWindow("Config/ZoomSpeed").setMaxValue(self.max_zoom_speed)
+		wm.getWindow("Config/ZoomSpeed").currentValue = settings.zoom_speed - 1
+
 		helpers.toggleWindow("Config", True)
 		helpers.toggleWindow("Sound", False)
 		helpers.toggleWindow("Graphics", False)
@@ -835,6 +840,8 @@ class ConfigWindow(object):
 		wm = cegui.WindowManager.getSingleton()
 		settings.icon_zoom_switch_level = wm.getWindow("Config/Zoom").currentValue
 		settings.show_stars_during_icon_view = wm.getWindow("Config/StarsVisible").isSelected()
+		zoom_speed = wm.getWindow("Config/ZoomSpeed").currentValue
+		settings.zoom_speed = int(zoom_speed) + 1
 		self.destroy()
 
 	def onSound(self, evt):

@@ -13,9 +13,9 @@
             <Property Name="UnifiedAreaRect" Value="{{0.278477,0},{0.140547,0},{0.808478,0},{0.741544,0}}" />
             <Window Type="SleekSpace/StaticText" Name="Config/ZoomLabel" >
                 <Property Name="Font" Value="BlueHighway-10" />
-                <Property Name="Text" Value="Icon zoom threshold" />
+                <Property Name="Text" Value="Distance threshold for icon view" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.0646941,0},{0.0878488,0},{0.404652,0},{0.159146,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0646941,0},{0.0878488,0},{0.435312,0},{0.159146,0}}" />
             </Window>
             <Window Type="SleekSpace/Slider" Name="Config/Zoom" >
                 <Property Name="Font" Value="BlueHighway-10" />
@@ -23,7 +23,7 @@
                 <Property Name="MaximumValue" Value="1" />
                 <Property Name="ClickStepSize" Value="0.01" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.420211,0},{0.0995073,0},{0.670212,0},{0.154985,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.438674,0},{0.0995073,0},{0.688675,0},{0.154985,0}}" />
             </Window>
             <Window Type="SleekSpace/Button" Name="Config/OK" >
                 <Property Name="Font" Value="BlueHighway-10" />
@@ -41,7 +41,7 @@
                 <Property Name="Font" Value="BlueHighway-10" />
                 <Property Name="Text" Value="Stars visible in icon view" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.0632095,0},{0.148618,0},{0.462001,0},{0.274106,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0632095,0},{0.148618,0},{0.462001,0},{0.271989,0}}" />
             </Window>
             <Window Type="SleekSpace/Button" Name="Config/Graphics" >
                 <Property Name="Font" Value="BlueHighway-10" />
@@ -57,7 +57,21 @@
             </Window>
             <Window Type="SleekSpace/Checkbox" Name="Config/StarsVisible" >
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.415089,0},{0.176201,0},{0.665089,0},{0.248403,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.438674,0},{0.176201,0},{0.688674,0},{0.248403,0}}" />
+            </Window>
+            <Window Type="SleekSpace/StaticText" Name="Config/ZoomSpeedLabel" >
+                <Property Name="Text" Value="Zoom Speed" />
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0632095,0},{0.25232,0},{0.313209,0},{0.341434,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Slider" Name="Config/ZoomSpeed" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="CurrentValue" Value="0" />
+                <Property Name="MaximumValue" Value="1" />
+                <Property Name="ClickStepSize" Value="0.01" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.438674,0},{0.272289,0},{0.688675,0},{0.327766,0}}" />
             </Window>
         </Window>
         <Window Type="SleekSpace/FrameWindow" Name="Graphics" >
@@ -92,18 +106,21 @@
             </Window>
             <Window Type="SleekSpace/Combobox" Name="Graphics/Driver" >
                 <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="ReadOnly" Value="True" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.316667,0},{0.118677,0},{0.845201,0},{0.445476,0}}" />
                 <Property Name="MaxEditTextLength" Value="1073741823" />
             </Window>
             <Window Type="SleekSpace/Combobox" Name="Graphics/Resolution" >
                 <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="ReadOnly" Value="True" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.316667,0},{0.205188,0},{0.845201,0},{0.756241,0}}" />
                 <Property Name="MaxEditTextLength" Value="1073741823" />
             </Window>
             <Window Type="SleekSpace/Combobox" Name="Graphics/AA" >
                 <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="ReadOnly" Value="True" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.316667,0},{0.292218,0},{0.67985,0},{0.671241,0}}" />
                 <Property Name="MaxEditTextLength" Value="1073741823" />
@@ -125,8 +142,8 @@
                 <Property Name="UnifiedAreaRect" Value="{{0.791954,0},{0.870185,0},{0.949051,0},{0.931805,0}}" />
             </Window>
             <Window Type="SleekSpace/StaticText" Name="Graphics/WarningLabel" >
-                <Property Name="Text" Value="* Settings take place after restart" />
                 <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="* Settings take place after restart" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.0659164,0},{0.83145,0},{0.50627,0},{0.946283,0}}" />
             </Window>
@@ -161,6 +178,7 @@
             </Window>
             <Window Type="SleekSpace/Combobox" Name="Sound/Driver" >
                 <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="ReadOnly" Value="True" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.237668,0},{0.127033,0},{0.622197,0},{0.377033,0}}" />
                 <Property Name="MaxEditTextLength" Value="1073741823" />

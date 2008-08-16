@@ -257,6 +257,7 @@
                         </Window>
                         <Window Type="SleekSpace/Combobox" Name="Arguments/List/Selection" >
                             <Property Name="Font" Value="BlueHighway-10" />
+							<Property Name="ReadOnly" Value="True" />
                             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                             <Property Name="ClippedByParent" Value="False" />
                             <Property Name="UnifiedAreaRect" Value="{{0.057705,0},{0.756758,0},{0.476577,0},{1.27516,0}}" />
