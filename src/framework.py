@@ -6,6 +6,7 @@ import ogre.io.OIS as ois
 import ogre.sound.OgreAL as ogreal
 
 import console
+import settings
 from log import *
 
 class Application(object):
@@ -45,6 +46,7 @@ class Application(object):
 		"""
 		self._createLogger()
 		self.root = ogre.Root("plugins.cfg", "ogre.cfg")
+		settings.renderers = self.root.getAvailableRenderers()
 
 		self._setUpResources()
 		if not self._configure():
@@ -108,11 +110,33 @@ class Application(object):
 
 		if carryOn:
 			self.renderWindow = self.root.initialise(True, self.window_title)
+			settings.render_window = self.renderWindow
+			settings.render_system = self.root.getRenderSystem()
 		return carryOn
 
 	def _createSoundManager(self):
 		"""Creates the sound manager"""
-		self.soundManager = ogreal.SoundManager('Generic Software')
+		settings.sound_devices = ogreal.SoundManager.getDeviceList()
+
+		import os.path
+		if os.path.exists("sound.cfg"):
+			config = ogre.ConfigFile()
+			config.loadDirect("sound.cfg")
+			music = config.getSetting("Music")
+			if music == "Yes":
+				settings.music = True
+			else:
+				settings.music = False
+			
+			sound = config.getSetting("Sound")
+			if sound == "Yes":
+				settings.sound_effects = True
+			else:
+				settings.sound_effects = False
+			settings.current_sound_device = config.getSetting("Device")
+		else:
+			settings.current_sound_device = "Generic Software"
+		self.soundManager = ogreal.SoundManager(settings.current_sound_device)
 
 	def _chooseSceneManager(self):
 		"""Chooses a default scene manager"""
