@@ -11,5 +11,6 @@ def clickSound(evt=None):
 			click_fx = sm.getSound("click")
 		else:
 			click_fx = sm.createSound("click", "click.ogg", False)
+		click_fx.setPosition(sm.getListener().getPosition())
 		click_fx.play()
 

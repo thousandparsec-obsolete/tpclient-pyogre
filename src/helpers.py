@@ -31,6 +31,7 @@ def setWidgetText(name, text):
 	"""
 	wm = cegui.WindowManager.getSingleton()
 	wm.getWindow(name).setText(text)
+	return wm.getWindow(name)
 
 def bindEvent(name, object, method, event):
 	"""Shortcut for binding a CEGUI widget event to a method"""

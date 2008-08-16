@@ -722,7 +722,7 @@ class StarmapScene(MenuScene):
 			helpers.pickle_dump(cache.resources, "resource")
 			print "cache dumped"
 		elif evt.key == ois.KC_ESCAPE:
-			self.returnToMain()
+			self.openMainMenu()
 
 	def keyDown(self, keyboard):
 		if keyboard.isKeyDown(ois.KC_LEFT):
