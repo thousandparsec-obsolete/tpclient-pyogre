@@ -800,6 +800,7 @@ class ConfigWindow(object):
 		helpers.bindButtonEvent("Config/Sound", self, "onSound")
 		helpers.bindButtonEvent("Config/Graphics", self, "onGraphics")
 		helpers.bindEvent("Config", self, "onConfigCancel", cegui.FrameWindow.EventCloseClicked)
+		helpers.bindEvent("Config/Zoom", self, "onZoomChange", cegui.Slider.EventValueChanged)
 
 		helpers.bindEvent("Sound", self, "onSoundCancel", cegui.FrameWindow.EventCloseClicked)
 		helpers.bindButtonEvent("Sound/Cancel", self, "onSoundCancel")
@@ -812,9 +813,7 @@ class ConfigWindow(object):
 
 		helpers.toggleWindow("Config").activate()
 		wm = cegui.WindowManager.getSingleton()
-		total_zoom = abs(settings.min_zoom_in) + abs(settings.max_zoom_out)
-		current_zoom = float(settings.icon_zoom_switch_level + abs(settings.max_zoom_out)) / float(total_zoom)
-		wm.getWindow("Config/Zoom").currentValue = current_zoom
+		wm.getWindow("Config/Zoom").currentValue = settings.icon_zoom_switch_level
 		helpers.toggleWindow("Config", True)
 		helpers.toggleWindow("Sound", False)
 		helpers.toggleWindow("Graphics", False)
@@ -823,6 +822,10 @@ class ConfigWindow(object):
 		wm = cegui.WindowManager.getSingleton()
 		wm.destroyWindow(self.config)
 
+	def onZoomChange(self, evt):
+		wm = cegui.WindowManager.getSingleton()
+		settings.icon_zoom_switch_level = wm.getWindow("Config/Zoom").currentValue
+
 	def onConfigCancel(self, evt):
 		self.cleanupGraphics()
 		self.cleanupSound()
@@ -830,9 +833,7 @@ class ConfigWindow(object):
 
 	def onConfigSave(self, evt):
 		wm = cegui.WindowManager.getSingleton()
-		zoom = wm.getWindow("Config/Zoom").currentValue
-		total_zoom = abs(settings.min_zoom_in) + abs(settings.max_zoom_out)
-		settings.icon_zoom_switch_level = int(zoom * total_zoom - abs(settings.max_zoom_out))
+		settings.icon_zoom_switch_level = wm.getWindow("Config/Zoom").currentValue
 		settings.show_stars_during_icon_view = wm.getWindow("Config/StarsVisible").isSelected()
 		self.destroy()
 

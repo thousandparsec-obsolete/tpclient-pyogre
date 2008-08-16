@@ -10,6 +10,9 @@ import settings
 class Starmap(object):
 	"""Responsible for handling the display of the starmap"""
 	default_zoom = 4000
+	icon_switch_level = -10
+	max_zoom_out = -20
+	min_zoom_in = -1
 
 	def __init__(self, parent, sceneManager, rootNode):
 		self.parent = parent
@@ -364,7 +367,8 @@ class Starmap(object):
 		camera = self.sceneManager.getCamera("PlayerCam")
 		self.parent.parent.renderWindow.debugText = "Z:%d" % self.zoom_level
 
-		if self.zoom_level < settings.icon_zoom_switch_level:
+		self.icon_switch_level = (abs(self.max_zoom_out) - abs(self.min_zoom_in)) * -settings.icon_zoom_switch_level
+		if self.zoom_level < self.icon_switch_level:
 			if not self.show_icon:
 				self.setIconView(True)
 		else:
@@ -506,7 +510,7 @@ class Starmap(object):
 				if not camera.isVisible(obj.position):
 					fit = False
 		self.setIconView(False)
-		settings.max_zoom_out = self.zoom_level
+		self.max_zoom_out = self.zoom_level
 		self.sceneManager.getSceneNode("CameraTarget").position = camera_node.position
 
 	def center(self, id=None):
@@ -536,8 +540,8 @@ class Starmap(object):
 		target = self.sceneManager.getSceneNode("CameraTarget")
 		current = target.position
 		z = current.z
-		max_zoom = -settings.max_zoom_out * 1000
-		min_zoom = -settings.min_zoom_in * 1000
+		max_zoom = -self.max_zoom_out * 1000
+		min_zoom = -self.min_zoom_in * 1000
 		if ((z < max_zoom or amount < 0) and (z > min_zoom or amount > 0)):
 			if (amount > 0) and (z + amount > max_zoom):
 				current.z = max_zoom

@@ -1,6 +1,4 @@
-icon_zoom_switch_level = -10
-max_zoom_out = -20
-min_zoom_in = -1
+icon_zoom_switch_level = 0.5
 show_stars_during_icon_view = False
 sound_effects = True
 music = True
