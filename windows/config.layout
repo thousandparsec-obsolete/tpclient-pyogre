@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<GUILayout>
+<GUILayout >
     <Window Type="DefaultWindow" Name="ConfigRoot" >
         <Property Name="InheritsAlpha" Value="False" />
         <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
@@ -8,15 +8,14 @@
         <Window Type="SleekSpace/FrameWindow" Name="Config" >
             <Property Name="Font" Value="BlueHighway-10" />
             <Property Name="Text" Value="Preferences" />
-            <Property Name="Visible" Value="False" />
             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
             <Property Name="TitlebarEnabled" Value="True" />
-            <Property Name="UnifiedAreaRect" Value="{{0.27625,0},{0.315,0},{0.750001,0},{0.681667,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.278477,0},{0.140547,0},{0.808478,0},{0.741544,0}}" />
             <Window Type="SleekSpace/StaticText" Name="Config/ZoomLabel" >
                 <Property Name="Font" Value="BlueHighway-10" />
                 <Property Name="Text" Value="Icon zoom threshold" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.0626327,0},{0.14856,0},{0.304966,0},{0.243566,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0646941,0},{0.0878488,0},{0.404652,0},{0.159146,0}}" />
             </Window>
             <Window Type="SleekSpace/Slider" Name="Config/Zoom" >
                 <Property Name="Font" Value="BlueHighway-10" />
@@ -24,36 +23,170 @@
                 <Property Name="MaximumValue" Value="1" />
                 <Property Name="ClickStepSize" Value="0.01" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.358289,0},{0.16098,0},{0.608289,0},{0.238141,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.420211,0},{0.0995073,0},{0.670212,0},{0.154985,0}}" />
             </Window>
             <Window Type="SleekSpace/Button" Name="Config/OK" >
                 <Property Name="Font" Value="BlueHighway-10" />
                 <Property Name="Text" Value="Save" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.679986,0},{0.821428,0},{0.80182,0},{0.911322,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.623753,0},{0.888334,0},{0.787803,0},{0.950112,0}}" />
             </Window>
             <Window Type="SleekSpace/Button" Name="Config/Cancel" >
                 <Property Name="Font" Value="BlueHighway-10" />
                 <Property Name="Text" Value="Cancel" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.810463,0},{0.821428,0},{0.932297,0},{0.911322,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.780615,0},{0.888334,0},{0.944665,0},{0.950112,0}}" />
             </Window>
-            <Window Type="SleekSpace/RadioButton" Name="Config/StarsVisible_Y" >
-                <Property Name="Text" Value="Yes" />
-                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.378629,0},{0.295455,0},{0.541557,0},{0.430079,0}}" />
-            </Window>
-            <Window Type="SleekSpace/RadioButton" Name="Config/StarsVisible_N" >
-                <Property Name="Font" Value="DejaVuSans-10" />
-                <Property Name="Text" Value="No" />
-                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.513062,0},{0.295455,0},{0.67599,0},{0.430079,0}}" />
-            </Window>
-            <Window Type="SleekSpace/StaticText" Name="Config/UpdateLabel2" >
+            <Window Type="SleekSpace/StaticText" Name="Config/StarsVisibleLabel" >
                 <Property Name="Font" Value="BlueHighway-10" />
                 <Property Name="Text" Value="Stars visible in icon view" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.0626327,0},{0.295455,0},{0.358521,0},{0.430079,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0632095,0},{0.148618,0},{0.462001,0},{0.274106,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Config/Graphics" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Graphics..." />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0392653,0},{0.859432,0},{0.289265,0},{0.946813,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Config/Sound" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Sound..." />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.299522,0},{0.859432,0},{0.549522,0},{0.946813,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Checkbox" Name="Config/StarsVisible" >
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.415089,0},{0.176201,0},{0.665089,0},{0.248403,0}}" />
+            </Window>
+        </Window>
+        <Window Type="SleekSpace/FrameWindow" Name="Graphics" >
+            <Property Name="Font" Value="BlueHighway-10" />
+            <Property Name="Text" Value="Graphics Options" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="TitlebarEnabled" Value="True" />
+            <Property Name="UnifiedAreaRect" Value="{{0.119532,0},{0.202851,0},{0.605469,0},{0.745392,0}}" />
+            <Window Type="SleekSpace/StaticText" Name="Graphics/DriverLabel" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Driver *" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0899122,0},{0.108301,0},{0.250615,0},{0.174125,0}}" />
+            </Window>
+            <Window Type="SleekSpace/StaticText" Name="Graphics/ResLabel" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Resolution *" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0899122,0},{0.197406,0},{0.29886,0},{0.268418,0}}" />
+            </Window>
+            <Window Type="SleekSpace/StaticText" Name="Graphics/AALabel" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Anti-aliasing *" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0899122,0},{0.281842,0},{0.325176,0},{0.358041,0}}" />
+            </Window>
+            <Window Type="SleekSpace/StaticText" Name="Graphics/FullscreenLabel" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Full-screen" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0899122,0},{0.379248,0},{0.322983,0},{0.442477,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Combobox" Name="Graphics/Driver" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.316667,0},{0.118677,0},{0.845201,0},{0.445476,0}}" />
+                <Property Name="MaxEditTextLength" Value="1073741823" />
+            </Window>
+            <Window Type="SleekSpace/Combobox" Name="Graphics/Resolution" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.316667,0},{0.205188,0},{0.845201,0},{0.756241,0}}" />
+                <Property Name="MaxEditTextLength" Value="1073741823" />
+            </Window>
+            <Window Type="SleekSpace/Combobox" Name="Graphics/AA" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.316667,0},{0.292218,0},{0.67985,0},{0.671241,0}}" />
+                <Property Name="MaxEditTextLength" Value="1073741823" />
+            </Window>
+            <Window Type="SleekSpace/Checkbox" Name="Graphics/Fullscreen" >
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.316667,0},{0.368872,0},{0.566667,0},{0.439883,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Graphics/OK" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Save" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.63902,0},{0.870185,0},{0.796117,0},{0.931805,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Graphics/Cancel" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Cancel" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.791954,0},{0.870185,0},{0.949051,0},{0.931805,0}}" />
+            </Window>
+            <Window Type="SleekSpace/StaticText" Name="Graphics/WarningLabel" >
+                <Property Name="Text" Value="* Settings take place after restart" />
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0659164,0},{0.83145,0},{0.50627,0},{0.946283,0}}" />
+            </Window>
+        </Window>
+        <Window Type="SleekSpace/FrameWindow" Name="Sound" >
+            <Property Name="Font" Value="BlueHighway-10" />
+            <Property Name="Text" Value="Sound Options" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="TitlebarEnabled" Value="True" />
+            <Property Name="UnifiedAreaRect" Value="{{0.386914,0},{0.384759,0},{0.841211,0},{0.888959,0}}" />
+            <Window Type="SleekSpace/StaticText" Name="Sound/DriverLabel" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Driver *" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.065023,0},{0.109511,0},{0.232063,0},{0.181789,0}}" />
+            </Window>
+            <Window Type="SleekSpace/StaticText" Name="Sound/MusicLabel" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Music" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.065023,0},{0.209636,0},{0.232063,0},{0.281914,0}}" />
+            </Window>
+            <Window Type="SleekSpace/StaticText" Name="Sound/SoundLabel" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Sound" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.065023,0},{0.309762,0},{0.232063,0},{0.38204,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Checkbox" Name="Sound/Music" >
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.240419,0},{0.210535,0},{0.322258,0},{0.285316,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Combobox" Name="Sound/Driver" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.237668,0},{0.127033,0},{0.622197,0},{0.377033,0}}" />
+                <Property Name="MaxEditTextLength" Value="1073741823" />
+            </Window>
+            <Window Type="SleekSpace/Checkbox" Name="Sound/Sound" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.240419,0},{0.305654,0},{0.322258,0},{0.380435,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Sound/OK" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Save" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.620409,0},{0.875606,0},{0.785293,0},{0.939363,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Sound/Cancel" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Cancel" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.782024,0},{0.875606,0},{0.946907,0},{0.939363,0}}" />
+            </Window>
+            <Window Type="SleekSpace/StaticText" Name="Sound/WarningLabel" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="* Settings take place after restart" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0856494,0},{0.82195,0},{0.550767,0},{0.936784,0}}" />
             </Window>
         </Window>
     </Window>

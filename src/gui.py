@@ -3,6 +3,7 @@ import formatter
 import random
 
 import ogre.gui.CEGUI as cegui
+import ogre.renderer.OGRE as ogre
 from tp.netlib.objects import OrderDescs
 from tp.netlib.objects.constants import *
 
@@ -796,19 +797,35 @@ class ConfigWindow(object):
 		window.addChildWindow(self.config)
 		helpers.bindButtonEvent("Config/OK", self, "onConfigSave")
 		helpers.bindButtonEvent("Config/Cancel", self, "onConfigCancel")
-		helpers.setupRadioButtonGroup(["Config/StarsVisible_Y", "Config/StarsVisible_N"], 1, [1, 0], True)
+		helpers.bindButtonEvent("Config/Sound", self, "onSound")
+		helpers.bindButtonEvent("Config/Graphics", self, "onGraphics")
+		helpers.bindEvent("Config", self, "onConfigCancel", cegui.FrameWindow.EventCloseClicked)
+
+		helpers.bindEvent("Sound", self, "onSoundCancel", cegui.FrameWindow.EventCloseClicked)
+		helpers.bindButtonEvent("Sound/Cancel", self, "onSoundCancel")
+		helpers.bindButtonEvent("Sound/OK", self, "onSoundSave")
+
+		helpers.bindEvent("Graphics", self, "onGraphicsCancel", cegui.FrameWindow.EventCloseClicked)
+		helpers.bindButtonEvent("Graphics/Cancel", self, "onGraphicsCancel")
+		helpers.bindButtonEvent("Graphics/OK", self, "onGraphicsSave")
+		#helpers.setupRadioButtonGroup(["Config/StarsVisible_Y", "Config/StarsVisible_N"], 1, [1, 0], True)
 
 		helpers.toggleWindow("Config").activate()
 		wm = cegui.WindowManager.getSingleton()
 		total_zoom = abs(settings.min_zoom_in) + abs(settings.max_zoom_out)
 		current_zoom = float(settings.icon_zoom_switch_level + abs(settings.max_zoom_out)) / float(total_zoom)
 		wm.getWindow("Config/Zoom").currentValue = current_zoom
+		helpers.toggleWindow("Config", True)
+		helpers.toggleWindow("Sound", False)
+		helpers.toggleWindow("Graphics", False)
 
 	def destroy(self):
 		wm = cegui.WindowManager.getSingleton()
 		wm.destroyWindow(self.config)
 
 	def onConfigCancel(self, evt):
+		self.cleanupGraphics()
+		self.cleanupSound()
 		self.destroy()
 
 	def onConfigSave(self, evt):
@@ -816,13 +833,213 @@ class ConfigWindow(object):
 		zoom = wm.getWindow("Config/Zoom").currentValue
 		total_zoom = abs(settings.min_zoom_in) + abs(settings.max_zoom_out)
 		settings.icon_zoom_switch_level = int(zoom * total_zoom - abs(settings.max_zoom_out))
-
-		stars_visible = wm.getWindow("Config/StarsVisible_Y").getSelectedButtonInGroup().getID()
-		if stars_visible:
-			settings.show_stars_during_icon_view = True
-		else:
-			settings.show_stars_during_icon_view = False
+		settings.show_stars_during_icon_view = wm.getWindow("Config/StarsVisible").isSelected()
 		self.destroy()
+
+	def onSound(self, evt):
+		self.sound_items = []
+		dev_win = helpers.setWidgetText("Sound/Driver", settings.current_sound_device)
+		for value in settings.sound_devices:
+			item = cegui.ListboxTextItem(value)
+			item.setAutoDeleted(False)
+			self.sound_items.append(item)
+			dev_win.addItem(item)
+
+		wm = cegui.WindowManager.getSingleton()
+		wm.getWindow("Sound/Sound").setSelected(settings.sound_effects)
+		wm.getWindow("Sound/Music").setSelected(settings.music)
+		helpers.toggleWindow("Sound", True).activate()
+
+	def onGraphics(self, evt):
+		wm = cegui.WindowManager.getSingleton()
+		if wm.getWindow("Graphics").isVisible():
+			return
+
+		self.graphics_items = []
+		config = ogre.ConfigFile()
+		config.loadDirect("ogre.cfg")
+		self.current_system = settings.render_system.getName()
+		config_map = settings.render_system.getConfigOptions()
+		for c in config_map:
+			if c.key == "Video Mode":
+				video_modes = c.value.possibleValues
+			elif c.key == "Anti aliasing":
+				aa = c.value.possibleValues
+			elif c.key == "FSAA":
+				fsaa = c.value.possibleValues
+
+		full_screen = config.getSetting("Full Screen", self.current_system)
+		if full_screen == "Yes":
+			self.full_screen = True
+			wm.getWindow("Graphics/Fullscreen").setSelected(True)
+		else:
+			self.full_screen = False
+			wm.getWindow("Graphics/Fullscreen").setSelected(False)
+
+		self.video_mode = config.getSetting("Video Mode", self.current_system)
+		res_win = helpers.setWidgetText("Graphics/Resolution", self.video_mode)
+		for value in video_modes:
+			item = cegui.ListboxTextItem(value)
+			item.setAutoDeleted(False)
+			self.graphics_items.append(item)
+			res_win.addItem(item)
+
+		driver_win = helpers.setWidgetText("Graphics/Driver", self.current_system)
+		for value in settings.renderers:
+			item = cegui.ListboxTextItem(value.getName())
+			item.setAutoDeleted(False)
+			self.graphics_items.append(item)
+			driver_win.addItem(item)
+
+		# Anti-aliasing comes under different names for opengl and direct3d
+		self.fsaa = config.getSetting("FSAA", self.current_system)
+		if len(self.fsaa) > 0:
+			fsaa_win = helpers.setWidgetText("Graphics/AA", self.fsaa)
+			for value in fsaa:
+				item = cegui.ListboxTextItem(value)
+				item.setAutoDeleted(False)
+				self.graphics_items.append(item)
+				fsaa_win.addItem(item)
+
+		self.anti_aliasing = config.getSetting("Anti aliasing", self.current_system)
+		if len(self.anti_aliasing) > 0:
+			aa_win = helpers.setWidgetText("Graphics/AA", self.anti_aliasing)
+			for value in aa:
+				item = cegui.ListboxTextItem(value)
+				item.setAutoDeleted(False)
+				self.graphics_items.append(item)
+				aa_win.addItem(item)
+
+		helpers.toggleWindow("Graphics", True).activate()
+
+	def onSoundSave(self, evt):
+		wm = cegui.WindowManager.getSingleton()
+		changed = False
+		sound_effects = wm.getWindow("Sound/Sound").isSelected()
+		music = wm.getWindow("Sound/Music").isSelected()
+		selected_device = wm.getWindow("Sound/Driver").getText()
+
+		if settings.sound_effects != sound_effects:
+			settings.sound_effects = sound_effects
+			changed = True
+		if settings.music != music:
+			settings.music = music
+			changed = True
+		if settings.current_sound_device != selected_device:
+			changed = True
+
+		if changed:
+			def convert(value):
+				if value:
+					return "Yes"
+				else:
+					return "No"
+			lines = ["Device=%s\n" % selected_device, "Music=%s\n" % convert(music), "Sound=%s\n" % convert(sound_effects)]
+			try:
+				f = open("sound.cfg", "w")
+				f.writelines(lines)
+			finally:
+				f.close()
+
+		self.cleanupSound()
+		helpers.toggleWindow("Sound", False)
+
+	def onSoundCancel(self, evt):
+		wm = cegui.WindowManager.getSingleton()
+		wm.getWindow("Sound/Sound").setSelected(settings.sound_effects)
+		wm.getWindow("Sound/Music").setSelected(settings.music)
+		self.cleanupSound()
+		helpers.toggleWindow("Sound", False)
+
+	def onGraphicsSave(self, evt):
+		changed = False
+		wm = cegui.WindowManager.getSingleton()
+		full_screen = wm.getWindow("Graphics/Fullscreen").isSelected()
+		renderer = wm.getWindow("Graphics/Driver").getText()
+		aa = wm.getWindow("Graphics/AA").getText()
+		video_mode = wm.getWindow("Graphics/Resolution").getText()
+
+		if self.full_screen != full_screen:
+			width = settings.render_window.getWidth()
+			height = settings.render_window.getHeight()
+			settings.render_window.setFullscreen(full_screen, width, height)
+			changed = True
+		if self.current_system != renderer:
+			changed = True
+		if len(self.fsaa) > 0:
+			if self.fsaa != aa:
+				changed = True
+			aa_name = "FSAA"
+		if len(self.anti_aliasing) > 0:
+			if self.anti_aliasing != aa:
+				changed = True
+			aa_name = "Anti aliasing"
+		if self.video_mode != video_mode:
+			changed = True
+
+		print full_screen, renderer, aa, video_mode, aa_name
+
+		if changed:
+			try:
+				f = open("ogre.cfg", "r")
+				lines = f.readlines()
+				section_reached = False
+				for i in range(len(lines)):
+					if lines[i].startswith("\n"):
+						continue
+					if lines[i].startswith("["):
+						name = lines[i].strip("[]\n")
+						if self.current_system == name:
+							section_reached = True
+						else:
+							section_reached = False
+						continue
+					k, v = lines[i].split("=")
+					if k == "Render System":
+						lines[i] = "%s=%s\n" % (k, renderer)
+					elif section_reached:
+						if k == "Video Mode":
+							lines[i] = "%s=%s\n" % (k, video_mode)
+						elif k == "Full Screen":
+							if full_screen:
+								lines[i] = "%s=Yes\n" % k
+							else:
+								lines[i] = "%s=No\n" % k
+						elif k == aa_name:
+							lines[i] = "%s=%s\n" % (k, aa)
+			finally:
+				f.close()
+
+			try:
+				f = open("ogre.cfg", "w")
+				f.writelines(lines)
+			finally:
+				f.close()
+
+		self.cleanupGraphics()
+		helpers.toggleWindow("Graphics", False)
+
+	def onGraphicsCancel(self, evt):
+		wm = cegui.WindowManager.getSingleton()
+		wm.getWindow("Graphics/Fullscreen").setSelected(self.full_screen)
+		self.cleanupGraphics()
+		helpers.toggleWindow("Graphics", False)
+
+	def cleanupGraphics(self):
+		wm = cegui.WindowManager.getSingleton()
+		wm.getWindow("Graphics/Driver").setText("")
+		wm.getWindow("Graphics/Driver").resetList()
+		wm.getWindow("Graphics/Resolution").setText("")
+		wm.getWindow("Graphics/Resolution").resetList()
+		wm.getWindow("Graphics/AA").setText("")
+		wm.getWindow("Graphics/AA").resetList()
+		self.graphics_items = []
+
+	def cleanupSound(self):
+		wm = cegui.WindowManager.getSingleton()
+		wm.getWindow("Sound/Driver").setText("")
+		wm.getWindow("Sound/Driver").resetList()
+		self.sound_items = []
 
 class MenuWindow(object):
 	def __init__(self, parent, window):
