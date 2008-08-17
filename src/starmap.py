@@ -425,9 +425,11 @@ class Starmap(object):
 		if not settings.show_stars_during_icon_view:
 			for bg in self.background_nodes:
 				bg.setVisible(not visible)
+			self.sceneManager.setSkyBox(not visible, 'skybox/SpaceSkyBox')
 		else:
 			for bg in self.background_nodes:
 				bg.setVisible(True)
+			self.sceneManager.setSkyBox(True, 'skybox/SpaceSkyBox')
 		self.selectionBillboard.setVisible(not visible)
 
 		for icon in self.icons.values():

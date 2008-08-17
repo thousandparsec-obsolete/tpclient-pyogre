@@ -9,8 +9,9 @@ material skybox/SpaceSkyBox
 
 			texture_unit
 			{
-				cubic_texture space.jpg separateUV
-				tex_address_mode clamp
+				cubic_texture space1.jpg separateUV
+				filtering anisotropic
+				max_anisotropy 2
 			}
 		}
 	}

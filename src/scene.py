@@ -293,12 +293,14 @@ class StarmapScene(MenuScene):
 
 	def show(self):
 		Scene.show(self)
+		self.sceneManager.setSkyBox(True, 'skybox/SpaceSkyBox')
 		self.starmap.show()
 		if settings.music:
 			self.bg_sound.play()
 
 	def hide(self):
 		Scene.hide(self)
+		self.sceneManager.setSkyBox(False, '')
 		self.starmap.hide()
 		if settings.music:
 			self.bg_sound.stop()
@@ -308,7 +310,7 @@ class StarmapScene(MenuScene):
 		print "creating the starmap"
 		self.objects = cache.objects
 
-		self.starmap.createBackground()
+		#self.starmap.createBackground()
 		designs = self.getDesigns(cache)
 
 		for object in self.objects.values():

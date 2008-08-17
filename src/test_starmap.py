@@ -68,8 +68,9 @@ class TestStarmap(framework.Application):
 
 	def _createCamera(self):
 		self.camera = self.sceneManager.createCamera("PlayerCam")
-		self.camera.nearClipDistance = 5
 		self.camera.setFixedYawAxis(True, ogre.Vector3.UNIT_Y)
+		self.camera.setNearClipDistance(5)
+		self.camera.setFarClipDistance(0)
 
 	def _createFrameListener(self):
 		self.frameListener = framework.CEGUIFrameListener(self, self.renderWindow, self.camera)
