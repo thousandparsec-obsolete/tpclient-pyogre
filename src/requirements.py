@@ -46,9 +46,6 @@ class FileOutput(object):
 if hasattr(sys, "frozen"):
 	sys.stdout = FileOutput()
 	sys.stderr = sys.stdout
-else:
-	sys.stdout = FileOutput(sys.stdout)
-	sys.stderr = sys.stdout
 
 try:
 	import ogre.renderer.OGRE as ogre
