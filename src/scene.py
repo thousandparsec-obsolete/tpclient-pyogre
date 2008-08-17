@@ -349,6 +349,7 @@ class StarmapScene(MenuScene):
 			helpers.setWidgetText("TopBar/Turn", "Turn %i" % self.objects[0].turn)
 		self.starmap.updateMapExtents()
 		self.starmap.autofit()
+		self.starmap.updateBoundingBox()
 		self.design_window.populateDesignsWindow(cache.designs)
 
 	def updateObjectIndex(self, object, subtype_name, subtype_index):
@@ -418,6 +419,7 @@ class StarmapScene(MenuScene):
 			helpers.setWidgetText("TopBar/Turn", "Turn %i" % self.objects[0].turn)
 
 		self.starmap.updateMapExtents()
+		self.starmap.updateBoundingBox()
 
 	def update(self, evt):
 		self.starmap.update()
