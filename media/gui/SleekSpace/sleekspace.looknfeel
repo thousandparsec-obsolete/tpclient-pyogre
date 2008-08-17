@@ -237,8 +237,8 @@
     -->
     <WidgetLook name="SleekSpace/Checkbox">
         <PropertyDefinition name="NormalTextColour" initialValue="FFFFFFFF" redrawOnWrite="true" />
-        <PropertyDefinition name="SelectedTextColour" initialValue="FF000000" redrawOnWrite="true" />
-        <PropertyDefinition name="HoverTextColour" initialValue="FF000000" redrawOnWrite="true" />
+        <PropertyDefinition name="SelectedTextColour" initialValue="FFFFFFFF" redrawOnWrite="true" />
+        <PropertyDefinition name="HoverTextColour" initialValue="FFFFFFFF" redrawOnWrite="true" />
         <PropertyDefinition name="ActiveSelectionColour" initialValue="FF607FFF" redrawOnWrite="true" />
         <PropertyDefinition name="InactiveSelectionColour" initialValue="FF808080" redrawOnWrite="true" />
         <ImagerySection name="label">
