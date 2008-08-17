@@ -278,11 +278,6 @@ class Application(ClientApplication):
 		ClientApplication.__init__(self)
 		self.url = url
 
-if hasattr(sys, "frozen"):
-	# capture stdout and stderr when in .exe mode
-	sys.stdout = open("my_stdout.log", "w")
-	sys.stderr = open("my_stderr.log", "w")
-
 if __name__ == '__main__':
 	try:
 		url = name = passwd = None
