@@ -6,6 +6,7 @@ import requirements
 import os
 import sys
 import time
+import binascii
 
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
@@ -15,6 +16,7 @@ from tp.client.cache import Cache
 
 import framework
 import scene
+import settings
 from loadingbar import *
 
 def traceback():
@@ -155,6 +157,23 @@ class GUI(framework.Application):
 		self.tocall.append((method, args, kw))
 
 	def ConfigLoad(self, config):
+		print "Config", config
+		try:
+			settings.icon_zoom_switch_level = config["icon_zoom_switch_level"]
+			settings.show_stars_during_icon_view = config["show_stars_during_icon_view"]
+			settings.zoom_speed = config["zoom_speed"]
+			settings.distance_units = config["distance_units"]
+			settings.save_details = config["save_details"]
+
+			# optional stuff
+			if config.has_key("user_name"):
+				settings.user_name = config["user_name"]
+			if config.has_key("password"):
+				settings.password = binascii.unhexlify(config["password"])
+			if config.has_key("previous_game"):
+				settings.previous_game = config["previous_game"]
+		except KeyError:
+			print "keyerror"
 		return
 	
 	def Post(self, event):
@@ -169,7 +188,23 @@ class GUI(framework.Application):
 			print "scene", self.currentScene, "does not handle", func, "events"
 		
 	def ConfigSave(self):
-		return {}
+		config = {"icon_zoom_switch_level":settings.icon_zoom_switch_level,
+				"show_stars_during_icon_view":settings.show_stars_during_icon_view,
+				"zoom_speed":settings.zoom_speed,
+				"distance_units":settings.distance_units,
+				"save_details":settings.save_details}
+		if settings.save_details:
+			print "saving details"
+			if settings.user_name != None:
+				print "saving user name"
+				config["user_name"] = settings.user_name
+			if settings.password != None:
+				print "saving password"
+				config["password"] = binascii.hexlify(settings.password)
+			if settings.previous_game != None:
+				print "saving previous game"
+				config["previous_game"] = settings.previous_game
+		return config
 
 	def Cleanup(self):
 		self.frameListener.keepRendering = False
@@ -256,6 +291,7 @@ if __name__ == '__main__':
 
 		app = Application(url)
 		app.Run()
+		app.ConfigSave()
 	finally:
 		traceback()
 		import threading

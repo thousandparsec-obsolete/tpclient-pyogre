@@ -819,6 +819,7 @@ class ConfigWindow(object):
 		wm.getWindow("Config/Zoom").currentValue = settings.icon_zoom_switch_level
 		wm.getWindow("Config/ZoomSpeed").setMaxValue(self.max_zoom_speed)
 		wm.getWindow("Config/ZoomSpeed").currentValue = settings.zoom_speed - 1
+		wm.getWindow("Config/StarsVisible").setSelected(settings.show_stars_during_icon_view)
 
 		helpers.toggleWindow("Config", True)
 		helpers.toggleWindow("Sound", False)

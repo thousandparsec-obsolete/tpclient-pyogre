@@ -151,13 +151,26 @@ class LoginScene(MenuScene):
 		self.windows.append(login)
 		self.login = login
 
+		wm = cegui.WindowManager.getSingleton()
+		wm.getWindow("Login/SaveDetails").setSelected(settings.save_details)
+		if settings.user_name != None:
+			wm.getWindow("Login/Username").setText(settings.user_name)
+		if settings.password != None:
+			wm.getWindow("Login/Password").setText(settings.password)
+		if settings.previous_game != None:
+			self.setServer(settings.previous_game)
+
 		helpers.bindButtonEvent("Login/LoginButton", self, "onConnect")
 		helpers.bindButtonEvent("Login/QuitButton", self, "quit")
 		helpers.bindButtonEvent("Login/ConfigButton", self, "onConfig")
+		helpers.bindEvent("Login/SaveDetails", self, "onSaveDetails", cegui.Checkbox.EventCheckStateChanged)
 
 		helpers.bindButtonEvent("Message/OkButton", self, "onMessageOk")
 
 		self.hide()
+
+	def onSaveDetails(self, evt):
+		settings.save_details = cegui.WindowManager.getSingleton().getWindow("Login/SaveDetails").isSelected() 
 
 	def onNetworkFailure(self, evt):
 		print "NetworkFailure", evt
@@ -180,6 +193,10 @@ class LoginScene(MenuScene):
 		host = wm.getWindow("Login/Server").getText().c_str()
 		username = wm.getWindow("Login/Username").getText().c_str()
 		password = wm.getWindow("Login/Password").getText().c_str()
+
+		settings.user_name = username
+		settings.password = password
+		settings.previous_game = host
 		
 		#print "onConnect", host, username, password
 		self.parent.application.network.Call( \
@@ -212,6 +229,7 @@ class StarmapScene(MenuScene):
 	low_fps_threshold = 15
 	mouseover_timeout = 1000
 	doubleclick_timeout = 1000
+	distance_units = None
 
 	def __init__(self, parent, sceneManager):
 		Scene.__init__(self, parent, sceneManager)
@@ -313,11 +331,13 @@ class StarmapScene(MenuScene):
 			self.pan_speed = pan_speed
 		self.scroll_speed = pan_speed / 5
 
+		self.distance_units = settings.distance_units
+
 		for object in self.objects.values():
 			pos = ogre.Vector3(
-					object.pos[0] / settings.distance_units, 
-					object.pos[1] / settings.distance_units, 
-					object.pos[2] / settings.distance_units)
+					object.pos[0] / self.distance_units, 
+					object.pos[1] / self.distance_units, 
+					object.pos[2] / self.distance_units)
 
 			#print "creating", object.id, object.name, "\ttype:", object._subtype, "at", pos
 
@@ -398,9 +418,9 @@ class StarmapScene(MenuScene):
 
 		for object in cache.objects.values():
 			pos = ogre.Vector3(
-					object.pos[0] / settings.distance_units, 
-					object.pos[1] / settings.distance_units, 
-					object.pos[2] / settings.distance_units)
+					object.pos[0] / self.distance_units, 
+					object.pos[1] / self.distance_units, 
+					object.pos[2] / self.distance_units)
 
 			#print "updating", object.id, object.name, object._subtype, "at", pos
 
