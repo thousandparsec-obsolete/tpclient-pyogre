@@ -8,7 +8,7 @@
         <Window Type="SleekSpace/FrameWindow" Name="Login" >
             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
             <Property Name="TitlebarEnabled" Value="False" />
-            <Property Name="UnifiedAreaRect" Value="{{0.48625,0},{0.651921,0},{0.986249,0},{0.985253,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.26625,0},{0.645254,0},{0.766248,0},{0.978586,0}}" />
             <Property Name="CloseButtonEnabled" Value="False" />
             <Window Type="SleekSpace/StaticText" Name="Login/ServerText" >
                 <Property Name="Text" Value="Server:" />
