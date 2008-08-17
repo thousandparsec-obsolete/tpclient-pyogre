@@ -84,7 +84,7 @@ class Starmap(object):
 				self.map_lower_left[1] = obj.position.y
 			if obj.position.x > self.map_upper_right[0]:
 				self.map_upper_right[0] = obj.position.x
-			if obj.position.x > self.map_upper_right[1]:
+			if obj.position.y > self.map_upper_right[1]:
 				self.map_upper_right[1] = obj.position.y
 
 	def updateBoundingBox(self):
@@ -93,6 +93,10 @@ class Starmap(object):
 		maxima = ogre.Vector3(self.map_upper_right[0], self.map_upper_right[1], max_zoom)
 		minima = ogre.Vector3(self.map_lower_left[0], self.map_lower_left[1], min_zoom)
 		self.bounding_box = ogre.AxisAlignedBox(minima, maxima)
+
+	def updateBackground(self, position):
+		for node in self.background_nodes:
+			node.setPosition(position)
 
 	def show(self):
 		self.setOverlayVisibility(True)
@@ -585,7 +589,6 @@ class Starmap(object):
 		hybrid_position = [cam_focus.position.x, cam_focus.position.y, cam.position.z + abs(cam_focus.position.z)]
 		if self.bounding_box != None and not self.bounding_box.intersects(hybrid_position):
 			cam_focus.translate(-x, -y, 0, ogre.SceneNode.TransformSpace.TS_LOCAL)
-		print cam.position, cam_focus.position, hybrid_position
 
 	def rotate(self, h_angle, v_angle):
 		cam_focus = self.sceneManager.getSceneNode("CameraFocus")

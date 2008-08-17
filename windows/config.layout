@@ -60,10 +60,10 @@
                 <Property Name="UnifiedAreaRect" Value="{{0.438674,0},{0.176201,0},{0.688674,0},{0.248403,0}}" />
             </Window>
             <Window Type="SleekSpace/StaticText" Name="Config/ZoomSpeedLabel" >
-                <Property Name="Text" Value="Zoom Speed" />
                 <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Zoom Speed" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.0632095,0},{0.25232,0},{0.313209,0},{0.341434,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.065568,0},{0.268959,0},{0.315567,0},{0.358073,0}}" />
             </Window>
             <Window Type="SleekSpace/Slider" Name="Config/ZoomSpeed" >
                 <Property Name="Font" Value="BlueHighway-10" />
@@ -71,7 +71,30 @@
                 <Property Name="MaximumValue" Value="1" />
                 <Property Name="ClickStepSize" Value="0.01" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.438674,0},{0.272289,0},{0.688675,0},{0.327766,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.441033,0},{0.288928,0},{0.691033,0},{0.344405,0}}" />
+            </Window>
+            <Window Type="SleekSpace/StaticText" Name="Config/DistanceLabel" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Distance unit ratio *" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0646941,0},{0.365166,0},{0.435312,0},{0.436463,0}}" />
+            </Window>
+            <Window Type="SleekSpace/StaticText" Name="Config/DistanceLabel2" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="1 : " />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.438674,0},{0.365166,0},{0.542783,0},{0.436463,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Editbox" Name="Config/Distance" >
+                <Property Name="MaxTextLength" Value="1073741823" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.483491,0},{0.375207,0},{0.733491,0},{0.433859,0}}" />
+            </Window>
+            <Window Type="SleekSpace/StaticText" Name="Config/WarningLabel" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="* Settings take place upon starting a new game" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0475199,0},{0.742792,0},{0.598723,0},{0.849305,0}}" />
             </Window>
         </Window>
         <Window Type="SleekSpace/FrameWindow" Name="Graphics" >

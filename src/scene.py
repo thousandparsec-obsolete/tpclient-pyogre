@@ -181,7 +181,7 @@ class LoginScene(MenuScene):
 		username = wm.getWindow("Login/Username").getText().c_str()
 		password = wm.getWindow("Login/Password").getText().c_str()
 		
-		print "onConnect", host, username, password
+		#print "onConnect", host, username, password
 		self.parent.application.network.Call( \
 				self.parent.application.network.ConnectTo, host, username, password, True)
 
@@ -200,11 +200,6 @@ class LoginScene(MenuScene):
 		"""Sets the initial value of the host input field"""
 		helpers.setWidgetText("Login/Server", host)
 
-class ConfigScene(MenuScene):
-	def __init__(self, parent, sceneManager):
-		Scene.__init__(self, parent, sceneManager)
-		self.hide()
-
 class StarmapScene(MenuScene):
 	"""Manages the GUI and Starmap class"""
 
@@ -213,11 +208,9 @@ class StarmapScene(MenuScene):
 
 	pan_speed = 500
 	tolerance_delta = 1
-	distance_scale = 500000
 	scroll_speed = 100
 	low_fps_threshold = 15
 	mouseover_timeout = 1000
-	camera_zoom_amount = 100
 	doubleclick_timeout = 1000
 
 	def __init__(self, parent, sceneManager):
@@ -313,11 +306,18 @@ class StarmapScene(MenuScene):
 		#self.starmap.createBackground()
 		designs = self.getDesigns(cache)
 
+		pan_speed = 100000000 / settings.distance_units
+		if pan_speed < self.pan_speed:
+			pan_speed = self.pan_speed
+		else:
+			self.pan_speed = pan_speed
+		self.scroll_speed = pan_speed / 5
+
 		for object in self.objects.values():
 			pos = ogre.Vector3(
-					object.pos[0] / self.distance_scale, 
-					object.pos[1] / self.distance_scale, 
-					object.pos[2] / self.distance_scale)
+					object.pos[0] / settings.distance_units, 
+					object.pos[1] / settings.distance_units, 
+					object.pos[2] / settings.distance_units)
 
 			#print "creating", object.id, object.name, "\ttype:", object._subtype, "at", pos
 
@@ -398,9 +398,9 @@ class StarmapScene(MenuScene):
 
 		for object in cache.objects.values():
 			pos = ogre.Vector3(
-					object.pos[0] / self.distance_scale, 
-					object.pos[1] / self.distance_scale, 
-					object.pos[2] / self.distance_scale)
+					object.pos[0] / settings.distance_units, 
+					object.pos[1] / settings.distance_units, 
+					object.pos[2] / settings.distance_units)
 
 			#print "updating", object.id, object.name, object._subtype, "at", pos
 
@@ -468,9 +468,10 @@ class StarmapScene(MenuScene):
 		if cam_pos.z != target_pos.z:
 			self.starmap.updateZoom()
 			if cam_pos.z < target_pos.z:
-				self.camera_node.translate(0, 0, self.camera_zoom_amount)
+				self.camera_node.translate(0, 0, self.scroll_speed)
 			else:
-				self.camera_node.translate(0, 0, -self.camera_zoom_amount)
+				self.camera_node.translate(0, 0, -self.scroll_speed)
+		self.starmap.updateBackground(self.camera.getWorldPosition())
 
 	def onNetworkTimeRemaining(self, evt):
 		"""Called whenever a NetworkTimeRemaining packet is received"""
@@ -535,7 +536,7 @@ class StarmapScene(MenuScene):
 
 		if state.buttonDown(ois.MB_Middle):
 			if self.starmap.zoom_level != 0:
-				adjusted_pan = abs(self.pan_speed / (self.starmap.zoom_level * 5))
+				adjusted_pan = abs(self.starmap.zoom_level)
 			else:
 				adjusted_pan = self.pan_speed
 			self.starmap.pan(state.X.rel * adjusted_pan, -state.Y.rel * adjusted_pan)
@@ -618,7 +619,7 @@ class StarmapScene(MenuScene):
 		"""Highlights and selects the given Entity"""
 
 		id = self.getIDFromMovable(movable)
-		print "SelectObject", id
+		#print "SelectObject", id
 
 		if id != None:
 			self.selectObjectById(id)
@@ -671,7 +672,7 @@ class StarmapScene(MenuScene):
 					if not descs.has_key(order_type):
 						continue
 					description = descs[order_type]
-					print description
+					#print description
 					self.orders_menu.add(description._name, self.orders_window, "showOrder")
 			else:
 				self.orders_window.hideArguments()
@@ -745,14 +746,6 @@ class StarmapScene(MenuScene):
 			self.starmap.zoom(-self.scroll_speed)
 		if keyboard.isKeyDown(ois.KC_MINUS):
 			self.starmap.zoom(self.scroll_speed)
-		if keyboard.isKeyDown(ois.KC_HOME):
-			self.camera.pitch(ogre.Radian(0.03))
-		if keyboard.isKeyDown(ois.KC_END):
-			self.camera.pitch(ogre.Radian(-0.03))
-		if keyboard.isKeyDown(ois.KC_DELETE):
-			self.camera.yaw(ogre.Radian(-0.03))
-		if keyboard.isKeyDown(ois.KC_PGDOWN):
-			self.camera.yaw(ogre.Radian(0.03))
 
 	def moveTo(self, source, destination):
 		"""Orders a fleet to move to a destination
