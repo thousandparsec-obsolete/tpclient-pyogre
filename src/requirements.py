@@ -72,17 +72,20 @@ try:
 	import ogre.renderer.OGRE as ogre
 	if ogre.ogre_version != ogre_version:
 		notfound.append("python-ogre/ogre == " + ogre_version)
-except ImportError:
+except ImportError, e:
+	print e
 	notfound.append("python-ogre/ogre")
 
 try:
 	import ogre.gui.CEGUI as cegui
-except ImportError:
+except ImportError, e:
+	print e
 	notfound.append("python-ogre/cegui")
 
 try:
 	import ogre.sound.OgreAL as ogreal
-except ImportError:
+except ImportError, e:
+	print e
 	reason = "The OgreAL addon, which is required for audio, does not seem to be installed"
 	recommended.append(("python-ogre/ogreal", reason))
 
