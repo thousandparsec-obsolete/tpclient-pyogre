@@ -1,4 +1,4 @@
-import ogre.sound.OgreAL as ogreal
+import ogreal
 
 import settings
 

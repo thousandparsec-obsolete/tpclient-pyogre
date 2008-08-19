@@ -943,7 +943,7 @@ class ConfigWindow(object):
 		if settings.current_sound_device != selected_device:
 			changed = True
 
-		if changed:
+		if changed and selected_device != "":
 			def convert(value):
 				if value:
 					return "Yes"

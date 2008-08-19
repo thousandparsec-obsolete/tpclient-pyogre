@@ -3,7 +3,7 @@ import os
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
 import ogre.io.OIS as ois
-import ogre.sound.OgreAL as ogreal
+import ogreal
 
 import console
 import settings
@@ -55,7 +55,12 @@ class Application(object):
 		self._chooseSceneManager()
 		self._createCamera()
 		self._createViewports()
-		self._createSoundManager()
+
+		if settings.sound_support:
+			self._createSoundManager()
+		else:
+			settings.sound_effects = False
+			settings.music = False
 
 		ogre.TextureManager.getSingleton().defaultNumMipmaps = 5
 
@@ -122,6 +127,11 @@ class Application(object):
 		if os.path.exists("sound.cfg"):
 			config = ogre.ConfigFile()
 			config.loadDirect("sound.cfg")
+			settings.current_sound_device = config.getSetting("Device")
+			if settings.current_sound_device == "":
+				settings.music = False
+				settings.sound_effects = False
+				return
 			music = config.getSetting("Music")
 			if music == "Yes":
 				settings.music = True
@@ -133,7 +143,6 @@ class Application(object):
 				settings.sound_effects = True
 			else:
 				settings.sound_effects = False
-			settings.current_sound_device = config.getSetting("Device")
 		else:
 			settings.current_sound_device = "Generic Software"
 		self.soundManager = ogreal.SoundManager(settings.current_sound_device)

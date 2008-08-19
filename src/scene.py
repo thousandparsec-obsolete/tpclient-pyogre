@@ -4,7 +4,7 @@ import random
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
 import ogre.io.OIS as ois
-import ogre.sound.OgreAL as ogreal
+import ogreal
 
 from tp.netlib.objects import OrderDescs
 from tp.netlib.objects.constants import *
@@ -259,8 +259,10 @@ class StarmapScene(MenuScene):
 
 		self.createGui()
 
-		sm = ogreal.SoundManager.getSingleton()
-		self.camera_node.attachObject(sm.getListener())
+		if settings.music or settings.sound_effects:
+			sm = ogreal.SoundManager.getSingleton()
+			self.camera_node.attachObject(sm.getListener())
+
 		if settings.music:
 			self.bg_sound = sm.createSound("bg", "ambient.ogg", True)
 			self.bg_sound.setGain(0.5)
