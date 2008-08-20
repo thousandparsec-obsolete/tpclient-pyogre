@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<Imageset Name="ThousandParsec" Imagefile="tp.png" NativeHorzRes="800" NativeVertRes="600" >
+<Imageset Name="ThousandParsec" Imagefile="tp.png" NativeHorzRes="512" NativeVertRes="512" >
     <Image Name="Logo" XPos="0" YPos="0" Width="64" Height="64" />
     <Image Name="ZoomIn" XPos="64" YPos="0" Width="16" Height="16" />
     <Image Name="ZoomOut" XPos="80" YPos="0" Width="16" Height="16" />
