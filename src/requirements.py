@@ -154,27 +154,27 @@ except Exception, e:
 	print e
 	notfound.append("local config files")
 
-	print
-	print "Checking locations:"
-	print "---------------------------------------------------------------"
-	import os
-	try:
-		graphicsdir = os.environ["TPCLIENT_MEDIA"]
-	except KeyError:
-		graphicsdir = '../media'
-	print "Media files are in %s" % graphicsdir
-	if not os.path.exists(os.path.join(graphicsdir, 'icons/icon.ico')):
-		print "Can not find media required by this client."
-		sys.exit()
+print
+print "Checking locations:"
+print "---------------------------------------------------------------"
+import os
+try:
+	graphicsdir = os.environ["TPCLIENT_MEDIA"]
+except KeyError:
+	graphicsdir = '../media'
+print "Media files are in %s" % graphicsdir
+if not os.path.exists(os.path.join(graphicsdir, 'icons/icon.ico')):
+	print "Can not find media required by this client."
+	sys.exit()
 
-	try:
-		windir = os.environ["TPCLIENT_WINDOW"]
-	except KeyError:
-		windir = 'doc'
-	print "Window layouts are in %s" % windir
-	if not os.path.exists(os.path.join(windir, 'system.layout')):
-		print "Can not find window layouts required by this client."
-		sys.exit()
+try:
+	windir = os.environ["TPCLIENT_WINDOW"]
+except KeyError:
+	windir = '../windows'
+print "Window layouts are in %s" % windir
+if not os.path.exists(os.path.join(windir, 'system.layout')):
+	print "Can not find window layouts required by this client."
+	sys.exit()
 
 if len(notfound) > 0:
 	print "The following requirements where not met"
