@@ -222,6 +222,14 @@ class GUI(framework.Application):
 		self.currentScene = scene
 		self.showScreen()
 
+	def update(self, evt):
+		if not self.screen_hidden:
+			return self.currentScene.update(evt)
+		else:
+			# let other threads work
+			time.sleep(0.05)
+		return True
+
 class Network(NetworkThread):
 	## These are network events
 	class NetworkFailureEvent(Exception):

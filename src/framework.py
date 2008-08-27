@@ -171,6 +171,11 @@ class Application(object):
 		"""
 		pass
 
+	def update(self, evt):
+		if hasattr(self, "currentScene"):
+			return self.currentScene.update(evt)
+		return True
+
 	def _createFrameListener(self):
 		"""Creates the frame listener"""
 		self.frameListener = FrameListener(self.renderWindow, self.camera)
@@ -337,7 +342,7 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 				self.keyboard.capture()
 				self.keyDown()
 		
-		return self.application.currentScene.update(evt) and self.keepRendering
+		return self.application.update(evt) and self.keepRendering
 
 	def mouseDragged(self, evt):
 		"""Passes MouseDragged events to CEGUI and then the current scene"""
