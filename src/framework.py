@@ -266,6 +266,13 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 		self.console.addLocals({'root':root})
 		self.console.addLocals({'app':application})
 
+		wm = cegui.WindowManager.getSingleton()
+		self.fps = wm.createWindow("SleekSpace/StaticText", "fps_counter")
+		self.fps.position = cegui.UVector2(cegui.UDim(0.9, 0), cegui.UDim(0.0, 0))
+		self.fps.size = cegui.UVector2(cegui.UDim(0.1, 0), cegui.UDim(0.1, 0))
+		self.application.guiSystem.getGUISheet().addChildWindow(self.fps)
+		self.fps.setVisible(settings.show_fps)
+
 	def _setupInput(self):
 		"""Setup the OIS library for input"""
 		options = [("WINDOW", str(self.renderWindow.getCustomAttributeInt("WINDOW")))]
@@ -318,6 +325,9 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 			self.keepRendering = False
 		
 		if self.keepRendering:
+			if settings.show_fps:
+				self.fps.setText("fps: %d" % self.renderWindow.getAverageFPS())
+
 			cegui.System.getSingleton().injectTimePulse(self.ceguiTimer.getMilliseconds() / 1000)
 			self.ceguiTimer.reset()
 			if self.enableMouse and self.mouse != None:

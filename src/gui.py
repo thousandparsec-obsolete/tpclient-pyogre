@@ -804,6 +804,7 @@ class ConfigWindow(object):
 		helpers.bindButtonEvent("Config/Graphics", self, "onGraphics")
 		helpers.bindEvent("Config", self, "onConfigCancel", cegui.FrameWindow.EventCloseClicked)
 		helpers.bindEvent("Config/Zoom", self, "onZoomChange", cegui.Slider.EventValueChanged)
+		helpers.bindEvent("Config/ShowFps", self, "onShowFpsChange", cegui.Checkbox.EventCheckStateChanged)
 
 		helpers.bindEvent("Sound", self, "onSoundCancel", cegui.FrameWindow.EventCloseClicked)
 		helpers.bindButtonEvent("Sound/Cancel", self, "onSoundCancel")
@@ -819,6 +820,7 @@ class ConfigWindow(object):
 		wm.getWindow("Config/ZoomSpeed").setMaxValue(self.max_zoom_speed)
 		wm.getWindow("Config/ZoomSpeed").currentValue = settings.zoom_speed - 1
 		wm.getWindow("Config/StarsVisible").setSelected(settings.show_stars_during_icon_view)
+		wm.getWindow("Config/ShowFps").setSelected(settings.show_fps)
 
 		helpers.toggleWindow("Config", True)
 		helpers.toggleWindow("Sound", False)
@@ -827,6 +829,10 @@ class ConfigWindow(object):
 	def destroy(self):
 		wm = cegui.WindowManager.getSingleton()
 		wm.destroyWindow(self.config)
+
+	def onShowFpsChange(self, evt):
+		wm = cegui.WindowManager.getSingleton()
+		wm.getWindow("fps_counter").setVisible(wm.getWindow("Config/ShowFps").isSelected())
 
 	def onZoomChange(self, evt):
 		wm = cegui.WindowManager.getSingleton()
@@ -841,6 +847,7 @@ class ConfigWindow(object):
 		wm = cegui.WindowManager.getSingleton()
 		settings.icon_zoom_switch_level = wm.getWindow("Config/Zoom").currentValue
 		settings.show_stars_during_icon_view = wm.getWindow("Config/StarsVisible").isSelected()
+		settings.show_fps = wm.getWindow("Config/ShowFps").isSelected()
 		zoom_speed = wm.getWindow("Config/ZoomSpeed").currentValue
 		settings.zoom_speed = int(zoom_speed) + 1
 		self.destroy()

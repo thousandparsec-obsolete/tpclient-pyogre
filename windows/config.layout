@@ -79,6 +79,17 @@
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.0475199,0},{0.742792,0},{0.598723,0},{0.849305,0}}" />
             </Window>
+            <Window Type="SleekSpace/StaticText" Name="Config/ShowFpsLabel" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Show fps" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.065568,0},{0.351142,0},{0.431341,0},{0.474513,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Checkbox" Name="Config/ShowFps" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.438674,0},{0.381415,0},{0.688674,0},{0.453617,0}}" />
+            </Window>
         </Window>
         <Window Type="SleekSpace/FrameWindow" Name="Graphics" >
             <Property Name="Font" Value="BlueHighway-10" />

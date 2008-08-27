@@ -2,6 +2,7 @@ icon_zoom_switch_level = 0.5
 show_stars_during_icon_view = False
 zoom_speed = 1
 distance_units = 25000
+show_fps = False
 
 user_name = None
 password = None
