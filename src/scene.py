@@ -269,7 +269,6 @@ class StarmapScene(MenuScene):
 			self.bg_sound = sm.createSound("bg", "ambient.ogg", True)
 			self.bg_sound.setGain(0.5)
 			self.camera_node.attachObject(self.bg_sound)
-			sound.music_list.append(self.bg_sound)
 
 		self.hide()
 
@@ -312,6 +311,7 @@ class StarmapScene(MenuScene):
 		self.sceneManager.setSkyBox(True, 'skybox/SpaceSkyBox')
 		self.starmap.show()
 		if settings.music:
+			sound.music_list.append(self.bg_sound)
 			self.bg_sound.play()
 
 	def hide(self):
@@ -319,6 +319,8 @@ class StarmapScene(MenuScene):
 		self.sceneManager.setSkyBox(False, '')
 		self.starmap.hide()
 		if settings.music:
+			if self.bg_sound in sound.music_list:
+				sound.music_list.remove(self.bg_sound)
 			self.bg_sound.stop()
 
 	def calculateScale(self, objects):
