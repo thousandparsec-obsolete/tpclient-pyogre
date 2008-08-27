@@ -77,6 +77,8 @@ class Starmap(object):
 		return mouseover_id
 
 	def updateMapExtents(self):
+		self.map_lower_left = [0, 0]
+		self.map_upper_right = [0, 0]
 		for obj in self.nodes.values():
 			if obj.position.x < self.map_lower_left[0]:
 				self.map_lower_left[0] = obj.position.x
@@ -516,7 +518,7 @@ class Starmap(object):
 		self.center()
 		camera = self.sceneManager.getCamera("PlayerCam")
 		camera_node = self.sceneManager.getSceneNode("CameraNode")
-		camera_node.position = ogre.Vector3(0, 0, 0)
+		camera_node.setPosition([0, 0, 0])
 		while not fit:
 			camera_node.translate(0, 0, 1000)
 			self.updateZoom()
