@@ -855,8 +855,8 @@ class ConfigWindow(object):
 	def onSound(self, evt):
 		self.sound_items = []
 		dev_win = helpers.setWidgetText("Sound/Driver", settings.current_sound_device)
-		for value in settings.sound_devices:
-			item = cegui.ListboxTextItem(value)
+		for i in range(len(settings.sound_devices)):
+			item = cegui.ListboxTextItem(settings.sound_devices[i])
 			item.setAutoDeleted(False)
 			self.sound_items.append(item)
 			dev_win.addItem(item)
@@ -894,8 +894,8 @@ class ConfigWindow(object):
 
 		self.video_mode = config.getSetting("Video Mode", self.current_system)
 		res_win = helpers.setWidgetText("Graphics/Resolution", self.video_mode)
-		for value in video_modes:
-			item = cegui.ListboxTextItem(value)
+		for i in range(len(video_modes)):
+			item = cegui.ListboxTextItem(video_modes[i])
 			item.setAutoDeleted(False)
 			self.graphics_items.append(item)
 			res_win.addItem(item)
@@ -911,8 +911,8 @@ class ConfigWindow(object):
 		self.fsaa = config.getSetting("FSAA", self.current_system)
 		if len(self.fsaa) > 0:
 			fsaa_win = helpers.setWidgetText("Graphics/AA", self.fsaa)
-			for value in fsaa:
-				item = cegui.ListboxTextItem(value)
+			for i in range(len(fsaa)):
+				item = cegui.ListboxTextItem(fsaa[i])
 				item.setAutoDeleted(False)
 				self.graphics_items.append(item)
 				fsaa_win.addItem(item)
@@ -920,8 +920,8 @@ class ConfigWindow(object):
 		self.anti_aliasing = config.getSetting("Anti aliasing", self.current_system)
 		if len(self.anti_aliasing) > 0:
 			aa_win = helpers.setWidgetText("Graphics/AA", self.anti_aliasing)
-			for value in aa:
-				item = cegui.ListboxTextItem(value)
+			for i in range(len(aa)):
+				item = cegui.ListboxTextItem(aa[i])
 				item.setAutoDeleted(False)
 				self.graphics_items.append(item)
 				aa_win.addItem(item)
