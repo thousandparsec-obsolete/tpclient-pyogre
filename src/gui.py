@@ -931,9 +931,23 @@ class ConfigWindow(object):
 		if settings.sound_effects != sound_effects:
 			settings.sound_effects = sound_effects
 			changed = True
+			import sound
+			if settings.sound_effects is False:
+				for sfx in sound.sound_list:
+					sfx.stop()
+			else:
+				for sfx in sound.sound_list:
+					sfx.play()
 		if settings.music != music:
 			settings.music = music
 			changed = True
+			import sound
+			if settings.music is False:
+				for sfx in sound.music_list:
+					sfx.stop()
+			else:
+				for sfx in sound.music_list:
+					sfx.play()
 		if settings.current_sound_device != selected_device:
 			changed = True
 

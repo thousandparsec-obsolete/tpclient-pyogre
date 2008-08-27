@@ -2,6 +2,10 @@ import ogreal
 
 import settings
 
+# Containers for looping sound files
+music_list = []
+sound_list = []
+
 """Helper functions for one-shot sounds"""
 def clickSound(evt=None):
 	"""Plays a click sound, can be used to register for a gui event"""

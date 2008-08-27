@@ -14,6 +14,7 @@ import starmap
 import helpers
 import gui
 import settings
+import sound
 
 UNIVERSE = 1
 STAR = 2
@@ -264,10 +265,11 @@ class StarmapScene(MenuScene):
 			sm = ogreal.SoundManager.getSingleton()
 			self.camera_node.attachObject(sm.getListener())
 
-		if settings.music:
+		if settings.sound_support:
 			self.bg_sound = sm.createSound("bg", "ambient.ogg", True)
 			self.bg_sound.setGain(0.5)
 			self.camera_node.attachObject(self.bg_sound)
+			sound.music_list.append(self.bg_sound)
 
 		self.hide()
 
