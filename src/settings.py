@@ -1,7 +1,7 @@
 icon_zoom_switch_level = 0.5
 show_stars_during_icon_view = False
 zoom_speed = 1
-distance_units = 100000
+distance_units = 25000
 
 user_name = None
 password = None
@@ -10,7 +10,7 @@ previous_game = None
 
 # default sound settings
 sound_effects = True
-music = True
+music = False
 
 # runtime objects, for configuration purposes
 renderers = None

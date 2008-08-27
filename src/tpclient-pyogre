@@ -99,7 +99,7 @@ class GUI(framework.Application):
 		del self.renderWindow		
 
 	def connectCallback(self, *args, **kw):
-		print "gui connect callback", args, kw
+		#print "gui connect callback", args, kw
 		if not self.loading_bar.started:
 			self.loading_bar.start(self.renderWindow)
 			self.loading_bar.show()
@@ -108,7 +108,7 @@ class GUI(framework.Application):
 			self.loading_bar.setCaption(args[0][2])
 
 	def updateCallback(self, *args, **kw):
-		print "gui update callback", args, kw
+		#print "gui update callback", args, kw
 		if not self.loading_bar.started:
 			self.loading_bar.start(self.renderWindow)
 			self.loading_bar.show()
@@ -162,7 +162,6 @@ class GUI(framework.Application):
 			settings.icon_zoom_switch_level = config["icon_zoom_switch_level"]
 			settings.show_stars_during_icon_view = config["show_stars_during_icon_view"]
 			settings.zoom_speed = config["zoom_speed"]
-			settings.distance_units = config["distance_units"]
 			settings.save_details = config["save_details"]
 
 			# optional stuff
@@ -191,7 +190,6 @@ class GUI(framework.Application):
 		config = {"icon_zoom_switch_level":settings.icon_zoom_switch_level,
 				"show_stars_during_icon_view":settings.show_stars_during_icon_view,
 				"zoom_speed":settings.zoom_speed,
-				"distance_units":settings.distance_units,
 				"save_details":settings.save_details}
 		if settings.save_details:
 			print "saving details"

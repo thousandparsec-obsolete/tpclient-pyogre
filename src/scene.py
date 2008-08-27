@@ -243,6 +243,7 @@ class StarmapScene(MenuScene):
 		self.remaining_time = 0
 		self.mouse_position = [0, 0]
 		self.sounds = {}
+		self.map_scale = 0;
 		# TODO: Shift to info overlay class
 		self.mouseover_timer = ogre.Timer()
 		self.mouseover = None
@@ -318,6 +319,32 @@ class StarmapScene(MenuScene):
 		if settings.music:
 			self.bg_sound.stop()
 
+	def calculateScale(self, objects):
+		"""Calculate a reasonable scale from a list of objects"""
+		closest = None
+		lower_left = [0, 0]
+		upper_right = [0, 0]
+		for obj in objects:
+			if obj._subtype is not STAR:
+				continue
+			x, y, z = obj.pos
+
+			if lower_left[0] > x:
+				lower_left[0] = x
+			if lower_left[1] > y:
+				lower_left[1] = y
+			if upper_right[0] < x:
+				upper_right[0] = x
+			if upper_right[1] < y:
+				upper_right[1] = y
+
+		print upper_right, lower_left, closest
+		map_width = abs(abs(upper_right[0]) - lower_left[0])
+		map_height = abs(abs(upper_right[1]) - lower_left[1])
+		print map_width, map_height
+		scale = math.hypot(map_width, map_height)
+		return scale
+
 	def create(self, cache):
 		"""Creates list of objects from cache"""
 		print "creating the starmap"
@@ -325,8 +352,9 @@ class StarmapScene(MenuScene):
 
 		#self.starmap.createBackground()
 		designs = self.getDesigns(cache)
+		self.map_scale = self.calculateScale(self.objects.values())
 
-		pan_speed = 100000000 / settings.distance_units
+		pan_speed = 100000000 / self.map_scale * settings.distance_units
 		if pan_speed < self.pan_speed:
 			pan_speed = self.pan_speed
 		else:
@@ -337,9 +365,9 @@ class StarmapScene(MenuScene):
 
 		for object in self.objects.values():
 			pos = ogre.Vector3(
-					object.pos[0] / self.distance_units, 
-					object.pos[1] / self.distance_units, 
-					object.pos[2] / self.distance_units)
+					(object.pos[0] / self.map_scale) * self.distance_units,
+					(object.pos[1] / self.map_scale) * self.distance_units,
+					(object.pos[2] / self.map_scale) * self.distance_units)
 
 			#print "creating", object.id, object.name, "\ttype:", object._subtype, "at", pos
 
@@ -420,9 +448,9 @@ class StarmapScene(MenuScene):
 
 		for object in cache.objects.values():
 			pos = ogre.Vector3(
-					object.pos[0] / self.distance_units, 
-					object.pos[1] / self.distance_units, 
-					object.pos[2] / self.distance_units)
+					(object.pos[0] / self.map_scale) * self.distance_units,
+					(object.pos[1] / self.map_scale) * self.distance_units,
+					(object.pos[2] / self.map_scale) * self.distance_units)
 
 			#print "updating", object.id, object.name, object._subtype, "at", pos
 

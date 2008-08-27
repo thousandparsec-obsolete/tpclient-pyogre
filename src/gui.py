@@ -815,7 +815,6 @@ class ConfigWindow(object):
 
 		helpers.toggleWindow("Config").activate()
 		wm = cegui.WindowManager.getSingleton()
-		wm.getWindow("Config/Distance").setText(str(settings.distance_units))
 		wm.getWindow("Config/Zoom").currentValue = settings.icon_zoom_switch_level
 		wm.getWindow("Config/ZoomSpeed").setMaxValue(self.max_zoom_speed)
 		wm.getWindow("Config/ZoomSpeed").currentValue = settings.zoom_speed - 1
@@ -840,11 +839,6 @@ class ConfigWindow(object):
 
 	def onConfigSave(self, evt):
 		wm = cegui.WindowManager.getSingleton()
-		try:
-			distance = int(wm.getWindow("Config/Distance").getText().c_str())
-		except ValueError:
-			distance = settings.distance_units
-		settings.distance_units = distance
 		settings.icon_zoom_switch_level = wm.getWindow("Config/Zoom").currentValue
 		settings.show_stars_during_icon_view = wm.getWindow("Config/StarsVisible").isSelected()
 		zoom_speed = wm.getWindow("Config/ZoomSpeed").currentValue
