@@ -122,6 +122,11 @@ class Application(object):
 	def _createSoundManager(self):
 		"""Creates the sound manager"""
 		settings.sound_devices = ogreal.SoundManager.getDeviceList()
+		if len(settings.sound_devices) == 0:
+			settings.music = False
+			settings.sound_effects = False
+			settings.sound_support = False
+			return
 
 		import os.path
 		if os.path.exists("sound.cfg"):
