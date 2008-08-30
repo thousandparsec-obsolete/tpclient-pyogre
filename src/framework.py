@@ -75,9 +75,9 @@ class Application(object):
 		self.logMgr = ogre.LogManager()
 		self.logListener = Logger()
 		self.log = ogre.LogManager.getSingletonPtr().createLog(
-				"dummy.log", 
-				True, 
-				False, 
+				"ogre.log",
+				True,
+				False,
 				False)
 		self.log.addListener(self.logListener)
 

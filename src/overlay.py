@@ -84,14 +84,14 @@ class IconOverlay(object):
 
 	def destroy(self):
 		"""Destroy and remove this overlay"""
-		overlayManager = ogre.OverlayManager.getSingleton()
-		overlayManager.destroyOverlayElement(self.panel)
-		overlayManager.destroy(self.overlay)
 		mm = ogre.MaterialManager.getSingleton()
 		if self.modified_colour:
 			print "Removing", self.original_material
 			mm.remove(self.original_material)
 		mm.remove("%s_highlight" % self.original_material)
+		overlayManager = ogre.OverlayManager.getSingleton()
+		overlayManager.destroyOverlayElement(self.panel)
+		overlayManager.destroy(self.overlay)
 
 class ObjectOverlay(object):
 	def __init__(self, node, object):
