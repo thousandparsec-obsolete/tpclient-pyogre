@@ -152,6 +152,10 @@ class LoginScene(MenuScene):
 		self.windows.append(login)
 		self.login = login
 
+		# key states
+		self.tab_down = False
+		self.enter_down = False
+
 		wm = cegui.WindowManager.getSingleton()
 		wm.getWindow("Login/SaveDetails").setSelected(settings.save_details)
 		if settings.user_name != None:
@@ -187,7 +191,7 @@ class LoginScene(MenuScene):
 		self.servers.append(item)
 		combobox.addItem(item)
 
-	def onConnect(self, evt):
+	def onConnect(self, evt=None):
 		"""Called when user clicks on the login button"""
 		wm = cegui.WindowManager.getSingleton()
 		
@@ -217,6 +221,58 @@ class LoginScene(MenuScene):
 	def setServer(self, host):
 		"""Sets the initial value of the host input field"""
 		helpers.setWidgetText("Login/Server", host)
+
+	def tab(self, next=True):
+		"""Rotates input focus through a set of editable widgets
+
+		next - True sets focus to the next widget, False sets focus to the previous widget
+
+		"""
+		wm = cegui.WindowManager.getSingleton()
+		tab_targets = [
+				wm.getWindow("Login/Server"),
+				wm.getWindow("Login/Username"),
+				wm.getWindow("Login/Password"),
+				]
+		focus_found = False
+		for target in tab_targets:
+			if target.hasInputFocus():
+				if next:
+					index = tab_targets.index(target) + 1
+					if index >= len(tab_targets):
+						index = 0
+				else:
+					index = tab_targets.index(target) - 1
+					if index < 0:
+						index = len(tab_targets) - 1
+				focus_found = True
+				t = tab_targets[index]
+				t.activate()
+				t.setCaratIndex(len(t.getText().c_str()))
+				break
+
+		if not focus_found:
+			t = tab_targets[0]
+			t.activate()
+			t.setCaratIndex(len(t.getText().c_str()))
+
+	def keyDown(self, keyboard):
+		if keyboard.isKeyDown(ois.KC_TAB):
+			if not self.tab_down:
+				if keyboard.isModifierDown(ois.Keyboard.Modifier.Shift):
+					self.tab(False)
+				else:
+					self.tab()
+				self.tab_down = True
+		else:
+			self.tab_down = False
+
+		if keyboard.isKeyDown(ois.KC_RETURN):
+			if not self.enter_down:
+				self.onConnect()
+				self.enter_down = True
+		else:
+			self.enter_down = False
 
 class StarmapScene(MenuScene):
 	"""Manages the GUI and Starmap class"""
