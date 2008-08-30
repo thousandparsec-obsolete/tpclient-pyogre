@@ -20,6 +20,7 @@ UNIVERSE = 1
 STAR = 2
 PLANET = 3
 FLEET = 4
+WORMHOLE = 5
 
 OBJECT = 1
 
@@ -405,6 +406,14 @@ class StarmapScene(MenuScene):
 		scale = math.hypot(map_width, map_height)
 		return scale
 
+	def getScaledPosition(self, position):
+		"""Returns an array containing the position scaled accordingly"""
+		return ogre.Vector3(
+				(position[0] / self.map_scale) * self.distance_units,
+				(position[1] / self.map_scale) * self.distance_units,
+				(position[2] / self.map_scale) * self.distance_units,
+				)
+
 	def create(self, cache):
 		"""Creates list of objects from cache"""
 		print "creating the starmap"
@@ -424,10 +433,7 @@ class StarmapScene(MenuScene):
 		self.distance_units = settings.distance_units
 
 		for object in self.objects.values():
-			pos = ogre.Vector3(
-					(object.pos[0] / self.map_scale) * self.distance_units,
-					(object.pos[1] / self.map_scale) * self.distance_units,
-					(object.pos[2] / self.map_scale) * self.distance_units)
+			pos = self.getScaledPosition(object.pos)
 
 			#print "creating", object.id, object.name, "\ttype:", object._subtype, "at", pos
 
@@ -453,6 +459,10 @@ class StarmapScene(MenuScene):
 				if object.parent != 1 and self.starmap.hasObject(object.parent):
 					pos = self.starmap.nodes[object.parent].position
 				node = self.starmap.addFleet(object, pos, parent, fleet_type, self.SELECTABLE)
+
+			if object._subtype is WORMHOLE:
+				end_pos = self.getScaledPosition(object.end)
+				self.starmap.addWormHole(object, pos, end_pos)
 
 		self.system_window.create(cache)
 		self.message_window.create(cache)
@@ -503,15 +513,11 @@ class StarmapScene(MenuScene):
 		"""
 		print "Updating starmap"
 		self.objects = cache.objects
-		self.starmap.clearLines()
+		self.starmap.clearTempLines()
 		designs = self.getDesigns(cache)
 
 		for object in cache.objects.values():
-			pos = ogre.Vector3(
-					(object.pos[0] / self.map_scale) * self.distance_units,
-					(object.pos[1] / self.map_scale) * self.distance_units,
-					(object.pos[2] / self.map_scale) * self.distance_units)
-
+			pos = self.getScaledPosition(object.pos)
 			#print "updating", object.id, object.name, object._subtype, "at", pos
 
 			if object._subtype is FLEET:
@@ -881,7 +887,7 @@ class StarmapScene(MenuScene):
 							orderargs.append(destination)
 					order = descclass(*orderargs)
 					self.sendOrder(source, order)
-					self.starmap.drawLine(source, destination)
+					self.starmap.connectObjects(source, destination)
 					break
 
 	def returnToMain(self):

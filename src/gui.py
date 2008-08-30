@@ -470,6 +470,9 @@ class ArgumentsWindow(object):
 				attribute = triplet[2]
 
 				if arg_type is ARG_LIST:
+					if order is None:
+						print "order is none"
+						break
 					update_list = getattr(order, attribute)[0]
 					selection = argument.getChild("%s/Selection" % argument.name)
 					print selection, selection.name, update_list

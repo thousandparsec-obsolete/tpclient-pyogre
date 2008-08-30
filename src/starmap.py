@@ -20,7 +20,8 @@ class Starmap(object):
 		self.rootNode = rootNode
 
 		self.nodes = {}
-		self.lines = 0
+		self.lines = []
+		self.temp_lines = []
 		self.overlays = {}
 		self.bg_particle = None
 		self.background_nodes = []
@@ -264,6 +265,9 @@ class Starmap(object):
 		#node = self.nodes[object.id]
 		#node.setPosition(pos)
 
+	def addWormHole(self, object, start, end):
+		self.drawLine(start, end, [0.6, 0.6, 0.6])
+
 	def hasObject(self, id):
 		return id in self.nodes
 
@@ -449,8 +453,27 @@ class Starmap(object):
 
 		self.show_icon = visible
 
-	def drawLine(self, id_start, id_end):
-		"""Draws a line showing the path of an object.
+	def drawLine(self, start, end, colour=ogre.ColourValue.White):
+		line_index = len(self.lines)
+		manual_object = self.sceneManager.createManualObject("line%i" % line_index)
+		manual_object.setQueryFlags(self.parent.UNSELECTABLE)
+		scene_node = self.rootNode.createChildSceneNode("line%i_node" % line_index)
+
+		material = ogre.MaterialManager.getSingleton().create("line%i_material" % line_index, "default")
+		material.setReceiveShadows(False)
+		material.getTechnique(0).getPass(0).setSelfIllumination(colour)
+
+		manual_object.begin("line%i_material" % line_index, ogre.RenderOperation.OT_LINE_LIST)
+		manual_object.position(start)
+		manual_object.position(end)
+		manual_object.end()
+
+		scene_node.attachObject(manual_object)
+		self.lines.append(manual_object)
+		return manual_object
+
+	def connectObjects(self, id_start, id_end):
+		"""Draws a line connecting two objects
 
 		id_start - ID of the moving object
 		id_end - ID of the object's destination
@@ -458,29 +481,28 @@ class Starmap(object):
 		"""
 		start_node = self.nodes[id_start]
 		end_node = self.nodes[id_end]
-		manual_object = self.sceneManager.createManualObject("line%i" % self.lines)
-		manual_object.setQueryFlags(self.parent.UNSELECTABLE)
-		scene_node = self.rootNode.createChildSceneNode("line%i_node" % self.lines)
+		self.temp_lines.append(self.drawLine(start_node.position, end_node.position, [0, 1, 0]))
 
-		material = ogre.MaterialManager.getSingleton().create("line%i_material" % self.lines, "default")
-		material.setReceiveShadows(False)
-		material.getTechnique(0).getPass(0).setSelfIllumination(0, 1, 0)
+	def clearTempLines(self):
+		self.clearLines(self.temp_lines)
 
-		manual_object.begin("line%i_material" % self.lines, ogre.RenderOperation.OT_LINE_LIST)
-		manual_object.position(start_node.position)
-		manual_object.position(end_node.position)
-		manual_object.end()
+	def clearLines(self, lines=None):
+		"""Removes all lines created by the drawLine method by default
 
-		scene_node.attachObject(manual_object)
-		self.lines += 1
+		lines - Destroys the given array of lines
 
-	def clearLines(self):
-		"""Removes all lines created by the drawLine method"""
-		for i in range(self.lines):
+		"""
+		if lines is None:
+			lines = self.lines
+
+		for line in lines:
+			i = lines.index(line)
 			self.sceneManager.destroySceneNode("line%i_node" % i)
 			self.sceneManager.destroyEntity("line%i" % i)
 			ogre.MaterialManager.getSingleton().remove("line%i_material" % i)
-		self.lines = 0
+			self.sceneManager.destroyManualObject(line)
+		while len(lines) > 0:
+			lines.pop()
 
 	def clearOverlays(self):
 		"""Clears all the object labels"""
