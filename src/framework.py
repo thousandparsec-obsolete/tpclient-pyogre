@@ -121,7 +121,13 @@ class Application(object):
 
 	def _createSoundManager(self):
 		"""Creates the sound manager"""
-		settings.sound_devices = ogreal.SoundManager.getDeviceList()
+		legacy = False
+		if not hasattr(ogreal, "getDeviceList"):
+			legacy = True
+			settings.sound_devices = ["Generic Software"]
+		else:
+			settings.sound_devices = ogreal.SoundManager.getDeviceList()
+
 		if len(settings.sound_devices) == 0:
 			settings.music = False
 			settings.sound_effects = False
@@ -150,7 +156,11 @@ class Application(object):
 				settings.sound_effects = False
 		else:
 			settings.current_sound_device = "Generic Software"
-		self.soundManager = ogreal.SoundManager(settings.current_sound_device)
+
+		if legacy:
+			self.soundManager = ogreal.SoundManager()
+		else:
+			self.soundManager = ogreal.SoundManager(settings.current_sound_device)
 
 	def _chooseSceneManager(self):
 		"""Chooses a default scene manager"""
