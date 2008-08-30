@@ -1096,5 +1096,6 @@ class MenuWindow(object):
 		self.parent.quit()
 
 	def onQuitToMain(self, evt):
+		self.destroy()
 		self.parent.returnToMain()
 

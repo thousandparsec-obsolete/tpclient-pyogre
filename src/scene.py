@@ -283,7 +283,7 @@ class StarmapScene(MenuScene):
 		helpers.bindButtonEvent("Windows/Messages", self, "windowToggle")
 		helpers.bindButtonEvent("Windows/System", self, "windowToggle")
 		helpers.bindButtonEvent("TopBar/Designs", self, "windowToggle")
-		helpers.bindButtonEvent("TopBar/MenuButton", self, "openMainMenu")
+		helpers.bindButtonEvent("TopBar/MenuButton", self, "toggleMainMenu")
 		helpers.bindButtonEvent("Windows/EndTurnButton", self, "requestEOT")
 		for window in ['Messages', 'Orders', 'System', 'Information', 'Designs']:
 			helpers.bindEvent(window, self, "closeClicked", cegui.FrameWindow.EventCloseClicked)
@@ -785,7 +785,7 @@ class StarmapScene(MenuScene):
 			helpers.pickle_dump(cache.resources, "resource")
 			print "cache dumped"
 		elif evt.key == ois.KC_ESCAPE:
-			self.openMainMenu()
+			self.toggleMainMenu()
 
 	def keyDown(self, keyboard):
 		if keyboard.isKeyDown(ois.KC_LEFT):
@@ -835,9 +835,11 @@ class StarmapScene(MenuScene):
 		self.parent.application.network.connection.disconnect()
 		self.parent.changeScene(self.parent.login)
 
-	def openMainMenu(self, evt=None):
+	def toggleMainMenu(self, evt=None):
 		if not cegui.WindowManager.getSingleton().isWindowPresent("MenuRoot"):
 			self.main_menu = gui.MenuWindow(self, self.system)
+		else:
+			self.main_menu.destroy()
 
 	def closeClicked(self, evt):
 		"""Called when user clicks on the close button of a window"""
