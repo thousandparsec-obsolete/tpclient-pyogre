@@ -186,6 +186,7 @@ class RadialMenu(object):
 
 	def __init__(self, camera):
 		self.camera = camera
+		self.entity = None
 		self.buttons = []
 
 		im = cegui.ImagesetManager.getSingleton()
@@ -248,6 +249,7 @@ class RadialMenu(object):
 
 	def close(self):
 		self.clear()
+		self.entity = None
 		self.menu.hide()
 
 	def open(self):

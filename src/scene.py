@@ -302,6 +302,7 @@ class StarmapScene(MenuScene):
 		self.mouse_position = [0, 0]
 		self.sounds = {}
 		self.map_scale = 0;
+
 		# TODO: Shift to info overlay class
 		self.mouseover_timer = ogre.Timer()
 		self.mouseover = None
@@ -335,15 +336,8 @@ class StarmapScene(MenuScene):
 		self.windows = [system]
 		self.system = system
 
-		helpers.bindButtonEvent("Windows/Information", self, "windowToggle")
-		helpers.bindButtonEvent("Windows/Orders", self, "windowToggle")
-		helpers.bindButtonEvent("Windows/Messages", self, "windowToggle")
-		helpers.bindButtonEvent("Windows/System", self, "windowToggle")
-		helpers.bindButtonEvent("TopBar/Designs", self, "windowToggle")
 		helpers.bindButtonEvent("TopBar/MenuButton", self, "toggleMainMenu")
 		helpers.bindButtonEvent("Windows/EndTurnButton", self, "requestEOT")
-		for window in ['Messages', 'Orders', 'System', 'Information', 'Designs']:
-			helpers.bindEvent(window, self, "closeClicked", cegui.FrameWindow.EventCloseClicked)
 		helpers.bindEvent("Navigation/ZoomIn", self.starmap, "zoomIn", cegui.Window.EventMouseButtonDown)
 		helpers.bindEvent("Navigation/ZoomOut", self.starmap, "zoomOut", cegui.Window.EventMouseButtonDown)
 		helpers.bindEvent("Navigation/Deselect", self, "unselect", cegui.Window.EventMouseButtonDown)
@@ -355,6 +349,13 @@ class StarmapScene(MenuScene):
 		self.info_window = gui.InformationWindow()
 		self.system_window = gui.SystemWindow(self)
 		self.orders_window = gui.OrdersWindow(self)
+		self.sub_windows = [
+			self.message_window,
+			self.design_window,
+			self.info_window,
+			self.system_window,
+			self.orders_window,
+			]
 
 		wm = cegui.WindowManager.getSingleton()
 		self.orders_menu = overlay.RadialMenu(self.camera)
@@ -903,22 +904,12 @@ class StarmapScene(MenuScene):
 		else:
 			self.main_menu.destroy()
 
-	def closeClicked(self, evt):
-		"""Called when user clicks on the close button of a window"""
-		evt.window.setVisible(not evt.window.isVisible())
-
-	def windowToggle(self, evt):
-		"""Toggles visibility of a window"""
-		# assume buttons and windows have the same name, minus prefix
-		name = evt.window.getName().c_str().split("/")[1]
-		if name != None:
-			helpers.toggleWindow(name)
-
 	def clearGui(self):
 		"""Empty out all GUI textboxes and hide all windows"""
-		wm = cegui.WindowManager.getSingleton()
-		wm.destroyWindow(self.system)
-		self.createGui()
+		for win in self.sub_windows:
+			win.clear()
+			win.hide()
+		self.orders_menu.close()
 
 	def clearAll(self):
 		"""Clears the entire starmap scene"""
@@ -926,6 +917,7 @@ class StarmapScene(MenuScene):
 		self.starmap.clearOverlays()
 		self.starmap.clearObjects()
 		self.clearGui()
+		self.current_object = None
 
 	def getIDFromMovable(self, movable):
 		"""Returns the object id from an Entity node"""

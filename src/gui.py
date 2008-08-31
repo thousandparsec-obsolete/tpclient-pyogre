@@ -19,12 +19,40 @@ ARG_GUI_MAP = {
 		ARG_OBJECT:'Objects',
 		}
 
-class MessageWindow(object):
+class Window(object):
+	base = ""
+	toggle_button = ""
+
+	def __init__(self):
+		if self.base != "":
+			helpers.bindEvent(self.base, self, "closeClicked", cegui.FrameWindow.EventCloseClicked)
+
+		if self.toggle_button != "":
+			helpers.bindButtonEvent(self.toggle_button, self, "windowToggle")
+
+	def closeClicked(self, evt):
+		"""Called when user clicks on the close button of a window"""
+		evt.window.setVisible(not evt.window.isVisible())
+
+	def windowToggle(self, evt):
+		"""Toggles visibility of a window"""
+		# assume buttons and windows have the same name, minus prefix
+		name = evt.window.getName().c_str().split("/")[1]
+		if name != None:
+			helpers.toggleWindow(name)
+
+	def hide(self):
+		"""Hides the window"""
+		helpers.toggleWindow(self.base, False)
+
+class MessageWindow(Window):
+	base = "Messages"
+	toggle_button = "Windows/Messages"
+
 	def __init__(self, parent):
-		self.messages = []
-		self.message_index = 0
-		self.goto_index = 0
+		Window.__init__(self)
 		self.parent = parent
+		self.clear()
 
 		helpers.bindEvent("Messages/Next", self, "nextMessage", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Messages/Prev", self, "prevMessage", cegui.PushButton.EventClicked)
@@ -38,12 +66,19 @@ class MessageWindow(object):
 		message_list.addColumn("Turn", 1, cegui.UDim(0.1, 0))
 		message_list.setSelectionMode(cegui.MultiColumnList.RowSingle)
 		self.message_list = message_list
+
+	def clear(self):
+		wm = cegui.WindowManager.getSingleton()
+		message_list = wm.getWindow("Messages/MessageList")
+		message_list.resetList()
 		self.message_list_items = []
+		self.messages = []
+		self.message_index = 0
+		self.goto_index = 0
 
 	def create(self, cache):
 		for val in cache.messages[0]:
 			self.messages.append(val)
-
 
 		if len(self.messages) > 0:
 			if len(self.messages) > self.message_index:
@@ -493,19 +528,31 @@ class ArgumentsWindow(object):
 
 			self.arguments_pending_update = []
 
-class DesignsWindow(object):
+class DesignsWindow(Window):
+	base = "Designs"
+	toggle_button = "TopBar/Designs"
+
 	def __init__(self, parent):
+		Window.__init__(self)
 		self.parent = parent
+		self.clear()
 
 		# store as [ListboxTextItem : design_id] pairs
-		self.design_list_items = {}
-		self.current_design_items = []
 		helpers.bindEvent("Designs/DesignList", self, "selectDesign", cegui.Listbox.EventSelectionChanged)
 
 		current_design = cegui.WindowManager.getSingleton().getWindow("Designs/CurrentDesign")
 		current_design.addColumn("#", 0, cegui.UDim(0.3, 0))
 		current_design.addColumn("Component", 1, cegui.UDim(0.5, 0))
 		current_design.setSelectionMode(cegui.MultiColumnList.RowSingle)
+
+	def clear(self):
+		wm = cegui.WindowManager.getSingleton()
+		design_list = wm.getWindow("Designs/DesignList")
+		design_list.resetList()
+		current_design = wm.getWindow("Designs/CurrentDesign")
+		current_design.resetList()
+		self.design_list_items = {}
+		self.current_design_items = []
 
 	def populateDesignsWindow(self, designs):
 		"""Fill the design window with designs"""
@@ -574,7 +621,13 @@ class DesignsWindow(object):
 				information_string += new_line
 			helpers.setWidgetText("Designs/Information", information_string)
 
-class InformationWindow(object):
+class InformationWindow(Window):
+	base = "Information"
+	toggle_button = "Windows/Information"
+		
+	def clear(self):
+		helpers.setWidgetText("Information/Text", "")
+
 	def setText(self, object):
 		"""Sets text inside information window"""
 		text = "modify time: " + object.modify_time.ctime() + "\n"
@@ -590,12 +643,21 @@ class InformationWindow(object):
 			text += "ships: " + str(object.ships) + "\n"
 		helpers.setWidgetText("Information/Text", text)
 
-class SystemWindow(object):
+class SystemWindow(Window):
+	base = "System"
+	toggle_button = "Windows/System"
+
 	def __init__(self, parent):
+		Window.__init__(self)
 		self.parent = parent
-		self.system_list = []
+		self.clear()
 		helpers.bindEvent("System/SystemList", self, "systemSelected", cegui.Listbox.EventSelectionChanged)
 		helpers.bindEvent("System/SystemList", self, "systemSelected", cegui.Window.EventMouseDoubleClick)
+
+	def clear(self):
+		wm = cegui.WindowManager.getSingleton()
+		wm.getWindow("System/SystemList").resetList()
+		self.system_list = []
 
 	def create(self, cache):
 		wm = cegui.WindowManager.getSingleton()
@@ -624,7 +686,10 @@ class SystemWindow(object):
 						self.parent.selectObjectById(obj.id, False)
 					break
 
-class OrdersWindow(object):
+class OrdersWindow(Window):
+	base = "Orders"
+	toggle_button = "Windows/Orders"
+
 	defaults = {
 		ARG_ABS_COORD: [0,0,0],
 		ARG_TIME: [0, 0],
@@ -636,7 +701,9 @@ class OrdersWindow(object):
 	}
 
 	def __init__(self, parent):
+		Window.__init__(self)
 		self.parent = parent
+		self.clear()
 
 		helpers.bindEvent("Orders/Delete", self, "deleteOrder", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Orders/NewOrder", self, "newOrder", cegui.PushButton.EventClicked)
@@ -648,10 +715,17 @@ class OrdersWindow(object):
 		order_queue.addColumn("Turns left", 1, cegui.UDim(0.4, 0))
 		order_queue.setSelectionMode(cegui.MultiColumnList.RowSingle)
 
-		# store as [ListboxTextItem : order node] pairs
-		self.order_queue_list = []
-
 		self.arguments_window = ArgumentsWindow(parent)
+
+	def clear(self):
+		wm = cegui.WindowManager.getSingleton()
+		order_queue = wm.getWindow("Orders/OrderQueue")
+		order_queue.resetList()
+		order_list = wm.getWindow("Orders/OrderList")
+		order_list.resetList()
+
+		self.order_queue_items = []
+		self.order_queue_list = []
 
 	def update(self):
 		self.arguments_window.update()
