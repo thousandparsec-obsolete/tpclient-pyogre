@@ -227,7 +227,7 @@ class GUI(framework.Application):
 			return self.currentScene.update(evt)
 		else:
 			# let other threads work
-			time.sleep(0.05)
+			time.sleep(0.001)
 		return True
 
 class Network(NetworkThread):

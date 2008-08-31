@@ -122,7 +122,7 @@ class Application(object):
 	def _createSoundManager(self):
 		"""Creates the sound manager"""
 		legacy = False
-		if not hasattr(ogreal, "getDeviceList"):
+		if not hasattr(ogreal.SoundManager, "getDeviceList"):
 			legacy = True
 			settings.sound_devices = ["Generic Software"]
 		else:
