@@ -23,7 +23,8 @@ class Window(object):
 	base = ""
 	toggle_button = ""
 
-	def __init__(self):
+	def __init__(self, parent):
+		self.parent = parent
 		if self.base != "":
 			helpers.bindEvent(self.base, self, "closeClicked", cegui.FrameWindow.EventCloseClicked)
 
@@ -50,8 +51,7 @@ class MessageWindow(Window):
 	toggle_button = "Windows/Messages"
 
 	def __init__(self, parent):
-		Window.__init__(self)
-		self.parent = parent
+		Window.__init__(self, parent)
 		self.clear()
 
 		helpers.bindEvent("Messages/Next", self, "nextMessage", cegui.PushButton.EventClicked)
@@ -533,8 +533,7 @@ class DesignsWindow(Window):
 	toggle_button = "TopBar/Designs"
 
 	def __init__(self, parent):
-		Window.__init__(self)
-		self.parent = parent
+		Window.__init__(self, parent)
 		self.clear()
 
 		# store as [ListboxTextItem : design_id] pairs
@@ -624,23 +623,41 @@ class DesignsWindow(Window):
 class InformationWindow(Window):
 	base = "Information"
 	toggle_button = "Windows/Information"
-		
+
 	def clear(self):
 		helpers.setWidgetText("Information/Text", "")
 
 	def setText(self, object):
 		"""Sets text inside information window"""
-		text = "modify time: " + object.modify_time.ctime() + "\n"
-		text += "name: " + object.name + "\n"
-		text += "parent: " + str(object.parent) + "\n"
-		text += "position: " + str(object.pos) + "\n"
-		text += "velocity: " + str(object.vel) + "\n"
-		text += "id: " + str(object.id) + "\n"
-		text += "size: " + str(object.size) + "\n"
+		cache = self.parent.getCache()
+		text = ""
+		text += "Name: %s (%s)\n" % (str(object.name), str(object.id))
+		text += "Position: %s\n" % str(object.pos)
+		text += "Velocity: %s\n" % str(object.vel)
+		text += "Size: %s\n" % str(object.size)
 		if hasattr(object, "owner"):
-			text += "owner: " + str(object.owner) + "\n"
+			if object.owner != -1:
+				owner_name = cache.players[object.owner].name
+				race_name = cache.players[object.owner].race_name
+				text += "Owner: %s(%s)\n" % (owner_name, race_name)
+			else:
+				text += "Neutral\n"
 		if hasattr(object, "ships"):
-			text += "ships: " + str(object.ships) + "\n"
+			text += "-- Ships --\n"
+			ships = []
+			total = 0
+			for group in object.ships:
+				design_name = cache.designs[group[0]].name
+				text += "    %s: %i\n" % (design_name, group[1])
+		if hasattr(object, "resources"):
+			text += "-- Resources --\n"
+			resources = []
+			print object.resources
+			for resource in object.resources:
+				info = cache.resources[resource[0]]
+				resource_string = "    %s: %s available, %s minable, %s inaccessable" % \
+					(info.name_plural, resource[1], resource[2], resource[3])
+				text += resource_string
 		helpers.setWidgetText("Information/Text", text)
 
 class SystemWindow(Window):
@@ -648,8 +665,7 @@ class SystemWindow(Window):
 	toggle_button = "Windows/System"
 
 	def __init__(self, parent):
-		Window.__init__(self)
-		self.parent = parent
+		Window.__init__(self, parent)
 		self.clear()
 		helpers.bindEvent("System/SystemList", self, "systemSelected", cegui.Listbox.EventSelectionChanged)
 		helpers.bindEvent("System/SystemList", self, "systemSelected", cegui.Window.EventMouseDoubleClick)
@@ -701,8 +717,7 @@ class OrdersWindow(Window):
 	}
 
 	def __init__(self, parent):
-		Window.__init__(self)
-		self.parent = parent
+		Window.__init__(self, parent)
 		self.clear()
 
 		helpers.bindEvent("Orders/Delete", self, "deleteOrder", cegui.PushButton.EventClicked)

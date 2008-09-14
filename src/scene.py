@@ -346,7 +346,7 @@ class StarmapScene(MenuScene):
 
 		self.message_window = gui.MessageWindow(self)
 		self.design_window = gui.DesignsWindow(self)
-		self.info_window = gui.InformationWindow()
+		self.info_window = gui.InformationWindow(self)
 		self.system_window = gui.SystemWindow(self)
 		self.orders_window = gui.OrdersWindow(self)
 		self.sub_windows = [
