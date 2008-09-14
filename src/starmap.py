@@ -36,6 +36,7 @@ class Starmap(object):
 		self.show_icon = False
 		self.last_clicked = None
 		self.last_clicked_selection = None
+		self.update_movement = False
 
 		self.map_lower_left = [0, 0]
 		self.map_upper_right = [0, 0]
@@ -262,6 +263,7 @@ class Starmap(object):
 		pos = self.calculateRadialPosition(position, 200, 360, parent.fleets, object.index)
 		target = self.sceneManager.getSceneNode("Object%i_Target" % object.id)
 		target.position = pos
+		self.update_movement = True
 		#node = self.nodes[object.id]
 		#node.setPosition(pos)
 
@@ -392,35 +394,40 @@ class Starmap(object):
 			if self.show_icon:
 				self.setIconView(False)
 		
-		for icon in self.icons.values():
-			icon.update(camera)
 		for label in self.overlays.values():
 			label.update(camera)
 
 		if not self.show_icon:
 			for planet in self.planets:
 				planet.getChild(0).roll(ogre.Radian(0.005))
+		else:
+			for icon in self.icons.values():
+				icon.update(camera)
 
-		for fleet in self.fleets:
-			node = self.sceneManager.getSceneNode("Object%i_Node" % fleet)
-			target = self.sceneManager.getSceneNode("Object%i_Target" % fleet)
-			move_speed = 100
-			node_pos = node.position
-			target_pos = target.position
-			if node_pos != target_pos:
-				if abs(node_pos.x - target_pos.x) < move_speed:
-					node.position.x = target_pos.x
-				elif node_pos.x < target_pos.x:
-					node.translate(move_speed, 0, 0)
-				elif node_pos.x > target_pos.x:
-					node.translate(-move_speed, 0, 0)
+		if self.update_movement:
+			for fleet in self.fleets:
+				self.update_movement = False
+				node = self.sceneManager.getSceneNode("Object%i_Node" % fleet)
+				target = self.sceneManager.getSceneNode("Object%i_Target" % fleet)
+				move_speed = 100
+				node_pos = node.position
+				target_pos = target.position
+				if node_pos != target_pos:
+					self.update_movement = True
 
-				if abs(node_pos.y - target_pos.y) < move_speed:
-					node.position.y = target_pos.y
-				elif node_pos.y < target_pos.y:
-					node.translate(0, move_speed, 0)
-				elif node_pos.y > target_pos.y:
-					node.translate(0, -move_speed, 0)
+					if abs(node_pos.x - target_pos.x) < move_speed:
+						node.position.x = target_pos.x
+					elif node_pos.x < target_pos.x:
+						node.translate(move_speed, 0, 0)
+					elif node_pos.x > target_pos.x:
+						node.translate(-move_speed, 0, 0)
+
+					if abs(node_pos.y - target_pos.y) < move_speed:
+						node.position.y = target_pos.y
+					elif node_pos.y < target_pos.y:
+						node.translate(0, move_speed, 0)
+					elif node_pos.y > target_pos.y:
+						node.translate(0, -move_speed, 0)
 
 		return True
 

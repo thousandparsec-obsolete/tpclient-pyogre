@@ -13,6 +13,7 @@ class IconOverlay(object):
 		self.original_material = material_name
 		self.highlight = False
 		self.modified_colour = False
+		self.old_pos = None
 
 		overlayManager = ogre.OverlayManager.getSingleton()
 		panel = overlayManager.createOverlayElement("Panel", "Panel_Icon_%i" % object.id)
@@ -63,9 +64,13 @@ class IconOverlay(object):
 	def update(self, camera):
 		entity = self.node.getAttachedObject(0)
 	
-		pos =  self.node._getWorldAABB().getMaximum()
+		pos = self.node._getWorldAABB().getMaximum()
 		pos = camera.viewMatrix*pos
 		pos = camera.projectionMatrix*pos
+		if pos == self.old_pos:
+			return
+		else:
+			self.old_pos = pos
 
 		offset_x = -20
 		offset_y = -5
