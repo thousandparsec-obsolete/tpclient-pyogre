@@ -3,6 +3,7 @@ show_stars_during_icon_view = False
 zoom_speed = 1
 distance_units = 25000
 show_fps = False
+show_intro = True
 
 user_name = None
 password = None
@@ -11,7 +12,7 @@ previous_game = None
 
 # default sound settings
 sound_effects = True
-music = False
+music = True
 
 # runtime objects, for configuration purposes
 renderers = None

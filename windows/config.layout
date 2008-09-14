@@ -90,6 +90,17 @@
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.438674,0},{0.381415,0},{0.688674,0},{0.453617,0}}" />
             </Window>
+            <Window Type="SleekSpace/StaticText" Name="Config/ShowIntroLabel" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="Show intro movie" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.065568,0},{0.451142,0},{0.431341,0},{0.574513,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Checkbox" Name="Config/ShowIntro" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.438674,0},{0.481415,0},{0.688674,0},{0.553617,0}}" />
+            </Window>
         </Window>
         <Window Type="SleekSpace/FrameWindow" Name="Graphics" >
             <Property Name="Font" Value="BlueHighway-10" />

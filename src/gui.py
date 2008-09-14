@@ -913,6 +913,7 @@ class ConfigWindow(object):
 		wm.getWindow("Config/ZoomSpeed").currentValue = settings.zoom_speed - 1
 		wm.getWindow("Config/StarsVisible").setSelected(settings.show_stars_during_icon_view)
 		wm.getWindow("Config/ShowFps").setSelected(settings.show_fps)
+		wm.getWindow("Config/ShowIntro").setSelected(settings.show_intro)
 
 		helpers.toggleWindow("Config", True)
 		helpers.toggleWindow("Sound", False)
@@ -940,6 +941,7 @@ class ConfigWindow(object):
 		settings.icon_zoom_switch_level = wm.getWindow("Config/Zoom").currentValue
 		settings.show_stars_during_icon_view = wm.getWindow("Config/StarsVisible").isSelected()
 		settings.show_fps = wm.getWindow("Config/ShowFps").isSelected()
+		settings.show_intro = wm.getWindow("Config/ShowIntro").isSelected()
 		zoom_speed = wm.getWindow("Config/ZoomSpeed").currentValue
 		settings.zoom_speed = int(zoom_speed) + 1
 		self.destroy()
