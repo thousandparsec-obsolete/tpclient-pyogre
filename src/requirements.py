@@ -70,8 +70,13 @@ print "---------------------------------------------------------------"
 ogre_version = "1.4"
 try:
 	import ogre.renderer.OGRE as ogre
-	if ogre.ogre_version != ogre_version:
-		notfound.append("python-ogre/ogre == " + ogre_version)
+	print "Installed in ", ogre.__file__
+	if hasattr(ogre, "Version__"):
+		if ogre.Version__ != ogre_version:
+			notfound.append("python-ogre/ogre == " + ogre_version)
+	else:
+		if ogre.ogre_version != ogre_version:
+			notfound.append("python-ogre/ogre == " + ogre_version)
 except ImportError, e:
 	print e
 	notfound.append("python-ogre/ogre")
