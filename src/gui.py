@@ -1052,13 +1052,13 @@ class ConfigWindow(object):
 		if settings.current_sound_device != selected_device:
 			changed = True
 
-		if changed and selected_device != "":
+		if changed:
 			def convert(value):
 				if value:
 					return "Yes"
 				else:
 					return "No"
-			lines = ["Device=%s\n" % selected_device, "Music=%s\n" % convert(music), "Sound=%s\n" % convert(sound_effects)]
+			lines = ["Music=%s\n" % convert(music), "Sound=%s\n" % convert(sound_effects)]
 			try:
 				f = open("sound.cfg", "w")
 				f.writelines(lines)

@@ -319,14 +319,22 @@ class StarmapScene(MenuScene):
 
 		self.createGui()
 
-		if settings.music or settings.sound_effects:
-			sm = ogreal.SoundManager.getSingleton()
-			self.camera_node.attachObject(sm.getListener())
+		#if settings.music or settings.sound_effects:
+			#sm = ogreal.SoundManager.getSingleton()
+			#self.camera_node.attachObject(sm.getListener())
 
+		#if settings.sound_support:
+			#self.bg_sound = sm.createSound("bg", "ambient.ogg", True)
+			#self.bg_sound.setGain(0.5)
+			#self.camera_node.attachObject(self.bg_sound)
 		if settings.sound_support:
-			self.bg_sound = sm.createSound("bg", "ambient.ogg", True)
-			self.bg_sound.setGain(0.5)
-			self.camera_node.attachObject(self.bg_sound)
+			from requirements import graphicsdir
+			import pygame
+			import os
+			bg_file = os.path.join(graphicsdir, "sound/ambient.ogg")
+			if os.path.exists(bg_file):
+				pygame.mixer.music.load(bg_file)
+				pygame.mixer.music.set_volume(0.5)
 
 		self.hide()
 
@@ -369,17 +377,27 @@ class StarmapScene(MenuScene):
 		self.sceneManager.setSkyBox(True, 'skybox/SpaceSkyBox')
 		self.starmap.show()
 		if settings.music:
-			sound.music_list.append(self.bg_sound)
-			self.bg_sound.play()
+			import pygame
+			try:
+				pygame.mixer.music.play(-1)
+				sound.music_list.append(pygame.mixer.music)
+			except pygame.error:
+				print "music not loaded"
+			#sound.music_list.append(self.bg_sound)
+			#self.bg_sound.play()
 
 	def hide(self):
 		Scene.hide(self)
 		self.sceneManager.setSkyBox(False, '')
 		self.starmap.hide()
 		if settings.music:
-			if self.bg_sound in sound.music_list:
-				sound.music_list.remove(self.bg_sound)
-			self.bg_sound.stop()
+			import pygame
+			pygame.mixer.music.stop()
+			if pygame.mixer.music in sound.music_list:
+				sound.music_list.remove(pygame.mixer.music)
+			#if self.bg_sound in sound.music_list:
+				#sound.music_list.remove(self.bg_sound)
+			#self.bg_sound.stop()
 
 	def calculateScale(self, objects):
 		"""Calculate a reasonable scale from a list of objects"""

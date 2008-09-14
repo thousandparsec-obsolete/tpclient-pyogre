@@ -57,7 +57,8 @@ class Application(object):
 		self._createViewports()
 
 		if settings.sound_support:
-			self._createSoundManager()
+			self._createPygameMixer()
+			#self._createSoundManager()
 		else:
 			settings.sound_effects = False
 			settings.music = False
@@ -119,16 +120,45 @@ class Application(object):
 			settings.render_system = self.root.getRenderSystem()
 		return carryOn
 
+	def _createPygameMixer(self):
+		"""Initialises the pygame sound module"""
+		try:
+			import pygame
+			pygame.mixer.pre_init(44100, -16, 2, 3072)
+			pygame.mixer.init()
+			import os.path
+			if os.path.exists("sound.cfg"):
+				config = ogre.ConfigFile()
+				config.loadDirect("sound.cfg")
+				music = config.getSetting("Music")
+				if music == "Yes":
+					settings.music = True
+				else:
+					settings.music = False
+
+				sound = config.getSetting("Sound")
+				if sound == "Yes":
+					settings.sound_effects = True
+				else:
+					settings.sound_effects = False
+		except ImportError:
+			print "pygame not found, sounds are disabled"
+			settings.music = False
+			settings.sound_effects = False
+			settings.sound_support = False
+
 	def _createSoundManager(self):
 		"""Creates the sound manager"""
 		legacy = False
 		if not hasattr(ogreal.SoundManager, "getDeviceList"):
 			legacy = True
+			print "legacy ogreal found"
 			settings.sound_devices = ["Generic Software"]
 		else:
 			settings.sound_devices = ogreal.SoundManager.getDeviceList()
 
 		if len(settings.sound_devices) == 0:
+			print "no sound devices found"
 			settings.music = False
 			settings.sound_effects = False
 			settings.sound_support = False
