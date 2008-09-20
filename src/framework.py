@@ -3,7 +3,7 @@ import os
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
 import ogre.io.OIS as ois
-import ogreal
+#import ogreal
 
 import console
 import settings
@@ -56,12 +56,7 @@ class Application(object):
 		self._createCamera()
 		self._createViewports()
 
-		if settings.sound_support:
-			self._createPygameMixer()
-			#self._createSoundManager()
-		else:
-			settings.sound_effects = False
-			settings.music = False
+		self._createPygameMixer()
 
 		ogre.TextureManager.getSingleton().defaultNumMipmaps = 5
 
@@ -125,7 +120,8 @@ class Application(object):
 		try:
 			import pygame
 			pygame.mixer.pre_init(44100, -16, 2, 3072)
-			pygame.mixer.init()
+			pygame.init()
+			settings.sound_support = True
 			import os.path
 			if os.path.exists("sound.cfg"):
 				config = ogre.ConfigFile()

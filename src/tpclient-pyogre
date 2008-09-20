@@ -20,10 +20,13 @@ import settings
 from loadingbar import *
 
 def traceback():
+	import datetime
+	print datetime.datetime.now()
 	import sys, traceback, string
 	type, val, tb = sys.exc_info()
 	sys.stderr.write(string.join(traceback.format_exception(type, val, tb), ''))
-	sys.stderr.flush()
+	if (hasattr(sys.stderr, "flush")):
+		sys.stderr.flush()
 
 
 class GUI(framework.Application):

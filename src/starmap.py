@@ -2,7 +2,7 @@ import math
 import random
 
 import ogre.renderer.OGRE as ogre
-import ogreal
+#import ogreal
 
 import overlay
 import settings

@@ -1,4 +1,4 @@
-import ogreal
+#import ogreal
 
 import settings
 
@@ -11,7 +11,7 @@ sound_list = []
 """Helper functions for one-shot sounds"""
 def clickSound(evt=None):
 	"""Plays a click sound, can be used to register for a gui event"""
-	if settings.sound_effects:
+	if settings.sound_support and settings.sound_effects:
 		from requirements import graphicsdir
 		import pygame
 		import os

@@ -32,6 +32,7 @@ try:
 
 	while movie.get_busy():
 		movie.stop()
+	pygame.display.quit()
 
 except ImportError:
 	print "pygame not found - skipping splash movie"
