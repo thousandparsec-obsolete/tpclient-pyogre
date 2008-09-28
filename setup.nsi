@@ -79,18 +79,18 @@ Section -post SEC0001
     SetOutPath $SMPROGRAMS\$StartMenuGroup
     CreateShortcut "$SMPROGRAMS\$StartMenuGroup\$(^Name).lnk" $INSTDIR\$(^Name).lnk
 
-	FileOpen $0 setup.bat w
-	FileWrite $0 "echo off"
-	FileWriteByte $0 "13"
-	FileWriteByte $0 "10"
-	FileWrite $0 "cd $INSTDIR\bin"
-	FileWriteByte $0 "13"
-	FileWriteByte $0 "10"
-	FileWrite $0 "del ogre.cfg"
-	FileWriteByte $0 "13"
-	FileWriteByte $0 "10"
-	FileWrite $0 "tpclient-pyogre.exe"
-	FileClose $0
+    FileOpen $0 setup.bat w
+    FileWrite $0 "echo off"
+    FileWriteByte $0 "13"
+    FileWriteByte $0 "10"
+    FileWrite $0 "cd $INSTDIR\bin"
+    FileWriteByte $0 "13"
+    FileWriteByte $0 "10"
+    FileWrite $0 "del ogre.cfg"
+    FileWriteByte $0 "13"
+    FileWriteByte $0 "10"
+    FileWrite $0 "tpclient-pyogre.exe"
+    FileClose $0
 
     CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Uninstall $(^Name).lnk" $INSTDIR\uninstall.exe
     !insertmacro MUI_STARTMENU_WRITE_END
