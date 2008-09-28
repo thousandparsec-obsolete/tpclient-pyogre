@@ -63,8 +63,9 @@ Section -Main SEC0000
     File /r .\windows
     File .\LICENSE
     File .\README
+    File /r .\ThirdParty
 
-	SetOutPath $INSTDIR\bin
+    SetOutPath $INSTDIR\bin
     CreateShortcut "$INSTDIR\$(^Name).lnk" $INSTDIR\bin\tpclient-pyogre.exe
 
     WriteRegStr HKLM "${REGKEY}\Components" Main 1
@@ -99,6 +100,8 @@ Section -post SEC0001
     WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" UninstallString $INSTDIR\uninstall.exe
     WriteRegDWORD HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" NoModify 1
     WriteRegDWORD HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" NoRepair 1
+    ExecWait "$INSTDIR\ThirdParty\vcredist_x86.exe"
+    ExecWait "$INSTDIR\ThirdParty\dxwebsetup.exe"
 SectionEnd
 
 # Macro for selecting uninstaller sections
@@ -123,6 +126,7 @@ SectionEnd
 Section -un.post UNSEC0001
     DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)"
     Delete "$SMPROGRAMS\$StartMenuGroup\Uninstall $(^Name).lnk"
+    Delete "$SMPROGRAMS\$StartMenuGroup\setup.bat"
     Delete "$SMPROGRAMS\$StartMenuGroup\$(^Name).lnk"
     Delete $INSTDIR\uninstall.exe
     DeleteRegValue HKLM "${REGKEY}" StartMenuGroup
@@ -130,6 +134,7 @@ Section -un.post UNSEC0001
     DeleteRegKey /IfEmpty HKLM "${REGKEY}\Components"
     DeleteRegKey /IfEmpty HKLM "${REGKEY}"
     RmDir $SMPROGRAMS\$StartMenuGroup
+    RmDir "$SMPROGRAMS\Thousand Parsec"
     RmDir $INSTDIR
 SectionEnd
 
