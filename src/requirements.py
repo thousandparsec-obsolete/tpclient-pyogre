@@ -67,7 +67,7 @@ print
 print "Checking requirements:"
 print "---------------------------------------------------------------"
 
-ogre_version = "1.4"
+ogre_version = "1.6.1"
 try:
 	import ogre.renderer.OGRE as ogre
 	print "Installed in ", ogre.__file__

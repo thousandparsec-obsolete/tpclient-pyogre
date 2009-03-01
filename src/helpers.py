@@ -112,7 +112,7 @@ def loadWindowLayout(name):
 		version = cegui.Version__
 	else:
 		version = cegui.CEGUI_version
-	if version >= '0.6.0':
+	if version == '0.6.0':
 		return wm.loadWindowLayout(name, False)
 	else:
 		return wm.loadWindowLayout(name)

@@ -37,7 +37,7 @@ class Scene(object):
 		self.sceneManager = sceneManager
 		
 		# Create the root for this Scene
-		self.rootNode = sceneManager.rootSceneNode.createChildSceneNode((0, 0, 0))
+		self.rootNode = sceneManager.getRootSceneNode().createChildSceneNode((0, 0, 0))
 		self.camera = self.sceneManager.getCamera('PlayerCam')
 		
 		# Where to store any GUI windows
@@ -46,7 +46,7 @@ class Scene(object):
 	def show(self):
 		"""Called when this SceneManager is being displayed"""
 		# Attach the root node
-		self.sceneManager.rootSceneNode.addChild(self.rootNode)
+		self.sceneManager.getRootSceneNode().addChild(self.rootNode)
 	
 		# Show all the GUI windows for this scene
 		for window in self.windows:
@@ -76,7 +76,7 @@ class Scene(object):
 			window.hide()
 
 		# Detach the root node
-		self.sceneManager.rootSceneNode.removeChild(self.rootNode)
+		self.sceneManager.getRootSceneNode().removeChild(self.rootNode)
 
 	def update(self, evt):
 		"""Update is called every frame"""
@@ -592,7 +592,7 @@ class StarmapScene(MenuScene):
 				self.camera_node.translate(0, 0, self.scroll_speed)
 			else:
 				self.camera_node.translate(0, 0, -self.scroll_speed)
-		self.starmap.updateBackground(self.camera.getWorldPosition())
+		self.starmap.updateBackground(self.camera.getDerivedPosition())
 
 	def onNetworkTimeRemaining(self, evt):
 		"""Called whenever a NetworkTimeRemaining packet is received"""

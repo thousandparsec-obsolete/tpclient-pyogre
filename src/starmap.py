@@ -157,7 +157,7 @@ class Starmap(object):
 		entity_node = self.sceneManager.getSceneNode("Object%i_EntityNode" % object.id)
 
 		# Lens flare
-		billboard = self.flareBillboard.createBillboard(position, ogre.ColourValue.White)
+		billboard = self.flareBillboard.createBillboard(position, ogre.ColourValue().White)
 
 		light = self.sceneManager.createLight("Object%i_Light" % object.id)
 		light.type = ogre.Light.LT_POINT
@@ -358,7 +358,6 @@ class Starmap(object):
 		node = self.rootNode.createChildSceneNode("Object%i_Node" % oid, pos)
 		entity_node = node.createChildSceneNode("Object%i_EntityNode" % oid, ogre.Vector3(0, 0, 0))
 		entity = self.sceneManager.createEntity("Object%i" % oid, mesh)
-		entity.setNormaliseNormals(normalise)
 		obj_scale = scale / entity.mesh.boundingSphereRadius
 		entity_node.setScale(ogre.Vector3(obj_scale, obj_scale, obj_scale))
 		entity_node.attachObject(entity)
@@ -625,8 +624,8 @@ class Starmap(object):
 		cam_focus = self.sceneManager.getSceneNode("CameraFocus")
 		self.v_angle += v_angle
 		self.h_angle += h_angle
-		q = ogre.Quaternion(ogre.Degree(self.h_angle), ogre.Vector3.UNIT_Z)
-		r = ogre.Quaternion(ogre.Degree(self.v_angle), ogre.Vector3.UNIT_X)
+		q = ogre.Quaternion(ogre.Degree(self.h_angle), ogre.Vector3().UNIT_Z)
+		r = ogre.Quaternion(ogre.Degree(self.v_angle), ogre.Vector3().UNIT_X)
 		q = q * r
 		cam_focus.setOrientation(q)
 
