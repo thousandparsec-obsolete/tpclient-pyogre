@@ -321,12 +321,13 @@ class StarmapScene(MenuScene):
 
 		if settings.sound_support:
 			from requirements import graphicsdir
-			import pygame
+			import pyglet
 			import os
 			bg_file = os.path.join(graphicsdir, "sound/ambient.ogg")
-			if pygame.mixer.get_init() and os.path.exists(bg_file):
-				self.bg_sound = pygame.mixer.Sound(bg_file)
-				self.bg_sound.set_volume(0.2)
+			if os.path.exists(bg_file):
+				bg_media = pyglet.media.load(bg_file)
+				self.bg_sound = pyglet.media.ManagedSoundPlayer()
+				self.bg_sound.queue(bg_media)
 
 		self.hide()
 
@@ -369,21 +370,17 @@ class StarmapScene(MenuScene):
 		self.sceneManager.setSkyBox(True, 'skybox/SpaceSkyBox')
 		self.starmap.show()
 		if settings.music:
-			import pygame
-			try:
-				self.bg_sound.play(-1)
-				sound.music_list.append(self.bg_sound)
-			except pygame.error:
-				print "music not loaded"
+			self.bg_sound.play()
+			sound.music_list.append(self.bg_sound)
 
 	def hide(self):
 		Scene.hide(self)
 		self.sceneManager.setSkyBox(False, '')
 		self.starmap.hide()
 		if settings.music:
-			import pygame
 			if self.bg_sound in sound.music_list:
-				sound.music_list.remove(pygame.mixer.music)
+				self.bg_sound.stop()
+				sound.music_list.remove(self.bg_sound)
 
 	def calculateScale(self, objects):
 		"""Calculate a reasonable scale from a list of objects"""

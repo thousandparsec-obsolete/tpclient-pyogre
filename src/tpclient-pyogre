@@ -280,7 +280,7 @@ class Network(NetworkThread):
 		gui.Call(gui.loadingFinished)
 		return
 
-class Application(ClientApplication):
+class TPApplication(ClientApplication):
 	GUIClass = GUI
 	NetworkClass = Network
 	MediaClass = MediaThread
@@ -299,7 +299,7 @@ if __name__ == '__main__':
 		if len(sys.argv) > 1:
 			url = sys.argv[1]
 
-		app = Application(url)
+		app = TPApplication(url)
 		app.Run()
 		app.ConfigSave()
 	finally:

@@ -116,11 +116,9 @@ class Application(object):
 		return carryOn
 
 	def _createPygameMixer(self):
-		"""Initialises the pygame sound module"""
+		"""Initialises the pyglet sound module"""
 		try:
-			import pygame
-			pygame.mixer.pre_init(44100, -16, 2, 3072)
-			pygame.init()
+			import pyglet
 			settings.sound_support = True
 			import os.path
 			if os.path.exists("sound.cfg"):
@@ -138,7 +136,7 @@ class Application(object):
 				else:
 					settings.sound_effects = False
 		except ImportError:
-			print "pygame not found, sounds are disabled"
+			print "pyglet not found, sounds are disabled"
 			settings.music = False
 			settings.sound_effects = False
 			settings.sound_support = False
@@ -367,6 +365,14 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 	def frameStarted(self, evt):
 		"""Called at the start of a frame"""
 		self.application.frameStarted(evt)
+		if settings.music or settings.sound_effects:
+			try:
+				import pyglet
+				pyglet.media.dispatch_events()
+			except ImportError:
+				settings.music = False
+				settings.sound_effects = False
+
 		if self.renderWindow.isClosed():
 			self.keepRendering = False
 		

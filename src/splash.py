@@ -4,35 +4,37 @@ import os
 from requirements import graphicsdir
 
 try:
-	os.environ['SDL_VIDEO_CENTERED'] = '1'
-	os.environ['SDL_VIDEO_WINDOW_POS'] = "center"
-	import pygame
-	import time
+	import pyglet
 
 	if not os.path.exists(os.path.join(graphicsdir, "movies/intro-high.mpg")):
 		print "Could not find the intro movie", os.path.join(graphicsdir, "movies/intro-high.mpg")
 		raise ImportError
 
-	pygame.init()
-	screen = pygame.display.set_mode((640,480), pygame.NOFRAME)
-	pygame.mixer.quit()
-	movie = pygame.movie.Movie(os.path.join(graphicsdir, "movies/intro-high.mpg"))
-	movie.set_display(screen, (0,0), )
-	movie.play()
-	pygame.display.flip()
-	while True:
-		if not movie.get_busy():
-			break
+	source = pyglet.media.load(os.path.join(graphicsdir, "movies/intro-high.mpg"))
+	player = pyglet.media.Player()
+	player.queue(source)
+	player.eos_action = pyglet.media.Player.EOS_PAUSE
+	player.play()
 
-		event = pygame.event.poll()
-		if event.type == pygame.NOEVENT:
-			time.sleep(0.1)
-		elif event.type in (pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN, pygame.KEYDOWN, pygame.KEYUP):
-			break
+	display = pyglet.window.get_platform().get_default_display()
+	screen = display.get_default_screen()
+	window = pyglet.window.Window(visible=False,
+			style=pyglet.window.Window.WINDOW_STYLE_BORDERLESS)
 
-	while movie.get_busy():
-		movie.stop()
-	pygame.display.quit()
+	window.set_location(screen.width / 2 - window.width / 2, 
+			screen.height / 2 - window.height / 2)
+	window.set_visible(True)
+	@window.event
+	def on_draw():
+		tex = player.get_texture()
+		if tex:
+			tex.blit(0, 0)
+
+	@player.event
+	def on_eos():
+		pyglet.app.exit()
+
+	pyglet.app.run()
 
 except ImportError:
-	print "pygame not found - skipping splash movie"
+	print "pyglet not found - skipping splash movie"
