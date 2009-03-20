@@ -40,7 +40,7 @@ class IconOverlay(object):
 		self.overlay.add2D(self.panel)
 		self.overlay.show()
 
-	def setHighlight(self, highlight, colour=ogre.ColourValue.White):
+	def setHighlight(self, highlight, colour=ogre.ColourValue().White):
 		material = self.panel.material
 		clone_material_name = "%s_highlight" % self.original_material
 		material_manager = ogre.MaterialManager.getSingleton()

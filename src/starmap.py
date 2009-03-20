@@ -305,7 +305,7 @@ class Starmap(object):
 		return_element = elements[self.last_clicked_selection]
 		return return_element
 
-	def selectObject(self, object_id, colour_value=ogre.ColourValue.White, scale_factor=3):
+	def selectObject(self, object_id, colour_value=ogre.ColourValue().White, scale_factor=3):
 		"""Appends a scene node to the current selection and highlights it"""
 		scene_node = self.nodes[object_id]
 		position = scene_node.position
@@ -459,7 +459,7 @@ class Starmap(object):
 
 		self.show_icon = visible
 
-	def drawLine(self, start, end, colour=ogre.ColourValue.White):
+	def drawLine(self, start, end, colour=ogre.ColourValue().White):
 		line_index = len(self.lines)
 		manual_object = self.sceneManager.createManualObject("line%i" % line_index)
 		manual_object.setQueryFlags(self.parent.UNSELECTABLE)
