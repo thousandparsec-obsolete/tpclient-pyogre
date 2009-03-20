@@ -233,7 +233,7 @@ elif sys.platform == 'win32':
 		}],
 		options={
 			"py2exe": {
-				"dll_excludes": [ "MSVCP80.dll", "MSVCR80.dll" ], 
+				"dll_excludes": [ "MSVCP90.dll", "MSVCR90.dll" ], 
 				"packages": ["tp.netlib", "tp.client"], 
 				"excludes": ["Tkconstants", "Tkinter", "tcl", "pydoc"],
 				"optimize": 2,
@@ -249,7 +249,7 @@ elif sys.platform == 'win32':
 	# Attempt to find dlls from system directories
 	import ogre.renderer.OGRE as ogre
 	ogre_path = os.path.dirname(ogre.__file__)
-	arguments["data_files"].append(os.path.join(ogre_path, "boost_python-vc80-mt-1_35.dll"))
+	arguments["data_files"].append(os.path.join(ogre_path, "boost_python-vc90-mt-1_37.dll"))
 
 	import ogre.gui.CEGUI as cegui
 	cegui_path = os.path.dirname(cegui.__file__)
