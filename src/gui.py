@@ -509,7 +509,7 @@ class ArgumentsWindow(object):
 						print "order is none"
 						break
 					update_list = getattr(order, attribute)[0]
-					selection = argument.getChild("%s/Selection" % argument.name)
+					selection = argument.getChild("%s/Selection" % argument.name.c_str())
 					print selection, selection.name, update_list
 					self.update_list[argument.name.c_str()] = update_list
 

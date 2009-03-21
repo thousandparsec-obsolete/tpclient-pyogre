@@ -531,7 +531,7 @@ class Starmap(object):
 				sm.destroyLight("Object%i_Light" % oid)
 		mm = ogre.MaterialManager.getSingleton()
 		for material in self.fleet_colours:
-			mm.remove(material)
+			mm.remove(material.getName())
 
 		#self.rootNode.removeAndDestroyAllChildren()
 		self.flareBillboard.clear()
