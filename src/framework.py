@@ -367,8 +367,9 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 		self.application.frameStarted(evt)
 		if settings.music or settings.sound_effects:
 			try:
-				import pyglet
-				pyglet.media.dispatch_events()
+				import sound
+				sound.player.dispatch_events()
+				sound.bg.dispatch_events()
 			except ImportError:
 				settings.music = False
 				settings.sound_effects = False

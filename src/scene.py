@@ -323,11 +323,11 @@ class StarmapScene(MenuScene):
 			from requirements import graphicsdir
 			import pyglet
 			import os
+			import sound
 			bg_file = os.path.join(graphicsdir, "sound/ambient.ogg")
 			if os.path.exists(bg_file):
 				bg_media = pyglet.media.load(bg_file)
-				self.bg_sound = pyglet.media.ManagedSoundPlayer()
-				self.bg_sound.queue(bg_media)
+				sound.bg.queue(bg_media)
 
 		self.hide()
 
@@ -370,17 +370,19 @@ class StarmapScene(MenuScene):
 		self.sceneManager.setSkyBox(True, 'skybox/SpaceSkyBox')
 		self.starmap.show()
 		if settings.music:
-			self.bg_sound.play()
-			sound.music_list.append(self.bg_sound)
+			import sound
+			sound.bg.play()
+			sound.music_list.append(sound.bg)
 
 	def hide(self):
 		Scene.hide(self)
 		self.sceneManager.setSkyBox(False, '')
 		self.starmap.hide()
 		if settings.music:
-			if self.bg_sound in sound.music_list:
-				self.bg_sound.stop()
-				sound.music_list.remove(self.bg_sound)
+			import sound
+			if sound.bg in sound.music_list:
+				sound.bg.pause()
+				sound.music_list.remove(sound.bg)
 
 	def calculateScale(self, objects):
 		"""Calculate a reasonable scale from a list of objects"""
