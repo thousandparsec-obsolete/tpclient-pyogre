@@ -2,9 +2,24 @@
 # It can be run as standalone but is also run by the client at startup
 
 import sys
+sys.path.insert(0, '.')
 import os.path
 
-notfound = []
+modules = ["libtpproto-py", "libtpclient-py", "schemepy"]
+for module in modules:
+	if os.path.exists(module):
+		sys.path.insert(0, module)
+
+import version
+if os.path.exists(os.path.join("..", ".git")):
+	os.chdir("..")
+	for module in modules:
+		if os.path.exists(os.path.join("src", module)) and not os.path.exists(os.path.join("src", module, ".git")):
+			os.system("git submodule init")
+	os.system("git submodule update")
+	os.chdir("src")
+
+notfound    = []
 recommended = []
 
 def configpath():

@@ -1,0 +1,9 @@
+[submodule "src/libtpproto-py"]
+	path = src/libtpproto-py
+	url = git://git.thousandparsec.net/git/libtpproto-py.git
+[submodule "src/libtpclient-py"]
+	path = src/libtpclient-py
+	url = git://git.thousandparsec.net/git/libtpclient-py.git
+[submodule "src/schemepy"]
+	path = src/schemepy
+	url = git://git.thousandparsec.net/git/schemepy.git
