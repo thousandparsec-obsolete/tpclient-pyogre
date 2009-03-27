@@ -24,11 +24,16 @@ try:
 	window.set_location(screen.width / 2 - window.width / 2, 
 			screen.height / 2 - window.height / 2)
 	window.set_visible(True)
+
 	@window.event
 	def on_draw():
 		tex = player.get_texture()
 		if tex:
 			tex.blit(0, 0)
+
+	@window.event
+	def on_key_press(symbol, modifiers):
+		pyglet.app.exit()
 
 	@player.event
 	def on_eos():
