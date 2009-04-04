@@ -702,7 +702,7 @@ class SystemWindow(Window):
 					else:
 						self.parent.selectObjectById(obj.id, False)
 					break
-	
+
 	def filterSystems(self, evt):
 		"""Filters the systems based on prefix"""
 		system_prefix = evt.window.getText().c_str()
@@ -1119,6 +1119,9 @@ class ConfigWindow(object):
 		if self.video_mode != video_mode:
 			changed = True
 
+		renderer = renderer.c_str()
+		aa = aa.c_str()
+		video_mode = video_mode.c_str()
 		print full_screen, renderer, aa, video_mode, aa_name
 
 		if changed:
