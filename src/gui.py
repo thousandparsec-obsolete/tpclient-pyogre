@@ -492,7 +492,7 @@ class ArgumentsWindow(object):
 			else:
 				self.hide()
 				return None
-		
+
 	def update(self):
 		"""Updates any lists in the arguments window upon receiving from the server"""
 		#print "Updating list items"
@@ -669,16 +669,17 @@ class SystemWindow(Window):
 		self.clear()
 		helpers.bindEvent("System/SystemList", self, "systemSelected", cegui.Listbox.EventSelectionChanged)
 		helpers.bindEvent("System/SystemList", self, "systemSelected", cegui.Window.EventMouseDoubleClick)
+		helpers.bindEvent("System/SystemFilter", self, "filterSystems", cegui.Editbox.EventTextChanged)
 
 	def clear(self):
 		wm = cegui.WindowManager.getSingleton()
 		wm.getWindow("System/SystemList").resetList()
 		self.system_list = []
+		wm.getWindow("System/SystemFilter").setText("")
 
 	def create(self, cache):
 		wm = cegui.WindowManager.getSingleton()
 		listbox = wm.getWindow("System/SystemList")
-
 		for object in cache.objects.values():
 			if object._subtype is scene.STAR:
 				item = cegui.ListboxTextItem(object.name)
@@ -701,6 +702,23 @@ class SystemWindow(Window):
 					else:
 						self.parent.selectObjectById(obj.id, False)
 					break
+	
+	def filterSystems(self, evt):
+		"""Filters the systems based on prefix"""
+		system_prefix = evt.window.getText().c_str()
+		wm = cegui.WindowManager.getSingleton()
+		listbox = wm.getWindow("System/SystemList")
+		listbox.resetList()
+		cache = self.parent.getCache()
+		for object in cache.objects.values():
+			if object._subtype is scene.STAR:
+				if (object.name.lower().startswith(system_prefix.lower())):
+					item = cegui.ListboxTextItem(object.name)
+					item.setSelectionBrushImage("SleekSpace", "ClientBrush")
+					item.setSelectionColours(cegui.colour(0.9, 0.9, 0.9))
+					item.setAutoDeleted(False)
+					self.system_list.append(item)
+					listbox.addItem(item)
 
 class OrdersWindow(Window):
 	base = "Orders"
@@ -1175,7 +1193,7 @@ class MenuWindow(object):
 		helpers.bindButtonEvent("Menu/Back", self, "onBack")
 		helpers.bindButtonEvent("Menu/Config", self, "onConfig")
 		helpers.toggleWindow("Menu", True).activate()
-	
+
 	def destroy(self):
 		wm = cegui.WindowManager.getSingleton()
 		wm.destroyWindow(self.menu)

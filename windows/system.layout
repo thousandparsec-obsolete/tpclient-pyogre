@@ -56,11 +56,18 @@
             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
             <Property Name="TitlebarEnabled" Value="True" />
             <Property Name="UnifiedAreaRect" Value="{{0.749999,0},{0.0270833,0},{0.974999,0},{0.539583,0}}" />
+            <Window Type="SleekSpace/Editbox" Name="System/SystemFilter" >
+                <Property Name="Font" Value="BlueHighway-10" />
+                <Property Name="Text" Value="" />
+                <Property Name="MaxTextLength" Value="255" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{.0827899,0},{0.09,0},{0.92,0},{0.15,0}}" />
+            </Window>
             <Window Type="SleekSpace/Listbox" Name="System/SystemList" >
                 <Property Name="Font" Value="BlueHighway-10" />
                 <Property Name="InheritsAlpha" Value="False" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.0827899,0},{0.0988445,0},{0.918043,0},{0.942554,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0827899,0},{0.2,0},{0.92,0},{0.93,0}}" />
             </Window>
         </Window>
         <Window Type="SleekSpace/FrameWindow" Name="Messages" >
