@@ -50,7 +50,7 @@ class BattleScene(scene.Scene):
 		self.h_angle = 0
 		self.v_angle = 0
 
-		self.createBackground()
+		#self.createBackground()
 		self.hide()
 
 	def create(self, file_name):
@@ -83,7 +83,7 @@ class BattleScene(scene.Scene):
 			media = self.media[entity.type]
 			mesh = "%s.mesh" % media[0]
 			entity_object = self.sceneManager.createEntity("%s" % entity.id, mesh)
-			entity_object.setNormaliseNormals(True)
+			#entity_object.setNormaliseNormals(True)
 			if entity.type == 'planet':
 				entity_object.setMaterialName("Starmap/Planet/Terran")
 				node.position = [-media[1] / 2 - media[1], 0, 0]
@@ -150,8 +150,8 @@ class BattleScene(scene.Scene):
 		cam_focus = self.sceneManager.getSceneNode("CameraFocus")
 		self.v_angle += v_angle
 		self.h_angle += h_angle
-		q = ogre.Quaternion(ogre.Degree(self.h_angle), ogre.Vector3.UNIT_Z)
-		r = ogre.Quaternion(ogre.Degree(self.v_angle), ogre.Vector3.UNIT_X)
+		q = ogre.Quaternion(ogre.Degree(self.h_angle), ogre.Vector3().UNIT_Z)
+		r = ogre.Quaternion(ogre.Degree(self.v_angle), ogre.Vector3().UNIT_X)
 		q = q * r
 		cam_focus.setOrientation(q)
 
@@ -174,7 +174,7 @@ class TestBattle(framework.Application):
 
 	def __init__(self):
 		framework.Application.__init__(self)
-		
+
 		self.guiRenderer = 0
 		self.guiSystem = 0
 		self.application = DummyApplication()
@@ -205,7 +205,7 @@ class TestBattle(framework.Application):
 	def _createCamera(self):
 		self.camera = self.sceneManager.createCamera("PlayerCam")
 		self.camera.nearClipDistance = 5
-		self.camera.setFixedYawAxis(True, ogre.Vector3.UNIT_Y)
+		self.camera.setFixedYawAxis(True, ogre.Vector3().UNIT_Y)
 
 	def _createFrameListener(self):
 		self.frameListener = framework.CEGUIFrameListener(self, self.renderWindow, self.camera)
@@ -214,9 +214,9 @@ class TestBattle(framework.Application):
 
 	def __del__(self):
 		"""Clear variables
-		
+
 		This is needed to ensure the correct order of deletion.
-		
+
 		"""
 		del self.camera
 		del self.sceneManager
@@ -224,7 +224,7 @@ class TestBattle(framework.Application):
 		del self.guiSystem
 		del self.guiRenderer
 		del self.root
-		del self.renderWindow		
+		del self.renderWindow
 
 	def frameStarted(self, evt):
 		if not self.frameListener.keepRendering:
