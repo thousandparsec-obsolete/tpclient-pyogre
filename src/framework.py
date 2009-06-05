@@ -42,7 +42,7 @@ class Application(object):
 		"""This sets up the ogre application
 
 		Returns false if the user hits "cancel" in the dialog box.
-		
+
 		"""
 		self._createLogger()
 		self.root = ogre.Root("plugins.cfg", "ogre.cfg")
@@ -51,7 +51,7 @@ class Application(object):
 		self._setUpResources()
 		if not self._configure():
 			return False
-		
+
 		self._chooseSceneManager()
 		self._createCamera()
 		self._createViewports()
@@ -96,9 +96,9 @@ class Application(object):
 
 	def _loadResources(self):
 		"""This loads all initial resources
-		
+
 		Redefine this if you do not want to load all resources at startup.
-		
+
 		"""
 		ogre.ResourceGroupManager.getSingleton().initialiseAllResourceGroups()
 
@@ -172,7 +172,7 @@ class Application(object):
 				settings.music = True
 			else:
 				settings.music = False
-			
+
 			sound = config.getSetting("Sound")
 			if sound == "Yes":
 				settings.sound_effects = True
@@ -201,12 +201,12 @@ class Application(object):
 		"""Creates the viewport"""
 		self.viewport = self.renderWindow.addViewport(self.camera)
 		self.viewport.backgroundColour = (0,0,0)
-		
+
 	def _createScene(self):
 		"""Creates the scene
-		
+
 		Override this with initial scene contents.
-		
+
 		"""
 		pass
 
@@ -225,7 +225,7 @@ class Application(object):
 		"""Override this function and return True to turn on Psyco"""
 		return False
 
-	def _activatePsyco(self):		
+	def _activatePsyco(self):
 	   """Import Psyco if available"""
 	   try:
 		   import psyco
@@ -238,7 +238,7 @@ class FrameListener(ogre.FrameListener):
 
 	def __init__(self, renderWindow, camera):
 		ogre.FrameListener.__init__(self)
-		
+
 		self.camera = camera
 		self.renderWindow = renderWindow
 		self.statisticsOn = True
@@ -323,6 +323,7 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 
 		if os.name.startswith("posix"):
 			options.append(("x11_mouse_grab", str("false")))
+			options.append(("x11_keyboard_grab", str("false")))
 		elif os.name.startswith("nt"):
 			pass
 			# FIXME: mouse problems in windows
@@ -332,7 +333,7 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 		self.inputManager = ois.createPythonInputSystem(options)
 		self.enableKeyboard = True
 		self.enableMouse = True
-	
+
 		if self.enableKeyboard:
 			self.keyboard = self.inputManager.createInputObjectKeyboard(
 				ois.OISKeyboard, True)
@@ -341,7 +342,7 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 		if self.enableMouse:
 			self.mouse = self.inputManager.createInputObjectMouse(
 				ois.OISMouse, True)
-			
+
 			self.mouse.setEventCallback(self)
 			state = self.mouse.getMouseState()
 			state.width = self.renderWindow.getWidth()
@@ -376,7 +377,7 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 
 		if self.renderWindow.isClosed():
 			self.keepRendering = False
-		
+
 		if self.keepRendering:
 			if settings.show_fps:
 				self.fps.setText("fps: %d" % self.renderWindow.getAverageFPS())
@@ -389,7 +390,7 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 			if self.enableKeyboard and self.keyboard != None:
 				self.keyboard.capture()
 				self.keyDown()
-		
+
 		return self.application.update(evt) and self.keepRendering
 
 	def mouseDragged(self, evt):
@@ -427,7 +428,7 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 			while os.path.exists(path):
 				path = 'screenshot_%d.png' % next
 				next += 1
-			
+
 			self.renderWindow.writeContentsToFile(path)
 			self.renderWindow.debugText = 'screenshot taken: ' + path
 
@@ -439,9 +440,9 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 		# Debugging functions
 		elif evt.key == ois.KC_SCROLL:
 			detailsLevel = ("SDL_SOLID", "SDL_WIREFRAME", "SDL_POINTS")
-			self.sceneDetailIndex += 1 
+			self.sceneDetailIndex += 1
 			self.sceneDetailIndex %= len(detailsLevel)
-			
+
 			mode = detailsLevel[self.sceneDetailIndex]
 			self.camera.detailLevel = getattr(ogre, mode)
 			self.renderWindow.debugText = 'render mode set to: ' + mode
@@ -450,7 +451,7 @@ class CEGUIFrameListener(FrameListener, ois.MouseListener, ois.KeyListener):
 			system = cegui.System.getSingleton()
 			(system.injectKeyDown(evt.key) or system.injectChar(evt.text)) \
 				or self.application.currentScene.keyPressed(evt)
-		
+
 		return True
 
 	def keyReleased(self, evt):
