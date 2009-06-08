@@ -23,6 +23,10 @@ class Round:
 	def __init__(self, number):
 		self.number = number
 		self.events = []
+		self.logs = (log for log in self.events if isinstance(log, Log))
+		self.fire = (fire for fire in self.events if isinstance(fire, Fire))
+		self.damage = (damage for damage in self.events if isinstance(damage, Damage))
+		self.death = (death for death in self.events if isinstance(death, Death))
 
 class Fire:
 	def __init__(self):
