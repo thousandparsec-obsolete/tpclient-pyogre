@@ -1,5 +1,5 @@
 from xml.sax import make_parser
-from xml.sax.handler import ContentHandler 
+from xml.sax.handler import ContentHandler
 
 class Battle:
 	def __init__(self, version, media):
@@ -22,10 +22,7 @@ class Entity:
 class Round:
 	def __init__(self, number):
 		self.number = number
-		self.logs = []
-		self.fire = []
-		self.damage = []
-		self.death = []
+		self.events = []
 
 class Fire:
 	def __init__(self):
@@ -40,6 +37,10 @@ class Damage:
 class Death:
 	def __init__(self):
 		self.reference = None
+
+class Log:
+	def __init__(self, content):
+		self.content = content
 
 class BattleXMLHandler(ContentHandler):
 	def __init__(self):
@@ -110,21 +111,21 @@ class BattleXMLHandler(ContentHandler):
 			self.types = []
 
 		if name == "fire":
-			self.round.fire.append(self.fire)
+			self.round.events.append(self.fire)
 			self.fire = None
 
 		if name == "damage":
-			self.round.damage.append(self.status)
+			self.round.events.append(self.status)
 			self.status = None
 
 		if name == "death":
-			self.round.death.append(self.status)
+			self.round.events.append(self.status)
 			self.status = None
 
 	def characters(self, content):
 		tag = self.tags[len(self.tags) - 1]
 		if tag == "log":
-			self.round.logs.append(content)
+			self.round.events.append(Log(content))
 
 		if tag == "name":
 			self.entity.name = content
@@ -142,9 +143,19 @@ class BattleXMLHandler(ContentHandler):
 					return entity
 
 def parse_file(file_name):
-	parser = make_parser()   
+	parser = make_parser()
 	handler = BattleXMLHandler()
 	parser.setContentHandler(handler)
 	parser.parse(open(file_name))
 	return handler.battle
 
+
+if __name__ == "__main__":
+	filename = raw_input("Filename: ")
+	battle = parse_file(filename)
+	for round in battle.rounds:
+		print dir(round)
+		for event in round.events:
+			print event
+		for content in (event.content for event in round.events if isinstance(event, Log)):
+			print content
