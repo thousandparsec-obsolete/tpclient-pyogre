@@ -35,19 +35,19 @@ class Scene(object):
 		self.parent = parent
 		self.guiSystem = parent.guiSystem
 		self.sceneManager = sceneManager
-		
+
 		# Create the root for this Scene
 		self.rootNode = sceneManager.getRootSceneNode().createChildSceneNode((0, 0, 0))
 		self.camera = self.sceneManager.getCamera('PlayerCam')
-		
+
 		# Where to store any GUI windows
 		self.windows = []
-	
+
 	def show(self):
 		"""Called when this SceneManager is being displayed"""
 		# Attach the root node
 		self.sceneManager.getRootSceneNode().addChild(self.rootNode)
-	
+
 		# Show all the GUI windows for this scene
 		for window in self.windows:
 			window.show()
@@ -60,7 +60,7 @@ class Scene(object):
 		camera.position = self.position
 		camera.orientation = self.orientation
 		self.camera = camera
-	
+
 	def hide(self):
 		"""Called when this SceneManager is no longer being displayed"""
 		# Save camera position and orientation
@@ -81,7 +81,7 @@ class Scene(object):
 	def update(self, evt):
 		"""Update is called every frame"""
 		return True
-	
+
 	# Note, the GUI system always gets fed before the Scene does
 	def mouseDragged(self, evt):
 		return False
@@ -91,10 +91,10 @@ class Scene(object):
 
 	def mouseReleased(self, evt, id):
 		return False
-	
+
 	def mouseDragged(self, evt):
 		return False
-	
+
 	def mouseMoved(self, evt):
 		return False
 
@@ -113,7 +113,7 @@ class Scene(object):
 
 class MenuScene(Scene):
 	"""Menu Scenes all share a common backdrop
-	
+
 	The state of the background is preserved across Menu Scenes
 
 	"""
@@ -125,11 +125,11 @@ class MenuScene(Scene):
 	def setOrientation(self, orientation):
 		MenuScene.orientation = orientation
 	orientation = property(fset=setOrientation)
-	
+
 	def show(self):
 		Scene.show(self)
 		self.sceneManager.setSkyBox(True, 'skybox/SpaceSkyBox')
-	
+
 	def hide(self):
 		self.sceneManager.setSkyBox(False, '')
 		Scene.hide(self)
@@ -176,7 +176,7 @@ class LoginScene(MenuScene):
 		self.hide()
 
 	def onSaveDetails(self, evt):
-		settings.save_details = cegui.WindowManager.getSingleton().getWindow("Login/SaveDetails").isSelected() 
+		settings.save_details = cegui.WindowManager.getSingleton().getWindow("Login/SaveDetails").isSelected()
 
 	def onNetworkFailure(self, evt):
 		print "NetworkFailure", evt
@@ -195,7 +195,7 @@ class LoginScene(MenuScene):
 	def onConnect(self, evt=None):
 		"""Called when user clicks on the login button"""
 		wm = cegui.WindowManager.getSingleton()
-		
+
 		host = wm.getWindow("Login/Server").getText().c_str()
 		username = wm.getWindow("Login/Username").getText().c_str()
 		password = wm.getWindow("Login/Password").getText().c_str()
@@ -203,7 +203,7 @@ class LoginScene(MenuScene):
 		settings.user_name = username
 		settings.password = password
 		settings.previous_game = host
-		
+
 		#print "onConnect", host, username, password
 		self.parent.application.network.Call( \
 				self.parent.application.network.ConnectTo, host, username, password, True)
@@ -443,7 +443,7 @@ class StarmapScene(MenuScene):
 
 			#if hasattr(object, "parent"):
 				#print "parent of %s is %i" % (object.name, object.parent)
-			
+
 			if object._subtype is STAR:
 				node = self.starmap.addStar(object, pos)
 
@@ -480,7 +480,7 @@ class StarmapScene(MenuScene):
 
 	def updateObjectIndex(self, object, subtype_name, subtype_index):
 		"""Finds how many siblings an object has and updates it's index accordingly
-		
+
 		object - The current object
 		subtype_name - The name of the object type
 		subtype_index - The index of the object type
@@ -511,7 +511,7 @@ class StarmapScene(MenuScene):
 
 	def recreate(self, cache):
 		"""Update locations of objects
-		
+
 		Assumes stars and planet locations do not change.
 
 		"""
@@ -559,9 +559,9 @@ class StarmapScene(MenuScene):
 			helpers.setWidgetText("Windows/EOT", "EOT: %i:%02i" % (minutes, seconds))
 			self.remaining_time_timer.reset()
 			if self.remaining_time < 10:
-				helpers.setWindowProperty("Windows/EOT", "Alpha", 1) 
+				helpers.setWindowProperty("Windows/EOT", "Alpha", 1)
 			else:
-				helpers.setWindowProperty("Windows/EOT", "Alpha", 0.5) 
+				helpers.setWindowProperty("Windows/EOT", "Alpha", 0.5)
 
 		#if self.parent.renderWindow.lastFPS < self.low_fps_threshold:
 			#self.starmap.setIconView(True)
@@ -687,7 +687,7 @@ class StarmapScene(MenuScene):
 		elif self.mouseover != mouseover_id:
 			self.mouseover = mouseover_id
 			self.mouseover_timer.reset()
-		
+
 		return False
 
 	def mouseReleased(self, evt, id):
@@ -768,7 +768,7 @@ class StarmapScene(MenuScene):
 			self.focus(id=id)
 
 		return self.orders_window.updateOrdersWindow(id, self.getCache())
-	
+
 	def unselect(self, evt=None):
 		"""Unselect the current object, if any"""
 		if self.current_object:

@@ -180,6 +180,9 @@ class TestBattle(framework.Application):
 		self.application = DummyApplication()
 		self.application.cache = DummyCache()
 
+	def runBattle(self):
+		self.battle.run()
+
 	def _createScene(self):
 		"""Setup CEGUI and create the various scenes"""
 		# Initialise CEGUI Renderer
@@ -231,9 +234,9 @@ class TestBattle(framework.Application):
 			print "destroying"
 			self.frameListener.destroy()
 
-	def Cleanup(self):
-		self.frameListener.keepRendering = False
-		self.frameListener.destroy()
+	def update(self, evt):
+		self.changeScene(self.battle)
+		return True
 
 	def changeScene(self, scene):
 		"""Function to change to a different scene"""
@@ -242,7 +245,12 @@ class TestBattle(framework.Application):
 		self.currentScene = scene
 		self.currentScene.show()
 
+	def Cleanup(self):
+		self.frameListener.keepRendering = False
+		self.frameListener.destroy()
+
 if __name__ == '__main__':
 	app = TestBattle()
 	app.go()
+	app.runBattle()
 	app.Cleanup()
