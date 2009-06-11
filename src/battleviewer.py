@@ -26,14 +26,6 @@ class DummyCache(object):
 class DummyApplication(object):
 	pass
 
-class BattleManager(object):
-	""" A collection of RoundManagers basically"""
-	pass
-
-class RoundManager(object):
-	""" A collection of BattleScenes for different events """
-	pass
-
 class BattleScene(scene.Scene):
 	media = {
 			'battleship':('plowshare', 75),
@@ -177,19 +169,25 @@ class BattleScene(scene.Scene):
 				if not camera.isVisible(obj.position):
 					fit = False
 
-class TestBattle(framework.Application):
-	"""Display the starmap without using a network connection"""
+class RoundManager(object):
+	"""Manages rounds, which are full of BattleScenes for each event"""
 
-	def __init__(self):
+	def __init__(self, initial_scene):
+		"""Takes in an initial BattleScene to use as a base for events"""
+		pass
+
+
+class BattleManager(framework.Application):
+	"""Manage the battle through a collection of RoundManagers, also take
+	   care of managing other aspects of the battleviewer"""
+
+	def __init__(self, battle_file):
 		framework.Application.__init__(self)
 
 		self.guiRenderer = 0
 		self.guiSystem = 0
 		self.application = DummyApplication()
 		self.application.cache = DummyCache()
-
-	def runBattle(self):
-		self.battle.run()
 
 	def _createScene(self):
 		"""Setup CEGUI and create the various scenes"""
@@ -258,7 +256,6 @@ class TestBattle(framework.Application):
 		self.frameListener.destroy()
 
 if __name__ == '__main__':
-	app = TestBattle()
+	app = BattleManager("example1.xml")
 	app.go()
-	app.runBattle()
 	app.Cleanup()
