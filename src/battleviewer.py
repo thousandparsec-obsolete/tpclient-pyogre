@@ -57,6 +57,7 @@ class BattleScene(scene.Scene):
 			self.createSide(side)
 		self.setStartingPositions(500)
 		self.autofit()
+		return self
 
 	def setStartingPositions(self, radius):
 		i = 1
@@ -170,9 +171,13 @@ class BattleScene(scene.Scene):
 class RoundManager(object):
 	"""Manages rounds, which are full of BattleScenes for each event"""
 
-	def __init__(self, initial_scene):
-		"""Takes in an initial BattleScene to use as a base for events"""
-		pass
+	event_scenes = []
+
+	def __init__(self, initial_scene, round_info, sides):
+		"""Takes in an initial BattleScene to use as a base for events, as well as information about the round"""
+		self.event_scenes.append(initial_scene)
+		self.round_info = round_info
+		self.sides = sides
 
 
 class BattleManager(framework.Application):
@@ -183,6 +188,7 @@ class BattleManager(framework.Application):
 		framework.Application.__init__(self)
 
 		self.battle = battle.parse_file(battle_file)
+		self.rounds = []
 
 		self.guiRenderer = 0
 		self.guiSystem = 0
@@ -205,9 +211,13 @@ class BattleManager(framework.Application):
 		root = wmgr.createWindow("DefaultWindow", "root")
 		self.guiSystem.setGUISheet(root)
 
-		self.battlescene = BattleScene(self, self.sceneManager)
-		self.battlescene.initial(self.battle.sides)
-		self.changeScene(self.battlescene)
+		initial = BattleScene(self, self.sceneManager).initial(self.battle.sides)
+		for round in self.battle.rounds:
+			rm = RoundManager(initial, round, self.battle.sides)
+			self.rounds.append(rm)
+			initial = rm.event_scenes[-1]
+
+		self.changeScene(self.rounds[0].event_scenes[0])
 
 		self.guiSystem.injectMousePosition(0, 0)
 
@@ -241,7 +251,7 @@ class BattleManager(framework.Application):
 			self.frameListener.destroy()
 
 	def update(self, evt):
-		self.changeScene(self.battlescene)
+		#self.changeScene(self.battlescene)
 		return True
 
 	def changeScene(self, scene):
