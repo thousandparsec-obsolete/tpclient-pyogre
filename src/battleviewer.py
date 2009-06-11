@@ -36,7 +36,6 @@ class BattleScene(scene.Scene):
 
 	def __init__(self, parent, sceneManager):
 		scene.Scene.__init__(self, parent, sceneManager)
-		self.battle = None
 		self.background_nodes = []
 		self.sides = []
 		self.bg_particle = None
@@ -53,9 +52,8 @@ class BattleScene(scene.Scene):
 		#self.createBackground()
 		self.hide()
 
-	def create(self, file_name):
-		self.battle = battle.parse_file(file_name)
-		for side in self.battle.sides:
+	def initial(self, sides):
+		for side in sides:
 			self.createSide(side)
 		self.setStartingPositions(500)
 		self.autofit()
@@ -184,6 +182,8 @@ class BattleManager(framework.Application):
 	def __init__(self, battle_file):
 		framework.Application.__init__(self)
 
+		self.battle = battle.parse_file(battle_file)
+
 		self.guiRenderer = 0
 		self.guiSystem = 0
 		self.application = DummyApplication()
@@ -205,9 +205,9 @@ class BattleManager(framework.Application):
 		root = wmgr.createWindow("DefaultWindow", "root")
 		self.guiSystem.setGUISheet(root)
 
-		self.battle = BattleScene(self, self.sceneManager)
-		self.battle.create("battlexml/example1.xml")
-		self.changeScene(self.battle)
+		self.battlescene = BattleScene(self, self.sceneManager)
+		self.battlescene.initial(self.battle.sides)
+		self.changeScene(self.battlescene)
 
 		self.guiSystem.injectMousePosition(0, 0)
 
@@ -241,7 +241,7 @@ class BattleManager(framework.Application):
 			self.frameListener.destroy()
 
 	def update(self, evt):
-		self.changeScene(self.battle)
+		self.changeScene(self.battlescene)
 		return True
 
 	def changeScene(self, scene):
@@ -256,6 +256,6 @@ class BattleManager(framework.Application):
 		self.frameListener.destroy()
 
 if __name__ == '__main__':
-	app = BattleManager("example1.xml")
+	app = BattleManager("battlexml/example1.xml")
 	app.go()
 	app.Cleanup()
