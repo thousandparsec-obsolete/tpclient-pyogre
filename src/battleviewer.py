@@ -26,6 +26,14 @@ class DummyCache(object):
 class DummyApplication(object):
 	pass
 
+class BattleManager(object):
+	""" A collection of RoundManagers basically"""
+	pass
+
+class RoundManager(object):
+	""" A collection of BattleScenes for different events """
+	pass
+
 class BattleScene(scene.Scene):
 	media = {
 			'battleship':('plowshare', 75),
