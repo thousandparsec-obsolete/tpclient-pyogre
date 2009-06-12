@@ -174,14 +174,14 @@ class BattleScene(scene.Scene):
 				if not camera.isVisible(obj.position):
 					fit = False
 
-class RoundManager(object):
+class RoundManager:
 	"""Manages rounds, which are full of BattleScenes for each event"""
 
 	cur_scene = 0
-	event_scenes = []
 
 	def __init__(self, initial_scene, round_info, sides):
 		"""Takes in an initial BattleScene to use as a base for events, as well as information about the round"""
+		self.event_scenes = []
 		self.event_scenes.append(initial_scene)
 		self.round_info = round_info
 		self.sides = sides
