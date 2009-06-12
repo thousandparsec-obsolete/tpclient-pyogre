@@ -34,6 +34,12 @@ class BattleScene(scene.Scene):
 			'scout':('scout', 50),
 		}
 
+	# State variables so the BattleManager can see if it's time to move on
+	# There might be a cleaner solution to this, so keep an eye out
+	# I may need to have larger steps available too or delegate those to the RoundManager
+	next = 0
+	prev = 0
+
 	def __init__(self, parent, sceneManager):
 		scene.Scene.__init__(self, parent, sceneManager)
 		self.background_nodes = []
@@ -171,6 +177,7 @@ class BattleScene(scene.Scene):
 class RoundManager(object):
 	"""Manages rounds, which are full of BattleScenes for each event"""
 
+	cur_scene = 0
 	event_scenes = []
 
 	def __init__(self, initial_scene, round_info, sides):
@@ -178,6 +185,22 @@ class RoundManager(object):
 		self.event_scenes.append(initial_scene)
 		self.round_info = round_info
 		self.sides = sides
+
+	def prev(self):
+		""" Returns the previous scene or False if at the end """
+		if cur_scene > 0:
+			cur_scene -= 1
+			return event_scenes[cur_scene]
+		else:
+			return False
+
+	def next(self):
+		""" Returns the next scene or False if at the end """
+		if cur_scene < len(event_scenes-1):
+			cur_scene += 1
+			return event_scenes[cur_scene]
+		else:
+			return False
 
 
 class BattleManager(framework.Application):
@@ -251,6 +274,10 @@ class BattleManager(framework.Application):
 			self.frameListener.destroy()
 
 	def update(self, evt):
+		if self.currentScene.next:
+			self.next()
+		elif self.currentScene.prev:
+			self.prev()
 		#self.changeScene(self.battlescene)
 		return True
 
