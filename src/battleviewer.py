@@ -37,8 +37,8 @@ class BattleScene(scene.Scene):
 	# State variables so the BattleManager can see if it's time to move on
 	# There might be a cleaner solution to this, so keep an eye out
 	# I may need to have larger steps available too or delegate those to the RoundManager
-	next = 0
-	prev = 0
+	next = False
+	prev = False
 
 	def __init__(self, parent, sceneManager):
 		scene.Scene.__init__(self, parent, sceneManager)
