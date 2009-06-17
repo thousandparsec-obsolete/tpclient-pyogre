@@ -34,12 +34,6 @@ class BattleScene(scene.Scene):
 			'scout':('scout', 50),
 		}
 
-	# State variables so the BattleManager can see if it's time to move on
-	# There might be a cleaner solution to this, so keep an eye out
-	# I may need to have larger steps available too or delegate those to the RoundManager
-	next = False
-	prev = False
-
 	def __init__(self, parent, sceneManager):
 		scene.Scene.__init__(self, parent, sceneManager)
 		self.background_nodes = []
@@ -174,37 +168,9 @@ class BattleScene(scene.Scene):
 				if not camera.isVisible(obj.position):
 					fit = False
 
-class RoundManager:
-	"""Manages rounds, which are full of BattleScenes for each event"""
-
-	cur_scene = 0
-
-	def __init__(self, initial_scene, round_info, sides):
-		"""Takes in an initial BattleScene to use as a base for events, as well as information about the round"""
-		self.event_scenes = []
-		self.event_scenes.append(initial_scene)
-		self.round_info = round_info
-		self.sides = sides
-
-	def prev(self):
-		""" Returns the previous scene or False if at the end """
-		if cur_scene > 0:
-			cur_scene -= 1
-			return event_scenes[cur_scene]
-		else:
-			return False
-
-	def next(self):
-		""" Returns the next scene or False if at the end """
-		if cur_scene < len(event_scenes-1):
-			cur_scene += 1
-			return event_scenes[cur_scene]
-		else:
-			return False
-
 
 class BattleManager(framework.Application):
-	"""Manage the battle through a collection of RoundManagers, also take
+	"""Manage the battle through a collection of rounds, which trigger events via methods on the entities, also takes
 	   care of managing other aspects of the battleviewer"""
 
 	def __init__(self, battle_file):
@@ -234,13 +200,10 @@ class BattleManager(framework.Application):
 		root = wmgr.createWindow("DefaultWindow", "root")
 		self.guiSystem.setGUISheet(root)
 
-		initial = BattleScene(self, self.sceneManager).initial(self.battle.sides)
-		for round in self.battle.rounds:
-			rm = RoundManager(initial, round, self.battle.sides)
-			self.rounds.append(rm)
-			initial = rm.event_scenes[-1]
+		self.battlescene = BattleScene(self, self.sceneManager).initial(self.battle.sides)
+		self.rounds = self.battle.rounds
 
-		self.changeScene(self.rounds[0].event_scenes[0])
+		self.changeScene(self.battlescene)
 
 		self.guiSystem.injectMousePosition(0, 0)
 
@@ -272,14 +235,6 @@ class BattleManager(framework.Application):
 		if not self.frameListener.keepRendering:
 			print "destroying"
 			self.frameListener.destroy()
-
-	def update(self, evt):
-		if self.currentScene.next:
-			self.next()
-		elif self.currentScene.prev:
-			self.prev()
-		#self.changeScene(self.battlescene)
-		return True
 
 	def changeScene(self, scene):
 		"""Function to change to a different scene"""
