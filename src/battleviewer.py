@@ -102,6 +102,22 @@ class BattleScene(scene.Scene):
 
 		self.sides.append(side_node)
 
+	def createMove(self):
+		"""Creates the move event method for entities"""
+		pass
+
+	def createFire(self):
+		"""Creates the fire event method for entities"""
+		pass
+
+	def createDamage(self):
+		"""Creates the damage event method for entities"""
+		pass
+
+	def createDeath(self):
+		"""Creates the death event method for entities"""
+		pass
+
 	def createBackground(self):
 		"""Creates a starry background for the current scene"""
 		if self.bg_particle is None:
