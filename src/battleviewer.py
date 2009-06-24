@@ -102,22 +102,6 @@ class BattleScene(scene.Scene):
 
 		self.sides.append(side_node)
 
-	def createMove(self):
-		"""Creates the move event method for entities"""
-		pass
-
-	def createFire(self):
-		"""Creates the fire event method for entities"""
-		pass
-
-	def createDamage(self):
-		"""Creates the damage event method for entities"""
-		pass
-
-	def createDeath(self):
-		"""Creates the death event method for entities"""
-		pass
-
 	def createBackground(self):
 		"""Creates a starry background for the current scene"""
 		if self.bg_particle is None:
@@ -279,6 +263,20 @@ class BattleManager(framework.Application):
 			container.addChild(self.logTextArea)
 		self.logTextArea.setCaption(ogre.UTFString(text))
 		self.logOverlay.show()
+		#TODO: Add timer check to remove the logoverlay after a set amount of time (5s?)
+		#Also TODO much later: if there are multiple log events, start stacking them until a certain number is reached
+
+	def fire_event(self, ref, victim):
+		self.log_event("%s fired at %s" % (ref, victim))
+
+	def damage_event(self, ref, amount):
+		self.log_event("%s was damaged for %d" % (ref, amount))
+
+	def death_event(self, ref):
+		self.log_event("Death of %s" % ref)
+
+	def move_event(self, ref, dest):
+		self.log_event("%s moving to %d" % (ref, dest))
 
 	def Cleanup(self):
 		self.frameListener.keepRendering = False
