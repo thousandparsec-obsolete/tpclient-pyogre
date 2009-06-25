@@ -281,8 +281,11 @@ class BattleManager(framework.Application):
 	def damage_event(self, ref, amount):
 		self.log_event("%s was damaged for %d" % (ref, amount))
 
-	def death_event(self, ref):
-		self.log_event("Death of %s" % ref)
+	def death_event(self, victim):
+		""" Causes the victim to disappear """
+		self.log_event("Death of %s" % victim)
+		self.battlescene.nodes[victim].setVisible(False)
+		#TODO: Explosion or burst of some sort before disappearance
 
 	def move_event(self, ref, dest):
 		self.log_event("%s moving to %d" % (ref, dest))
