@@ -12,6 +12,7 @@ import framework
 import scene
 import helpers
 import starmap
+import laser
 import battlexml.battle as battle
 
 class DummyCache(object):
@@ -174,6 +175,7 @@ class BattleManager(framework.Application):
 	   care of managing other aspects of the battleviewer"""
 
 	logTextArea = None
+	laser = False
 
 	def __init__(self, battle_file):
 		framework.Application.__init__(self)
@@ -225,6 +227,7 @@ class BattleManager(framework.Application):
 		This is needed to ensure the correct order of deletion.
 
 		"""
+		del self.laser
 		del self.camera
 		del self.sceneManager
 		del self.frameListener
@@ -264,10 +267,16 @@ class BattleManager(framework.Application):
 		self.logTextArea.setCaption(ogre.UTFString(text))
 		self.logOverlay.show()
 		#TODO: Add timer check to remove the logoverlay after a set amount of time (5s?)
-		#Also TODO much later: if there are multiple log events, start stacking them until a certain number is reached
+		#TODO much later: if there are multiple log events, start stacking them until a certain number is reached
 
-	def fire_event(self, ref, victim):
+	def fire_event(self, attacker, victim):
+		""" Takes in the names of an attacker and a victim for the fire event """
 		self.log_event("%s fired at %s" % (ref, victim))
+		if not self.laser:
+			self.laser = laser.Laser(self.sceneManager, "Laser/Laser/Solid") # Laser/Laser/PNG exists too, but I haven't been able to get it to work
+		self.laser.fire(self.battlescene.nodes[ref], self.battlescene.nodes[victim])
+		#TODO: Add timer check to remove laser after a set amount of time or next laser fire (from the same side?)
+		#TODO: Move ships out of the way if they would inadvertantly be hit
 
 	def damage_event(self, ref, amount):
 		self.log_event("%s was damaged for %d" % (ref, amount))
