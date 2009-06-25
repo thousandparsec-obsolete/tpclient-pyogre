@@ -271,7 +271,7 @@ class BattleManager(framework.Application):
 
 	def fire_event(self, attacker, victim):
 		""" Takes in the names of an attacker and a victim for the fire event """
-		self.log_event("%s fired at %s" % (ref, victim))
+		self.log_event("%s fired at %s" % (attacker, victim))
 		if not self.laser:
 			self.laser = laser.Laser(self.sceneManager, "Laser/Laser/Solid") # Laser/Laser/PNG exists too, but I haven't been able to get it to work
 		self.laser.fire(self.battlescene.nodes[attacker], self.battlescene.nodes[victim])
