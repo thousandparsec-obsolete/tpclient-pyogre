@@ -49,12 +49,12 @@ class Participant(ogre.UserDefinedObject):
 			sceneNode = self.entity.getParentSceneNode()
 			self.direction = self.destination - sceneNode.getPosition()
 			self.distance = self.direction.normalise()
-			src = sceneNode.getOrientation() * ogre.Vector3().UNIT_X
+			src = sceneNode.getOrientation() * ogre.Vector3().ZERO
 			if 1.0+src.dotProduct(self.direction) < 0.0001:
-				self.sceneNode.yaw(ogre.Degree(180))
+				sceneNode.yaw(ogre.Degree(180))
 			else:
 				quat = src.getRotationTo(self.direction)
-				self.sceneNode.rotate(quat)
+				sceneNode.rotate(quat)
 			return True
 		except IndexError:
 			return False
@@ -62,10 +62,10 @@ class Participant(ogre.UserDefinedObject):
 class MoveFrameListener(ogre.FrameListener):
 	""" Takes care of moving the ships """
 
-	def __init__(self, entity):
+	def __init__(self, entity, sceneNode):
 		ogre.FrameListener.__init__(self)
 		self.entity = entity
-		self.sceneNode = entity.getParentSceneNode()
+		self.sceneNode = sceneNode
 
 	def frameStarted(self, evt):
 		userObject = self.entity.getUserObject()
@@ -95,6 +95,8 @@ class BattleScene(scene.Scene):
 		self.sides = []
 		self.bg_particle = None
 		self.nodes = {}
+		self.userobjects = {}
+		self.listeners = {}
 
 		self.camera_focus_node = self.rootNode.createChildSceneNode("CameraFocus")
 		self.camera_node = self.camera_focus_node.createChildSceneNode("CameraNode")
@@ -154,10 +156,12 @@ class BattleScene(scene.Scene):
 			obj_scale = media[1] / entity_object.mesh.boundingSphereRadius
 			userObject = Participant(entity_object)
 			entity_object.setUserObject(userObject)
-			mfl = MoveFrameListener(entity_object)
+			mfl = MoveFrameListener(entity_object, node)
 			root.addFrameListener(mfl)
 			node.attachObject(entity_object)
 			node.setScale(ogre.Vector3(obj_scale, obj_scale, obj_scale))
+			self.userobjects[entity.id] = userObject
+			self.listeners[entity.id] = mfl
 			self.nodes[entity.id] = node
 
 		self.sides.append(side_node)
@@ -355,8 +359,8 @@ class BattleManager(framework.Application):
 		#TODO: Debris field
 
 	def move_event(self, ref, dest):
-		self.log_event("%s moving to %d" % (ref, dest))
-		userObject = self.battlescene.nodes[ref].getUserObject()
+		self.log_event("%s moving to %r" % (ref, dest))
+		userObject = self.battlescene.nodes[ref].getAttachedObject(0).getUserObject()
 		userObject.addDest(dest)
 
 	def Cleanup(self):
