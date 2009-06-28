@@ -48,7 +48,7 @@ class Participant(UserDefinedObject):
 			sceneNode = self.entity.getParentSceneNode()
 			self.direction = self.destination - sceneNode.getPosition()
 			self.distance = self.direction.normalise()
-			src = sceneNode.getOrientation() * ogre.Vector3().UIT_X
+			src = sceneNode.getOrientation() * ogre.Vector3().UNIT_X
 			if 1.0+src.dotProduct(self.direction) < 0.0001:
 				self.sceneNode.yaw(ogre.Degree(180))
 			else:
@@ -352,6 +352,8 @@ class BattleManager(framework.Application):
 
 	def move_event(self, ref, dest):
 		self.log_event("%s moving to %d" % (ref, dest))
+		userObject = self.battlescene.nodes[ref].getUserObject()
+		userObject.addDest(dest)
 
 	def Cleanup(self):
 		self.frameListener.keepRendering = False
