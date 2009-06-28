@@ -27,27 +27,28 @@ class DummyCache(object):
 class DummyApplication(object):
 	pass
 
-class MoveFrameListener(ogre.FrameListener):
-	""" Takes care of moving the ships """
+class Participant(UserDefinedObject):
+	""" Basic information is stored here for moving """
 
-	def __init__(self, entity, sceneNode, movelist, speed=10.0:
-		ogre.FrameListener.__init__(self)
+	def __init__(self, entity, speed=50.0):
+		self.speed = float(speed)
+		self.movelist = []
 		self.entity = entity
-		self.sceneNode = sceneNode
-		self.movelist = movelist
-
-		# Distance left to go
 		self.distance = 0.0
 		self.direction = ogre.Vector3().ZERO
-		self.speed = float(speed)
 
-	def nextLocation(self):
+	def addDest(self, dest):
+		""" Takes in a tuple for dest """
+		destination = ogre.Vector3(dest[0], dest[1], dest[2])
+		self.movelist.insert(0, destination)
+
+	def nextDest(self):
 		try:
-			dest = self.movelist.pop()
-			self.destination = ogre.Vector3(dest[0], dest[1], dest[2])
-			self.direction = self.destination - self.sceneNode.getPosition()
+			self.destination = self.movelist.pop()
+			sceneNode = self.entity.getParentSceneNode()
+			self.direction = self.destination - sceneNode.getPosition()
 			self.distance = self.direction.normalise()
-			src = self.sceneNode.getOrientation() * ogre.Vector3().UNIT_X
+			src = sceneNode.getOrientation() * ogre.Vector3().UIT_X
 			if 1.0+src.dotProduct(self.direction) < 0.0001:
 				self.sceneNode.yaw(ogre.Degree(180))
 			else:
@@ -57,17 +58,26 @@ class MoveFrameListener(ogre.FrameListener):
 		except IndexError:
 			return False
 
+class MoveFrameListener(ogre.FrameListener):
+	""" Takes care of moving the ships """
+
+	def __init__(self, entity):
+		ogre.FrameListener.__init__(self)
+		self.entity = entity
+		self.sceneNode = entity.getParentSceneNode()
+
 	def frameStarted(self, evt):
-		if self.direction == ogre.Vector3().ZERO:
-			self.nextLocation()
+		userObject = self.entity.getUserObject()
+		if userObject.direction == ogre.Vector3().ZERO:
+			userObject.nextDest()
 		else:
-			move = self.speed * evt.timeSinceLastFrame
-			self.distance -= move
-			if self.distance < 0.0:
-				self.sceneNode.setPosition(self.destination)
-				self.direction = ogre.Vector3().ZERO
+			move = userObject.speed * evt.timeSinceLastFrame
+			userObject.distance -= move
+			if userObject.distance < 0.0:
+				self.sceneNode.setPosition(userObject.destination)
+				userObject.direction = ogre.Vector3().ZERO
 			else:
-				self.sceneNode.translate(self.direction * move)
+				self.sceneNode.translate(userObject.direction * move)
 		return ogre.FrameListener.frameStarted(self, evt)
 
 class BattleScene(scene.Scene):
@@ -140,6 +150,8 @@ class BattleScene(scene.Scene):
 				node.yaw(ogre.Radian(3.13 * len(self.sides)))
 				#node.pitch(ogre.Radian(3.14))
 			obj_scale = media[1] / entity_object.mesh.boundingSphereRadius
+			userObject = Participant(entity_object)
+			entity_object.setUserObject(userObject)
 			node.attachObject(entity_object)
 			node.setScale(ogre.Vector3(obj_scale, obj_scale, obj_scale))
 			self.nodes[entity.id] = node
