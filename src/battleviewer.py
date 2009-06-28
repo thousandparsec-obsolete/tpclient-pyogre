@@ -27,6 +27,49 @@ class DummyCache(object):
 class DummyApplication(object):
 	pass
 
+class MoveFrameListener(ogre.FrameListener):
+	""" Takes care of moving the ships """
+
+	def __init__(self, entity, sceneNode, movelist, speed=10.0:
+		ogre.FrameListener.__init__(self)
+		self.entity = entity
+		self.sceneNode = sceneNode
+		self.movelist = movelist
+
+		# Distance left to go
+		self.distance = 0.0
+		self.direction = ogre.Vector3().ZERO
+		self.speed = float(speed)
+
+	def nextLocation(self):
+		try:
+			dest = self.movelist.pop()
+			self.destination = ogre.Vector3(dest[0], dest[1], dest[2])
+			self.direction = self.destination - self.sceneNode.getPosition()
+			self.distance = self.direction.normalise()
+			src = self.sceneNode.getOrientation() * ogre.Vector3().UNIT_X
+			if 1.0+src.dotProduct(self.direction) < 0.0001:
+				self.sceneNode.yaw(ogre.Degree(180))
+			else:
+				quat = src.getRotationTo(self.direction)
+				self.sceneNode.rotate(quat)
+			return True
+		except IndexError:
+			return False
+
+	def frameStarted(self, evt):
+		if self.direction == ogre.Vector3().ZERO:
+			self.nextLocation()
+		else:
+			move = self.speed * evt.timeSinceLastFrame
+			self.distance -= move
+			if self.distance < 0.0:
+				self.sceneNode.setPosition(self.destination)
+				self.direction = ogre.Vector3().ZERO
+			else:
+				self.sceneNode.translate(self.direction * move)
+		return ogre.FrameListener.frameStarted(self, evt)
+
 class BattleScene(scene.Scene):
 	media = {
 			'battleship':('plowshare', 75),
@@ -277,15 +320,23 @@ class BattleManager(framework.Application):
 		self.laser.fire(self.battlescene.nodes[attacker], self.battlescene.nodes[victim])
 		#TODO: Add timer check to remove laser after a set amount of time or next laser fire (from the same side?)
 		#TODO: Move ships out of the way if they would inadvertantly be hit
+		#TODO: Shield and hit animations
+		#TODO: Taper laser for planets
 
 	def damage_event(self, ref, amount):
 		self.log_event("%s was damaged for %d" % (ref, amount))
+		camera = self.sceneManager.getCamera("PlayerCam")
+		entity = self.battlescene.nodes[ref].getAttachedObject(0)
+		dmg_overlay = damageoverlay.OgreText(entity, camera, str(amount))
+		dmg_overlay.enable(True)
+		#TODO: Progress through damage animations
 
 	def death_event(self, victim):
 		""" Causes the victim to disappear """
 		self.log_event("Death of %s" % victim)
 		self.battlescene.nodes[victim].setVisible(False)
 		#TODO: Explosion or burst of some sort before disappearance
+		#TODO: Debris field
 
 	def move_event(self, ref, dest):
 		self.log_event("%s moving to %d" % (ref, dest))
