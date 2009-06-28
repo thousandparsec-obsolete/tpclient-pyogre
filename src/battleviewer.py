@@ -27,10 +27,11 @@ class DummyCache(object):
 class DummyApplication(object):
 	pass
 
-class Participant(UserDefinedObject):
+class Participant(ogre.UserDefinedObject):
 	""" Basic information is stored here for moving """
 
 	def __init__(self, entity, speed=50.0):
+		ogre.UserDefinedObject.__init__(self)
 		self.speed = float(speed)
 		self.movelist = []
 		self.entity = entity
@@ -127,6 +128,7 @@ class BattleScene(scene.Scene):
 
 	def createSide(self, side):
 		print "creating side", side.id
+		root = ogre.Root.getSingleton()
 		side_node = self.rootNode.createChildSceneNode("%s_node" % side.id)
 		i = 0
 		for entity in side.entities:
@@ -152,6 +154,8 @@ class BattleScene(scene.Scene):
 			obj_scale = media[1] / entity_object.mesh.boundingSphereRadius
 			userObject = Participant(entity_object)
 			entity_object.setUserObject(userObject)
+			mfl = MoveFrameListener(entity_object)
+			root.addFrameListener(mfl)
 			node.attachObject(entity_object)
 			node.setScale(ogre.Vector3(obj_scale, obj_scale, obj_scale))
 			self.nodes[entity.id] = node
