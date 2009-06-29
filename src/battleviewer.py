@@ -62,23 +62,27 @@ class Participant(ogre.UserDefinedObject):
 class MoveFrameListener(ogre.FrameListener):
 	""" Takes care of moving the ships """
 
-	def __init__(self, entity, sceneNode):
+	def __init__(self):
 		ogre.FrameListener.__init__(self)
-		self.entity = entity
-		self.sceneNode = sceneNode
+		self.entities = []
+
+	def registerEntity(self, entity, sceneNode):
+		if not (entity, sceneNode) in self.entities:
+			self.entities.append((entity, sceneNode))
 
 	def frameStarted(self, evt):
-		userObject = self.entity.getUserObject()
-		if userObject.direction == ogre.Vector3().ZERO:
-			userObject.nextDest()
-		else:
-			move = userObject.speed * evt.timeSinceLastFrame
-			userObject.distance -= move
-			if userObject.distance < 0.0:
-				self.sceneNode.setPosition(userObject.destination)
-				userObject.direction = ogre.Vector3().ZERO
+		for (entity, sceneNode) in self.entities:
+			userObject = entity.getUserObject()
+			if userObject.direction == ogre.Vector3().ZERO:
+				userObject.nextDest()
 			else:
-				self.sceneNode.translate(userObject.direction * move)
+				move = userObject.speed * evt.timeSinceLastFrame
+				userObject.distance -= move
+				if userObject.distance < 0.0:
+					sceneNode.setPosition(userObject.destination)
+					userObject.direction = ogre.Vector3().ZERO
+				else:
+					sceneNode.translate(userObject.direction * move)
 		return ogre.FrameListener.frameStarted(self, evt)
 
 class BattleScene(scene.Scene):
@@ -106,6 +110,10 @@ class BattleScene(scene.Scene):
 		self.h_angle = 0
 		self.v_angle = 0
 
+		root = ogre.Root.getSingleton()
+		self.mfl = MoveFrameListener()
+		root.addFrameListener(self.mfl)
+
 		#self.createBackground()
 		self.hide()
 
@@ -130,7 +138,6 @@ class BattleScene(scene.Scene):
 
 	def createSide(self, side):
 		print "creating side", side.id
-		root = ogre.Root.getSingleton()
 		side_node = self.rootNode.createChildSceneNode("%s_node" % side.id)
 		i = 0
 		for entity in side.entities:
@@ -156,12 +163,10 @@ class BattleScene(scene.Scene):
 			obj_scale = media[1] / entity_object.mesh.boundingSphereRadius
 			userObject = Participant(entity_object)
 			entity_object.setUserObject(userObject)
-			mfl = MoveFrameListener(entity_object, node)
-			root.addFrameListener(mfl)
+			self.mfl.registerEntity(entity_object, node)
 			node.attachObject(entity_object)
 			node.setScale(ogre.Vector3(obj_scale, obj_scale, obj_scale))
 			self.userobjects[entity.id] = userObject
-			self.listeners[entity.id] = mfl
 			self.nodes[entity.id] = node
 
 		self.sides.append(side_node)
