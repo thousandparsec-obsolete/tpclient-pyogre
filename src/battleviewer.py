@@ -337,8 +337,10 @@ class BattleManager(framework.Application):
 		#TODO: Add timer check to remove the logoverlay after a set amount of time (5s?)
 		#TODO much later: if there are multiple log events, start stacking them until a certain number is reached
 
-	def fire_event(self, attacker, victim):
+	def fire_event(self, ref_att, ref_vic):
 		""" Takes in the names of an attacker and a victim for the fire event """
+		attacker = ref_att.id
+		victim = ref_vic.id
 		self.log_event("%s fired at %s" % (attacker, victim))
 		if not self.laser:
 			self.laser = laser.Laser(self.sceneManager, "Laser/Laser/Solid") # Laser/Laser/PNG exists too, but I haven't been able to get it to work
@@ -349,23 +351,26 @@ class BattleManager(framework.Application):
 		#TODO: Taper laser for planets
 
 	def damage_event(self, ref, amount):
-		self.log_event("%s was damaged for %d" % (ref, amount))
+		victim = ref.id
+		self.log_event("%s was damaged for %d" % (victim, amount))
 		camera = self.sceneManager.getCamera("PlayerCam")
-		entity = self.battlescene.nodes[ref].getAttachedObject(0)
+		entity = self.battlescene.nodes[victim].getAttachedObject(0)
 		dmg_overlay = damageoverlay.OgreText(entity, camera, str(amount))
 		dmg_overlay.enable(True)
 		#TODO: Progress through damage animations
 
-	def death_event(self, victim):
+	def death_event(self, ref):
 		""" Causes the victim to disappear """
+		victim = ref.id
 		self.log_event("Death of %s" % victim)
 		self.battlescene.nodes[victim].setVisible(False)
 		#TODO: Explosion or burst of some sort before disappearance
 		#TODO: Debris field
 
 	def move_event(self, ref, dest):
-		self.log_event("%s moving to %r" % (ref, dest))
-		userObject = self.battlescene.nodes[ref].getAttachedObject(0).getUserObject()
+		mover = ref.id
+		self.log_event("%s moving to %r" % (mover, dest))
+		userObject = self.battlescene.nodes[mover].getAttachedObject(0).getUserObject()
 		userObject.addDest(dest)
 
 	def Cleanup(self):
