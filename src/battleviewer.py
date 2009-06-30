@@ -13,6 +13,7 @@ import scene
 import helpers
 import starmap
 import laser
+import damageoverlay
 import battlexml.battle as battle
 
 class DummyCache(object):
@@ -256,6 +257,9 @@ class BattleManager(framework.Application):
 		self.application = DummyApplication()
 		self.application.cache = DummyCache()
 
+		self.running = True
+		self.round = 0
+
 	def _createScene(self):
 		"""Setup CEGUI and create the various scenes"""
 		# Initialise CEGUI Renderer
@@ -372,6 +376,28 @@ class BattleManager(framework.Application):
 		self.log_event("%s moving to %r" % (mover, dest))
 		userObject = self.battlescene.nodes[mover].getAttachedObject(0).getUserObject()
 		userObject.addDest(dest)
+
+	def next_round(self):
+		if len(self.rounds) > self.round:
+			self.running = True
+			return True
+		else:
+			return False
+
+	def update(self, evt):
+		if self.running:
+			round = self.rounds[self.round]
+			for log in round.logs:
+				self.log_event(log.content)
+			for fire in round.fire:
+				self.fire_event(fire.source, fire.destination)
+			for damage in round.damage:
+				self.damage_event(damage.reference, damage.amount)
+			for death in round.death:
+				self.death_event(death.reference)
+			self.running = False
+			self.round += 1
+		return True
 
 	def Cleanup(self):
 		self.frameListener.keepRendering = False
