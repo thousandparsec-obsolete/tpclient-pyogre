@@ -273,7 +273,7 @@ class BattleManager(framework.Application):
 		self.guiSystem.setDefaultMouseCursor("SleekSpace", "MouseArrow")
 
 		wmgr = cegui.WindowManager.getSingleton()
-		root = wmgr.createWindow("DefaultWindow", "root")
+		root = helpers.loadWindowLayout("battleviewer.layout")
 		self.guiSystem.setGUISheet(root)
 
 		self.battlescene = BattleScene(self, self.sceneManager).initial(self.battle.sides)

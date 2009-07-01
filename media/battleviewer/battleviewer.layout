@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout >
+    <Window Type="DefaultWindow" Name="Battleviewer/" >
+        <Property Name="Font" Value="BlueHighway-12" />
+        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+        <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+        <Window Type="SleekSpace/ScrollablePane" Name="Infopane" >
+            <Property Name="Font" Value="BlueHighway-10" />
+            <Property Name="ContentArea" Value="l:0 t:0 r:0 b:0" />
+            <Property Name="HorzStepSize" Value="0.1" />
+            <Property Name="VertStepSize" Value="0.1" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="HorzOverlapSize" Value="0.01" />
+            <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{0.25,0},{1,0}}" />
+            <Property Name="VertOverlapSize" Value="0.01" />
+            <Property Name="HorzScrollPosition" Value="0" />
+            <Property Name="VertScrollPosition" Value="0" />
+            <AutoWindow NameSuffix="__auto_container__" >
+                <Property Name="ContentArea" Value="l:0 t:0 r:0 b:0" />
+                <Property Name="ChildExtentsArea" Value="l:0 t:0 r:0 b:0" />
+            </AutoWindow>
+        </Window>
+        <Window Type="SleekSpace/FrameWindow" Name="Controls" >
+            <Property Name="Font" Value="BlueHighway-12" />
+            <Property Name="SizingEnabled" Value="False" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="TitlebarEnabled" Value="False" />
+            <Property Name="UnifiedAreaRect" Value="{{0.25,0},{0.9,0},{0.75,0},{1,0}}" />
+            <Property Name="CloseButtonEnabled" Value="False" />
+            <Window Type="SleekSpace/Button" Name="Controls/Beginning" >
+                <Property Name="Font" Value="BlueHighway-12" />
+                <Property Name="Text" Value="&lt;&lt;" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.05,0},{0.15,0},{0.2,0},{0.8,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Controls/Prev" >
+                <Property Name="Font" Value="BlueHighway-12" />
+                <Property Name="Text" Value="&lt;" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.2,0},{0.15,0},{0.35,0},{0.8,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Controls/Stop" >
+                <Property Name="Font" Value="BlueHighway-12" />
+                <Property Name="Text" Value="[ ]" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.35,0},{0.15,0},{0.5,0},{0.8,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Controls/Play" >
+                <Property Name="Font" Value="BlueHighway-12" />
+                <Property Name="Text" Value="\&gt;" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.5,0},{0.15,0},{0.65,0},{0.8,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Controls/Next" >
+                <Property Name="Font" Value="BlueHighway-12" />
+                <Property Name="Text" Value="&gt;" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.65,0},{0.15,0},{0.8,0},{0.8,0}}" />
+            </Window>
+            <Window Type="SleekSpace/Button" Name="Controls/End" >
+                <Property Name="Font" Value="BlueHighway-12" />
+                <Property Name="Text" Value="&gt;&gt;" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.8,0},{0.15,0},{0.95,0},{0.8,0}}" />
+            </Window>
+        </Window>
+    </Window>
+</GUILayout>
