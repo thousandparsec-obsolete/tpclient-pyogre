@@ -65,5 +65,13 @@
                 <Property Name="UnifiedAreaRect" Value="{{0.8,0},{0.15,0},{0.95,0},{0.8,0}}" />
             </Window>
         </Window>
+        <Window Type="SleekSpace/MultiLineEditbox" Name="Battleviewer//" >
+            <Property Name="Font" Value="BlueHighway-8" />
+            <Property Name="Text" >
+</Property>
+            <Property Name="MaxTextLength" Value="1073741823" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.25,0},{0,0},{0.75,0},{0.1,0}}" />
+        </Window>
     </Window>
 </GUILayout>
