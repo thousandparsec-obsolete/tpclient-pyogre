@@ -276,6 +276,14 @@ class BattleManager(framework.Application):
 		root = helpers.loadWindowLayout("battleviewer.layout")
 		self.guiSystem.setGUISheet(root)
 
+		# Bind events to their respective buttons
+		helpers.bindEvent("Controls/Next", self, "next_round", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Controls/Prev", self, "prev_round", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Controls/Beginning", self, "beginning_round", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Controls/End", self, "end_round", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Controls/Stop", self, "stop_prog", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Controls/Play", self, "start_prog", cegui.PushButton.EventClicked)
+
 		self.battlescene = BattleScene(self, self.sceneManager).initial(self.battle.sides)
 		self.rounds = self.battle.rounds
 
@@ -377,13 +385,6 @@ class BattleManager(framework.Application):
 		userObject = self.battlescene.nodes[mover].getAttachedObject(0).getUserObject()
 		userObject.addDest(dest)
 
-	def next_round(self):
-		if len(self.rounds) > self.round:
-			self.running = True
-			return True
-		else:
-			return False
-
 	def update(self, evt):
 		if self.running:
 			round = self.rounds[self.round]
@@ -398,6 +399,30 @@ class BattleManager(framework.Application):
 			self.running = False
 			self.round += 1
 		return True
+
+	# GUI stuff follows
+	def next_round(self, evt):
+		self.log_event("Going forward one round")
+		if len(self.rounds) > self.round:
+			self.running = True
+			return True
+		else:
+			return False
+
+	def prev_round(self, evt):
+		self.log_event("Going back one round")
+
+	def beginning_round(self, evt):
+		self.log_event("Jumping to the beginning round")
+
+	def end_round(self, evt):
+		self.log_event("Jumping to the end round")
+
+	def stop_prog(self, evt):
+		self.log_event("Stopping round progression")
+
+	def start_prog(self, evt):
+		self.log_event("Starting round progression")
 
 	def Cleanup(self):
 		self.frameListener.keepRendering = False
