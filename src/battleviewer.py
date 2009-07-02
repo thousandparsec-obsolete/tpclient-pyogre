@@ -334,6 +334,8 @@ class BattleManager(framework.Application):
 		window = wm.getWindow("Logs")
 		oldtext = window.getText().c_str()
 		window.setText(oldtext + text)
+		scrollbar = window.getVertScrollbar()
+		scrollbar.setScrollPosition(scrollbar.getDocumentSize())
 
 	def fire_event(self, ref_att, ref_vic):
 		""" Takes in the names of an attacker and a victim for the fire event """
