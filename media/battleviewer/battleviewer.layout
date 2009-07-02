@@ -21,54 +21,51 @@
                 <Property Name="ChildExtentsArea" Value="l:0 t:0 r:0 b:0" />
             </AutoWindow>
         </Window>
-        <Window Type="SleekSpace/FrameWindow" Name="Controls" >
-            <Property Name="Font" Value="BlueHighway-12" />
-            <Property Name="SizingEnabled" Value="False" />
+        <Window Type="DragContainer" Name="Controls" >
+            <Property Name="DragAlpha" Value="0.5" />
+            <Property Name="DragThreshold" Value="8" />
             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-            <Property Name="TitlebarEnabled" Value="False" />
-            <Property Name="UnifiedAreaRect" Value="{{0.25,0},{0.9,0},{0.75,0},{1,0}}" />
-            <Property Name="CloseButtonEnabled" Value="False" />
+            <Property Name="UnifiedAreaRect" Value="{{0.3,0},{0.85,0},{0.7,0},{.9,0}}" />
             <Window Type="SleekSpace/Button" Name="Controls/Beginning" >
                 <Property Name="Font" Value="BlueHighway-12" />
                 <Property Name="Text" Value="&lt;&lt;" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.05,0},{0.15,0},{0.2,0},{0.8,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.05,0},{0.15,0},{0.2,0},{1,0}}" />
             </Window>
             <Window Type="SleekSpace/Button" Name="Controls/Prev" >
                 <Property Name="Font" Value="BlueHighway-12" />
                 <Property Name="Text" Value="&lt;" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.2,0},{0.15,0},{0.35,0},{0.8,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.2,0},{0.15,0},{0.35,0},{1,0}}" />
             </Window>
             <Window Type="SleekSpace/Button" Name="Controls/Stop" >
                 <Property Name="Font" Value="BlueHighway-12" />
                 <Property Name="Text" Value="[ ]" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.35,0},{0.15,0},{0.5,0},{0.8,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.35,0},{0.15,0},{0.5,0},{1,0}}" />
             </Window>
             <Window Type="SleekSpace/Button" Name="Controls/Play" >
                 <Property Name="Font" Value="BlueHighway-12" />
                 <Property Name="Text" Value="\&gt;" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.5,0},{0.15,0},{0.65,0},{0.8,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.5,0},{0.15,0},{0.65,0},{1,0}}" />
             </Window>
             <Window Type="SleekSpace/Button" Name="Controls/Next" >
                 <Property Name="Font" Value="BlueHighway-12" />
                 <Property Name="Text" Value="&gt;" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.65,0},{0.15,0},{0.8,0},{0.8,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.65,0},{0.15,0},{0.8,0},{1,0}}" />
             </Window>
             <Window Type="SleekSpace/Button" Name="Controls/End" >
                 <Property Name="Font" Value="BlueHighway-12" />
                 <Property Name="Text" Value="&gt;&gt;" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                <Property Name="UnifiedAreaRect" Value="{{0.8,0},{0.15,0},{0.95,0},{0.8,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.8,0},{0.15,0},{0.95,0},{1,0}}" />
             </Window>
         </Window>
-        <Window Type="SleekSpace/MultiLineEditbox" Name="Battleviewer//" >
+        <Window Type="SleekSpace/MultiLineEditbox" Name="Logs" >
             <Property Name="Font" Value="BlueHighway-8" />
-            <Property Name="Text" >
-</Property>
+            <Property Name="Text" ></Property>
             <Property Name="MaxTextLength" Value="1073741823" />
             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
             <Property Name="UnifiedAreaRect" Value="{{0.25,0},{0,0},{0.75,0},{0.1,0}}" />
