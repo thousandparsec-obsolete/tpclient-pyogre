@@ -25,7 +25,7 @@
             <Property Name="DragAlpha" Value="0.5" />
             <Property Name="DragThreshold" Value="8" />
             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-            <Property Name="UnifiedAreaRect" Value="{{0.3,0},{0.85,0},{0.7,0},{.9,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.3,0},{0.85,0},{0.7,0},{0.9,0}}" />
             <Window Type="SleekSpace/Button" Name="Controls/Beginning" >
                 <Property Name="Font" Value="BlueHighway-12" />
                 <Property Name="Text" Value="&lt;&lt;" />
@@ -65,7 +65,9 @@
         </Window>
         <Window Type="SleekSpace/MultiLineEditbox" Name="Logs" >
             <Property Name="Font" Value="BlueHighway-8" />
-            <Property Name="Text" ></Property>
+            <Property Name="Text" >
+</Property>
+            <Property Name="ReadOnly" Value="True" />
             <Property Name="MaxTextLength" Value="1073741823" />
             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
             <Property Name="UnifiedAreaRect" Value="{{0.25,0},{0,0},{0.75,0},{0.1,0}}" />

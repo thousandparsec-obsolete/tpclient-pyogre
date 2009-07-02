@@ -330,24 +330,10 @@ class BattleManager(framework.Application):
 
 	def log_event(self, text):
 		"""Displays the contents of the Log event on the screen for $DELAY seconds"""
-		overlayManager = ogre.OverlayManager.getSingleton()
-		if not self.logTextArea:
-			self.logOverlay = overlayManager.create('log')
-			container = overlayManager.createOverlayElement('Panel', 'logPanel')
-			self.logOverlay.add2D(container)
-			self.logTextArea = overlayManager.createOverlayElement('TextArea', 'logText')
-			self.logTextArea.setDimensions(1.0, 1.0)
-			self.logTextArea.setMetricsMode(ogre.GMM_PIXELS)
-			self.logTextArea.setPosition(0,0)
-			self.logTextArea.setParameter('font_name', 'BlueHighway')
-			self.logTextArea.setParameter('char_height', '16')
-			self.logTextArea.setParameter('horz_align', 'center')
-			self.logTextArea.setColour(ogre.ColourValue(1.0, 1.0, 1.0))
-			container.addChild(self.logTextArea)
-		self.logTextArea.setCaption(ogre.UTFString(text))
-		self.logOverlay.show()
-		#TODO: Add timer check to remove the logoverlay after a set amount of time (5s?)
-		#TODO much later: if there are multiple log events, start stacking them until a certain number is reached
+		wm = cegui.WindowManager.getSingleton()
+		window = wm.getWindow("Logs")
+		oldtext = window.getText().c_str()
+		window.setText(oldtext + text)
 
 	def fire_event(self, ref_att, ref_vic):
 		""" Takes in the names of an attacker and a victim for the fire event """
