@@ -102,18 +102,27 @@ class GUIFadeListener(ogre.FrameListener):
 							'alpha_step_in':(cur_alpha-min_alpha)/fadein_time,
 							'alpha_step_out':(cur_alpha-min_alpha)/fadeout_time,
 							'active':True,
-							'direction':'out'}
-		helpers.bindEvent(element, self, "enable", cegui.Window.EventMouseEnters)
-		helpers.bindEvent(element, self, "disable", cegui.Window.EventMouseLeaves)
+							'direction':'out',
+							'event':True}
+		helpers.bindEvent(element, self, "show", cegui.Window.EventMouseEnters)
+		helpers.bindEvent(element, self, "hide", cegui.Window.EventMouseLeaves)
 
-	def enable(self, evt):
-		element = evt.window.getName().c_str()
+	def show(self, evt, event_call=True):
+		if isinstance(evt, str):
+			element = evt
+		else:
+			element = evt.window.getName().c_str()
 		self.elements[element]['active'] = True
+		self.elements[element]['event'] = event_call
 		self.elements[element]['direction'] = 'in'
 
-	def disable(self, evt):
-		element = evt.window.getName().c_str()
+	def hide(self, evt, event_call=True):
+		if isinstance(evt, str):
+			element = evt
+		else:
+			element = evt.window.getName().c_str()
 		self.elements[element]['active'] = True
+		self.elements[element]['event'] = event_call
 		self.elements[element]['direction'] = 'out'
 
 	def frameStarted(self, evt):
@@ -126,6 +135,8 @@ class GUIFadeListener(ogre.FrameListener):
 					if alpha >= properties['max_alpha']:
 						alpha = properties['max_alpha']
 						properties['active'] = False
+						if not properties['event']:
+							self.hide(element)
 					self.wm.getWindow(element).setAlpha(alpha)
 					properties['cur_alpha'] = alpha
 				elif properties['direction'] == 'out':
@@ -134,6 +145,8 @@ class GUIFadeListener(ogre.FrameListener):
 					if alpha < properties['min_alpha']:
 						alpha = properties['min_alpha']
 						properties['active'] = False
+						if not properties['event']:
+							self.show(element)
 					self.wm.getWindow(element).setAlpha(alpha)
 					properties['cur_alpha'] = alpha
 
@@ -394,6 +407,7 @@ class BattleManager(framework.Application):
 		window.setText(oldtext + text)
 		scrollbar = window.getVertScrollbar()
 		scrollbar.setScrollPosition(scrollbar.getDocumentSize())
+		self.gfl.show("Logs", False)
 
 	def fire_event(self, ref_att, ref_vic):
 		""" Takes in the names of an attacker and a victim for the fire event """
