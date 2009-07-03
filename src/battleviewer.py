@@ -93,11 +93,10 @@ class GUIFadeListener(ogre.FrameListener):
 		self.elements = {}
 		self.wm = cegui.WindowManager.getSingleton()
 
-	def registerElement(self, element, min_alpha=0.0, fadeout_time=1.0, fadein_time=1.0, instant=False):
+	def registerElement(self, element, min_alpha=0.01, fadeout_time=1.0, fadein_time=1.0):
 		window = self.wm.getWindow(element)
 		cur_alpha = window.getAlpha()
-		self.elements[element] = {'instant':instant,
-							'min_alpha':min_alpha,
+		self.elements[element] = {'min_alpha':min_alpha,
 							'max_alpha':cur_alpha,
 							'cur_alpha':cur_alpha,
 							'alpha_step_in':(cur_alpha-min_alpha)/fadein_time,
