@@ -13,7 +13,6 @@ import scene
 import helpers
 import starmap
 import laser
-import damageoverlay
 import battlexml.battle as battle
 
 class DummyCache(object):
@@ -355,8 +354,6 @@ class BattleManager(framework.Application):
 		self.log_event("%s was damaged for %d" % (victim, amount))
 		camera = self.sceneManager.getCamera("PlayerCam")
 		entity = self.battlescene.nodes[victim].getAttachedObject(0)
-		dmg_overlay = damageoverlay.OgreText(entity, camera, str(amount))
-		dmg_overlay.enable(True)
 		#TODO: Progress through damage animations
 
 	def death_event(self, ref):
