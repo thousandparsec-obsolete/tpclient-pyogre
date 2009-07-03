@@ -85,6 +85,61 @@ class MoveFrameListener(ogre.FrameListener):
 					sceneNode.translate(userObject.direction * move)
 		return ogre.FrameListener.frameStarted(self, evt)
 
+class GUIFadeListener(ogre.FrameListener):
+	""" Fades GUI in/out """
+
+	def __init__(self):
+		ogre.FrameListener.__init__(self)
+		self.elements = {}
+		self.wm = cegui.WindowManager.getSingleton()
+
+	def registerElement(self, element, min_alpha=0.0, fadeout_time=1.0, fadein_time=1.0, instant=False):
+		window = self.wm.getWindow(element)
+		cur_alpha = window.getAlpha()
+		self.elements[element] = {'instant':instant,
+							'min_alpha':min_alpha,
+							'max_alpha':cur_alpha,
+							'cur_alpha':cur_alpha,
+							'alpha_step_in':(cur_alpha-min_alpha)/fadein_time,
+							'alpha_step_out':(cur_alpha-min_alpha)/fadeout_time,
+							'active':True,
+							'direction':'out'}
+		helpers.bindEvent(element, self, "enable", cegui.Window.EventMouseEnters)
+		helpers.bindEvent(element, self, "disable", cegui.Window.EventMouseLeaves)
+
+	def enable(self, evt):
+		element = evt.window.getName().c_str()
+		self.elements[element]['active'] = True
+		self.elements[element]['direction'] = 'in'
+
+	def disable(self, evt):
+		element = evt.window.getName().c_str()
+		self.elements[element]['active'] = True
+		self.elements[element]['direction'] = 'out'
+
+	def frameStarted(self, evt):
+		for element in self.elements:
+			properties = self.elements[element]
+			if properties['active']:
+				if properties['direction'] == 'in':
+					delta_alpha = properties['alpha_step_in'] * evt.timeSinceLastFrame
+					alpha = properties['cur_alpha']+delta_alpha
+					if alpha >= properties['max_alpha']:
+						alpha = properties['max_alpha']
+						properties['active'] = False
+					self.wm.getWindow(element).setAlpha(alpha)
+					properties['cur_alpha'] = alpha
+				elif properties['direction'] == 'out':
+					delta_alpha = properties['alpha_step_out'] * evt.timeSinceLastFrame
+					alpha = properties['cur_alpha']-delta_alpha
+					if alpha < properties['min_alpha']:
+						alpha = properties['min_alpha']
+						properties['active'] = False
+					self.wm.getWindow(element).setAlpha(alpha)
+					properties['cur_alpha'] = alpha
+
+		return ogre.FrameListener.frameStarted(self, evt)
+
 class BattleScene(scene.Scene):
 	media = {
 			'battleship':('plowshare', 75),
@@ -275,13 +330,18 @@ class BattleManager(framework.Application):
 		root = helpers.loadWindowLayout("battleviewer.layout")
 		self.guiSystem.setGUISheet(root)
 
-		# Bind events to their respective buttons
+		# Bind events to their respective buttons and set up other misc GUI stuff
+		self.gfl = GUIFadeListener()
+		ogre_root = ogre.Root.getSingleton()
+		ogre_root.addFrameListener(self.gfl)
 		helpers.bindEvent("Controls/Next", self, "next_round", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Controls/Prev", self, "prev_round", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Controls/Beginning", self, "beginning_round", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Controls/End", self, "end_round", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Controls/Stop", self, "stop_prog", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Controls/Play", self, "start_prog", cegui.PushButton.EventClicked)
+		self.gfl.registerElement("Controls")
+		self.gfl.registerElement("Logs")
 
 		self.battlescene = BattleScene(self, self.sceneManager).initial(self.battle.sides)
 		self.rounds = self.battle.rounds
