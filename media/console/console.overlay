@@ -1,7 +1,7 @@
 Application/ConsoleOverlay
 {
    zorder 500
- 
+
    container BorderPanel(Application/ConsolePanel)
    {
       material console/background
@@ -10,7 +10,7 @@ Application/ConsoleOverlay
       top 0
       width 1
       height 0.5
- 
+
       element TextArea(Application/ConsoleText)
       {
          metrics_mode relative
@@ -19,9 +19,9 @@ Application/ConsoleOverlay
          width 1
          height 1
          font_name Console
-         char_height 0.031
+         char_height 0.015
       }
- 
+
       element TextArea(Application/ConsoleTextOverlay)
       {
          metrics_mode relative
@@ -30,7 +30,7 @@ Application/ConsoleOverlay
          width 1
          height 1
          font_name Console
-         char_height 0.031
-      }         
+         char_height 0.015
+      }
    }
 }
