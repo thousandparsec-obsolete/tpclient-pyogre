@@ -47,7 +47,7 @@ class Participant(ogre.UserDefinedObject):
 		try:
 			self.destination = self.movelist.pop()
 			sceneNode = self.entity.getParentSceneNode()
-			self.direction = self.destination - sceneNode.getPosition()
+			self.direction = self.destination - sceneNode._getDerivedPosition()
 			self.distance = self.direction.normalise()
 			src = sceneNode.getOrientation() * ogre.Vector3().ZERO
 			if 1.0+src.dotProduct(self.direction) < 0.0001:
@@ -79,7 +79,8 @@ class MoveFrameListener(ogre.FrameListener):
 				move = userObject.speed * evt.timeSinceLastFrame
 				userObject.distance -= move
 				if userObject.distance < 0.0:
-					sceneNode.setPosition(userObject.destination)
+					parentNode = sceneNode.getParentSceneNode()
+					sceneNode.setPosition(parentNode._getDerivedOrientation().Inverse() * (userObject.destination - parentNode._getDerivedPosition()))
 					userObject.direction = ogre.Vector3().ZERO
 				else:
 					sceneNode.translate(userObject.direction * move)
