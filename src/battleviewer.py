@@ -48,13 +48,8 @@ class Participant(ogre.UserDefinedObject):
 			self.destination = self.movelist.pop()
 			sceneNode = self.entity.getParentSceneNode()
 			self.direction = self.destination - sceneNode._getDerivedPosition()
+			sceneNode.lookAt(self.destination, ogre.SceneNode.TransformSpace.TS_WORLD, ogre.Vector3().UNIT_Z)
 			self.distance = self.direction.normalise()
-			src = sceneNode.getOrientation() * ogre.Vector3().ZERO
-			if 1.0+src.dotProduct(self.direction) < 0.0001:
-				sceneNode.yaw(ogre.Degree(180))
-			else:
-				quat = src.getRotationTo(self.direction)
-				sceneNode.rotate(quat)
 			return True
 		except IndexError:
 			return False
