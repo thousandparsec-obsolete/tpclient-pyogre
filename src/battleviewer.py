@@ -415,10 +415,11 @@ class BattleManager(framework.Application):
 
 	def log_event(self, text):
 		"""Displays the contents of the Log event on the screen for $DELAY seconds"""
+		prefix = "Round %d: " % self.round
 		wm = cegui.WindowManager.getSingleton()
 		window = wm.getWindow("Logs")
 		oldtext = window.getText().c_str()
-		window.setText(oldtext + text)
+		window.setText(oldtext + prefix + text)
 		scrollbar = window.getVertScrollbar()
 		scrollbar.setScrollPosition(scrollbar.getDocumentSize())
 		self.gfl.show("Logs", False)
