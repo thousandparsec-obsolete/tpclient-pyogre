@@ -26,10 +26,10 @@ class Round:
 	def __init__(self, number):
 		self.number = int(number)
 		self.events = []
-		self.logs = (log for log in self.events if isinstance(log, Log))
-		self.fire = (fire for fire in self.events if isinstance(fire, Fire))
-		self.damage = (damage for damage in self.events if isinstance(damage, Damage))
-		self.death = (death for death in self.events if isinstance(death, Death))
+		self.logs = []
+		self.fire = []
+		self.damage = []
+		self.death = []
 
 class Fire:
 	def __init__(self):
@@ -119,20 +119,25 @@ class BattleXMLHandler(ContentHandler):
 
 		if name == "fire":
 			self.round.events.append(self.fire)
+			self.round.fire.append(self.fire)
 			self.fire = None
 
 		if name == "damage":
 			self.round.events.append(self.status)
+			self.round.damage.append(self.status)
 			self.status = None
 
 		if name == "death":
 			self.round.events.append(self.status)
+			self.round.death.append(self.status)
 			self.status = None
 
 	def characters(self, content):
 		tag = self.tags[len(self.tags) - 1]
 		if tag == "log":
-			self.round.events.append(Log(content))
+			log = Log(content)
+			self.round.events.append(log)
+			self.round.logs.append(log)
 
 		if tag == "name":
 			self.entity.name = content
