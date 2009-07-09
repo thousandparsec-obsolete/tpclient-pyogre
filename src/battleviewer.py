@@ -337,7 +337,7 @@ class BattleManager(framework.Application):
 		self.application = DummyApplication()
 		self.application.cache = DummyCache()
 
-		self.running = True
+		self.running = False
 		self.round = 0
 
 	def _createScene(self):
@@ -367,10 +367,12 @@ class BattleManager(framework.Application):
 		helpers.bindEvent("Controls/Stop", self, "stop_prog", cegui.PushButton.EventClicked)
 		helpers.bindEvent("Controls/Play", self, "start_prog", cegui.PushButton.EventClicked)
 		self.gfl.registerElement("Controls")
-		self.gfl.registerElement("Logs")
+		self.gfl.registerElement("Logs", 0.01, 3)
 
 		self.battlescene = BattleScene(self, self.sceneManager).initial(self.battle.sides)
 		self.rounds = self.battle.rounds
+
+		self.timer = ogre.Timer()
 
 		self.changeScene(self.battlescene)
 
@@ -414,7 +416,7 @@ class BattleManager(framework.Application):
 		self.currentScene.show()
 
 	def log_event(self, text):
-		"""Displays the contents of the Log event on the screen for $DELAY seconds"""
+		"""Displays the contents of the Log event in the log box"""
 		prefix = "Round %d: " % self.round
 		wm = cegui.WindowManager.getSingleton()
 		window = wm.getWindow("Logs")
@@ -472,7 +474,9 @@ class BattleManager(framework.Application):
 		userObject.addDest(dest)
 
 	def update(self, evt):
-		if self.running:
+		time = self.timer.getMilliseconds()
+		if self.running and time % 5000 == 0 and len(self.rounds) > self.round:
+			print self.timer.getMilliseconds()
 			round = self.rounds[self.round]
 			for log in round.logs:
 				self.log_event(log.content)
@@ -482,33 +486,46 @@ class BattleManager(framework.Application):
 				self.damage_event(damage.reference, damage.amount)
 			for death in round.death:
 				self.death_event(death.reference)
-			self.running = False
 			self.round += 1
 		return True
 
+	def resurrect(self, round):
+		""" Resurrects the dead and generally returns the round state to that of $round """
+		pass
+
 	# GUI stuff follows
 	def next_round(self, evt):
-		self.log_event("Going forward one round")
 		if len(self.rounds) > self.round:
+			self.log_event("Going forward one round")
 			self.running = True
 			return True
 		else:
+			self.log_event("At the last round")
 			return False
 
 	def prev_round(self, evt):
-		self.log_event("Going back one round")
+		if self.round != 0:
+			self.log_event("Going back one round")
+			self.resurrect(self.round-1)
+		else:
+			self.log_event("At the first round")
 
 	def beginning_round(self, evt):
 		self.log_event("Jumping to the beginning round")
+		self.resurrect(0)
 
 	def end_round(self, evt):
 		self.log_event("Jumping to the end round")
+		self.resurrect(len(self.rounds))
 
 	def stop_prog(self, evt):
 		self.log_event("Stopping round progression")
+		self.running = False
 
 	def start_prog(self, evt):
 		self.log_event("Starting round progression")
+		self.running = True
+		self.timer.reset()
 
 	def Cleanup(self):
 		self.frameListener.keepRendering = False
