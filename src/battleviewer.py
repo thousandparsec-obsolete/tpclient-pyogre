@@ -497,11 +497,8 @@ class BattleManager(framework.Application):
 	def next_round(self, evt):
 		if len(self.rounds) > self.round:
 			self.log_event("Going forward one round")
-			self.running = True
-			return True
 		else:
 			self.log_event("At the last round")
-			return False
 
 	def prev_round(self, evt):
 		if self.round != 0:
