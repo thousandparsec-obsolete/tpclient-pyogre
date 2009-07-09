@@ -1,3 +1,5 @@
+import copy
+
 from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
 
@@ -7,6 +9,7 @@ class Battle:
 		self.media = media
 		self.sides = []
 		self.rounds = []
+		self.states = [{}]
 
 class Side:
 	def __init__(self, id):
@@ -21,7 +24,7 @@ class Entity:
 
 class Round:
 	def __init__(self, number):
-		self.number = number
+		self.number = int(number)
 		self.events = []
 		self.logs = (log for log in self.events if isinstance(log, Log))
 		self.fire = (fire for fire in self.events if isinstance(fire, Fire))
@@ -146,20 +149,37 @@ class BattleXMLHandler(ContentHandler):
 				if entity.id == id:
 					return entity
 
+def parse_states(battle):
+	""" Gathers the final states for each round off battle """
+	for round in battle.rounds:
+		battle.states.append(copy.copy(battle.states[round.number-1]))
+		# Do moves first so they can be overwritten by deaths
+		# After move parsing is implemented of course
+		for death in round.death:
+			battle.states[round.number]['dead'] = death.reference.id
+	return battle
+
 def parse_file(file_name):
 	parser = make_parser()
 	handler = BattleXMLHandler()
 	parser.setContentHandler(handler)
 	parser.parse(open(file_name))
-	return handler.battle
+	battle = parse_states(handler.battle)
+	return battle
 
 
 if __name__ == "__main__":
 	filename = raw_input("Filename: ")
 	battle = parse_file(filename)
 	for round in battle.rounds:
-		print dir(round)
 		for event in round.events:
 			print event
 		for content in (event.content for event in round.events if isinstance(event, Log)):
 			print content
+
+	print "States"
+	print "------"
+	for i in range(len(battle.states)):
+		print "Round %d" % i
+		for state in battle.states[i]:
+			print state + " - " + battle.states[i][state]
