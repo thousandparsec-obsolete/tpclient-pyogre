@@ -9,7 +9,7 @@ class Battle:
 		self.media = media
 		self.sides = []
 		self.rounds = []
-		self.states = [{}]
+		self.states = [{'dead':[]}]
 
 class Side:
 	def __init__(self, id):
@@ -157,11 +157,11 @@ class BattleXMLHandler(ContentHandler):
 def parse_states(battle):
 	""" Gathers the final states for each round off battle """
 	for round in battle.rounds:
-		battle.states.append(copy.copy(battle.states[round.number-1]))
+		battle.states.append(copy.deepcopy(battle.states[round.number-1]))
 		# Do moves first so they can be overwritten by deaths
 		# After move parsing is implemented of course
 		for death in round.death:
-			battle.states[round.number]['dead'] = death.reference.id
+			battle.states[round.number]['dead'].append(death.reference.id)
 	return battle
 
 def parse_file(file_name):
@@ -187,4 +187,5 @@ if __name__ == "__main__":
 	for i in range(len(battle.states)):
 		print "Round %d" % i
 		for state in battle.states[i]:
-			print state + " - " + battle.states[i][state]
+			print state + " - " + str(battle.states[i][state])
+			print repr(battle.states[i][state])
