@@ -338,7 +338,7 @@ class BattleManager(framework.Application):
 		self.application.cache = DummyCache()
 
 		self.running = False
-		self.single = True
+		self.single = False
 		self.round = 0
 
 	def _createScene(self):
