@@ -418,7 +418,7 @@ class BattleManager(framework.Application):
 
 	def log_event(self, text):
 		"""Displays the contents of the Log event in the log box"""
-		prefix = "Round %d: " % self.round
+		prefix = "Round %d: " % int(self.round+1)
 		wm = cegui.WindowManager.getSingleton()
 		window = wm.getWindow("Logs")
 		oldtext = window.getText().c_str()
