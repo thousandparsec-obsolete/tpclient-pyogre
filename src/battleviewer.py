@@ -338,6 +338,7 @@ class BattleManager(framework.Application):
 		self.application.cache = DummyCache()
 
 		self.running = False
+		self.single = True
 		self.round = 0
 
 	def _createScene(self):
@@ -475,7 +476,7 @@ class BattleManager(framework.Application):
 
 	def update(self, evt):
 		time = self.timer.getMilliseconds()
-		if self.running and time % 5000 == 0 and len(self.rounds) > self.round:
+		if self.running and (time % 5000 == 0 or self.single) and len(self.rounds) > self.round:
 			print self.timer.getMilliseconds()
 			round = self.rounds[self.round]
 			for log in round.logs:
@@ -487,6 +488,9 @@ class BattleManager(framework.Application):
 			for death in round.death:
 				self.death_event(death.reference)
 			self.round += 1
+			if self.single:
+				self.running = False
+				self.single = False
 		return True
 
 	def resurrect(self, round):
@@ -497,6 +501,8 @@ class BattleManager(framework.Application):
 	def next_round(self, evt):
 		if len(self.rounds) > self.round:
 			self.log_event("Going forward one round")
+			self.single = True
+			self.running = True
 		else:
 			self.log_event("At the last round")
 
