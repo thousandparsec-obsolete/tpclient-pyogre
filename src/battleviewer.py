@@ -477,7 +477,6 @@ class BattleManager(framework.Application):
 	def update(self, evt):
 		time = self.timer.getMilliseconds()
 		if self.running and (time % 5000 == 0 or self.single) and len(self.rounds) > self.round:
-			print self.timer.getMilliseconds()
 			round = self.rounds[self.round]
 			for log in round.logs:
 				self.log_event(log.content)
@@ -495,7 +494,11 @@ class BattleManager(framework.Application):
 
 	def resurrect(self, round):
 		""" Resurrects the dead and generally returns the round state to that of $round """
-		pass
+		for entity in self.battlescene.nodes:
+			if entity not in self.battle.states[round+1]['dead']:
+				app.battlescene.nodes[entity].setVisible(True)
+			else:
+				app.battlescene.nodes[entity].setVisible(False)
 
 	# GUI stuff follows
 	def next_round(self, evt):
@@ -510,16 +513,19 @@ class BattleManager(framework.Application):
 		if self.round != 0:
 			self.log_event("Going back one round")
 			self.resurrect(self.round-1)
+			self.round -= 1
 		else:
 			self.log_event("At the first round")
 
 	def beginning_round(self, evt):
 		self.log_event("Jumping to the beginning round")
 		self.resurrect(0)
+		self.round = 0
 
 	def end_round(self, evt):
 		self.log_event("Jumping to the end round")
-		self.resurrect(len(self.rounds))
+		self.resurrect(len(self.rounds)-1)
+		self.round = len(self.rounds)-1
 
 	def stop_prog(self, evt):
 		self.log_event("Stopping round progression")
