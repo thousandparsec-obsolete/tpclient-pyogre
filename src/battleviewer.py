@@ -195,6 +195,10 @@ class BattleScene(scene.Scene):
 		self.mfl = MoveFrameListener()
 		root.addFrameListener(self.mfl)
 
+		self.zoomtimer = ogre.Timer()
+		self.zoomstart = 0
+		self.basezoom = 100
+
 		#self.createBackground()
 		self.hide()
 
@@ -278,18 +282,34 @@ class BattleScene(scene.Scene):
 			self.rotate(state.X.rel, state.Y.rel)
 
 		elif state.Z.rel < 0:
-			self.zoom(1000)
+			self.zoom(1)
 
 		elif state.Z.rel > 0:
-			self.zoom(-1000)
+			self.zoom(-1)
 
 		return False
 
-	def zoom(self, amount):
+	def zoom(self, dir, amount=None):
 		"""Zoom in or out for a set amount. Negative amounts will zoom in."""
 		target = self.sceneManager.getSceneNode("CameraNode")
 		z = target.position.z
-		target.translate(0, 0, amount)
+		if amount:
+			target.translate(0, 0, amount)
+		else:
+			curtime = self.zoomtimer.getMilliseconds()
+			if curtime - self.zoomstart < 100 and self.prevdir == dir:
+				self.zoomfactor += .1
+				zoom = dir*self.basezoom**self.zoomfactor
+				if zoom > 500:
+					zoom = 500
+				elif zoom < -500:
+					zoom = -500
+				target.translate(0, 0, zoom)
+			else:
+				self.prevdir = dir
+				self.zoomfactor = 1
+				self.zoomstart = self.zoomtimer.getMilliseconds()
+				target.translate(0, 0, dir*self.basezoom/2)
 
 	def pan(self, x, y):
 		cam_focus = self.sceneManager.getSceneNode("CameraFocus")
@@ -373,7 +393,7 @@ class BattleManager(framework.Application):
 		self.battlescene = BattleScene(self, self.sceneManager).initial(self.battle.sides)
 		self.rounds = self.battle.rounds
 
-		self.timer = ogre.Timer()
+		self.roundtimer = ogre.Timer()
 
 		self.changeScene(self.battlescene)
 
@@ -475,7 +495,7 @@ class BattleManager(framework.Application):
 		userObject.addDest(dest)
 
 	def update(self, evt):
-		time = self.timer.getMilliseconds()
+		time = self.roundtimer.getMilliseconds()
 		if self.running and (time % 5000 == 0 or self.single) and len(self.rounds) > self.round:
 			round = self.rounds[self.round]
 			for log in round.logs:
@@ -534,7 +554,7 @@ class BattleManager(framework.Application):
 	def start_prog(self, evt):
 		self.log_event("Starting round progression")
 		self.running = True
-		self.timer.reset()
+		self.roundtimer.reset()
 
 	def Cleanup(self):
 		self.frameListener.keepRendering = False
