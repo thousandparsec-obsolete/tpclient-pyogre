@@ -37,6 +37,7 @@ class Participant(ogre.UserDefinedObject):
 		self.entity = entity
 		self.distance = 0.0
 		self.direction = ogre.Vector3().ZERO
+		self.location = None
 
 	def addDest(self, dest):
 		""" Takes in a tuple for dest """
@@ -44,15 +45,25 @@ class Participant(ogre.UserDefinedObject):
 		self.movelist.insert(0, destination)
 
 	def nextDest(self):
+		sceneNode = self.entity.getParentSceneNode()
+		if not self.location:
+			self.location = sceneNode._getDerivedPosition()
 		try:
-			self.destination = self.movelist.pop()
-			sceneNode = self.entity.getParentSceneNode()
-			self.direction = self.destination - sceneNode._getDerivedPosition()
-			sceneNode.lookAt(self.destination, ogre.SceneNode.TransformSpace.TS_WORLD, ogre.Vector3().UNIT_Z)
-			self.distance = self.direction.normalise()
+			self.location = self.movelist.pop()
+			self.setDest(self.location)
 			return True
 		except IndexError:
+			""" Check if perhaps the ship is away from its intended location, set that as a destination if so """
+			position = sceneNode._getDerivedPosition()
+			if position != self.location:
+				self.setDest(self.location)
 			return False
+
+	def setDest(self, dest):
+		sceneNode = self.entity.getParentSceneNode()
+		self.direction = self.location - sceneNode._getDerivedPosition()
+		sceneNode.lookAt(self.location, ogre.SceneNode.TransformSpace.TS_WORLD, ogre.Vector3().UNIT_Z)
+		self.distance = self.direction.normalise()
 
 class MoveFrameListener(ogre.FrameListener):
 	""" Takes care of moving the ships """
@@ -75,7 +86,7 @@ class MoveFrameListener(ogre.FrameListener):
 				userObject.distance -= move
 				if userObject.distance < 0.0:
 					parentNode = sceneNode.getParentSceneNode()
-					sceneNode.setPosition(parentNode._getDerivedOrientation().Inverse() * (userObject.destination - parentNode._getDerivedPosition()))
+					sceneNode.setPosition(parentNode._getDerivedOrientation().Inverse() * (userObject.location - parentNode._getDerivedPosition()))
 					userObject.direction = ogre.Vector3().ZERO
 				else:
 					sceneNode.translate(userObject.direction * move)
