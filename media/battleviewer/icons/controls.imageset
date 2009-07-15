@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Imageset Name="Controls" Imagefile="controls.png" NativeHorzRes="512" NativeVertRes="512" >
+    <Image Name="Eject" XPos="0" YPos="0" Width="16" Height="16" />
+    <Image Name="End" XPos="16" YPos="0" Width="16" Height="16" />
+    <Image Name="Pause" XPos="32" YPos="0" Width="16" Height="16" />
+    <Image Name="Rewind" XPos="0" YPos="16" Width="16" Height="16" />
+    <Image Name="Fastforward" XPos="16" YPos="16" Width="16" Height="16" />
+    <Image Name="Play" XPos="32" YPos="16" Width="16" Height="16" />
+    <Image Name="Stop" XPos="0" YPos="32" Width="16" Height="16" />
+    <Image Name="Beginning" XPos="16" YPos="32" Width="16" Height="16" />
+</Imageset>
