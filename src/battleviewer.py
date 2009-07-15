@@ -507,7 +507,7 @@ class BattleManager(framework.Application):
 
 	def update(self, evt):
 		time = self.roundtimer.getMilliseconds()
-		if self.running and (time % 5000 == 0 or self.single) and len(self.rounds) > self.round:
+		if self.running and (abs(time-5000) <= 50 or self.single) and len(self.rounds) > self.round:
 			round = self.rounds[self.round]
 			for log in round.logs:
 				self.log_event(log.content)
@@ -521,6 +521,7 @@ class BattleManager(framework.Application):
 			if self.single:
 				self.running = False
 				self.single = False
+			self.roundtimer.reset()
 		return True
 
 	def resurrect(self, round):
