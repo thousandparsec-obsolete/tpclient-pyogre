@@ -468,7 +468,7 @@ class BattleManager(framework.Application):
 			victim = ref_vic.id
 		self.log_event("%s fired at %s" % (attacker, victim))
 		if not self.laser:
-			self.laser = laser.Laser(self.sceneManager, "Laser/Laser/Solid") # Laser/Laser/PNG exists too, but I haven't been able to get it to work
+			self.laser = laser.LaserManager(self.sceneManager, "Laser/Laser/Solid") # Laser/Laser/PNG exists too, but I haven't been able to get it to work
 		self.laser.fire(self.battlescene.nodes[attacker], self.battlescene.nodes[victim])
 		#TODO: Add timer check to remove laser after a set amount of time or next laser fire (from the same side?)
 		#TODO: Move ships out of the way if they would inadvertantly be hit
@@ -508,6 +508,8 @@ class BattleManager(framework.Application):
 	def update(self, evt):
 		time = self.roundtimer.getMilliseconds()
 		if self.running and (abs(time-5000) <= 50 or self.single) and len(self.rounds) > self.round:
+			if self.laser:
+				self.laser.clear()
 			round = self.rounds[self.round]
 			for log in round.logs:
 				self.log_event(log.content)

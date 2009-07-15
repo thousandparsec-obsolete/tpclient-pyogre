@@ -1,9 +1,46 @@
 import ogre.renderer.OGRE as ogre
 
-class Laser:
+class LaserManager:
 
 	def __init__(self, sceneManager, material_name):
-		self.laser = sceneManager.createBillboardChain("Laser")
+		self.lasers = []
+		self.sceneManager = sceneManager
+		self.material_name = material_name
+		self.num = 0
+
+	def batch_fire(self, fire_pairs):
+		for (source, target) in fire_pairs:
+			self.fire(source, target)
+
+	def fire(self, source, target):
+		available = None
+		for i in range(len(self.lasers)):
+			if not self.lasers[i].laser.isVisible():
+				available = i
+				break
+		if not available:
+			self.lasers.append(Laser(self.sceneManager, self.material_name, self.name()))
+			i = len(self.lasers)-1
+
+		self.lasers[i].fire(source,target)
+
+	def name(self):
+		self.num += 1
+		return self.num
+
+	def clear(self):
+		for i in self.lasers:
+			i.laser.setVisible(False)
+
+	def destroy(self):
+		for i in self.lasers:
+			i.destroy()
+
+
+class Laser:
+
+	def __init__(self, sceneManager, material_name, name):
+		self.laser = sceneManager.createBillboardChain("Laser_%d" % name)
 		self.laser.materialName = material_name
 		self.sceneManager = sceneManager
 		self.laser.maxChainElements = 2
