@@ -64,7 +64,7 @@
             </Window>
         </Window>
         <Window Type="SleekSpace/MultiLineEditbox" Name="Logs" >
-            <Property Name="Font" Value="BlueHighway-8" />
+            <Property Name="Font" Value="BlueHighway-10" />
             <Property Name="Text" >
 </Property>
             <Property Name="ReadOnly" Value="True" />
