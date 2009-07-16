@@ -362,6 +362,8 @@ class BattleManager(framework.Application):
 
 		self.battle = battle.parse_file(battle_file)
 		self.rounds = []
+		self.event_queue = []
+		self.post_event = None
 
 		self.guiRenderer = 0
 		self.guiSystem = 0
@@ -403,6 +405,8 @@ class BattleManager(framework.Application):
 
 		self.battlescene = BattleScene(self, self.sceneManager).initial(self.battle.sides)
 		self.rounds = self.battle.rounds
+
+		self.queue_round()
 
 		self.roundtimer = ogre.Timer()
 
@@ -507,23 +511,48 @@ class BattleManager(framework.Application):
 
 	def update(self, evt):
 		time = self.roundtimer.getMilliseconds()
-		if self.running and (abs(time-5000) <= 50 or self.single) and len(self.rounds) > self.round:
-			if self.laser:
-				self.laser.clear()
-			round = self.rounds[self.round]
-			for log in round.logs:
-				self.log_event(log.content)
-			for fire in round.fire:
-				self.fire_event(fire.source, fire.destination)
-			for damage in round.damage:
-				self.damage_event(damage.reference, damage.amount)
-			for death in round.death:
-				self.death_event(death.reference)
-			self.round += 1
-			if self.single:
-				self.running = False
-				self.single = False
+		if self.running and (abs(time-1100) <= 100) and len(self.rounds) > self.round:
+			if len(self.event_queue) == 0:
+				self.round += 1
+				if len(self.rounds) > self.round:
+					self.queue_round(self.round)
+				return True
+			if self.post_event:
+				self.post_event()
+			event = self.event_queue.pop()
+			self.execute(event)
 			self.roundtimer.reset()
+
+		if self.single:
+			# Run through them all quick
+			for event in self.event_queue:
+				self.execute(event)
+				if self.post_event:
+					self.post_event()
+			self.running = False
+			self.single = False
+			self.round += 1
+		return True
+
+	def execute(self, event):
+		# self.post_event should point to None or a function to deal with the event after its time is up
+		self.post_event = None
+		if isinstance(event, battle.Log):
+			self.log_event(event.content)
+		elif isinstance(event, battle.Fire):
+			self.fire_event(event.source, event.destination)
+			self.post_event = self.laser.clear
+		elif isinstance(event, battle.Damage):
+			self.damage_event(event.reference, event.amount)
+		elif isinstance(event, battle.Death):
+			self.death_event(event.reference)
+		else:
+			print "Unknown event type %s" % type(event)
+
+	def queue_round(self, num=1):
+		round = self.rounds[num]
+		for event in round.events:
+			self.event_queue.insert(0, event)
 		return True
 
 	def resurrect(self, round):
