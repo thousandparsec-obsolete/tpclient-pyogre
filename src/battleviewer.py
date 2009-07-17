@@ -38,6 +38,7 @@ class Participant(ogre.UserDefinedObject):
 		self.distance = 0.0
 		self.direction = ogre.Vector3().ZERO
 		self.location = None
+		self.drift = False
 
 	def addDest(self, dest):
 		""" Takes in a tuple for dest """
@@ -50,19 +51,22 @@ class Participant(ogre.UserDefinedObject):
 			self.location = sceneNode._getDerivedPosition()
 		try:
 			self.location = self.movelist.pop()
+			self.drift = False
 			self.setDest(self.location)
 			return True
 		except IndexError:
 			""" Check if perhaps the ship is away from its intended location, set that as a destination if so """
 			position = sceneNode._getDerivedPosition()
 			if position != self.location:
+				self.drift = True
 				self.setDest(self.location)
 			return False
 
 	def setDest(self, dest):
 		sceneNode = self.entity.getParentSceneNode()
 		self.direction = self.location - sceneNode._getDerivedPosition()
-		sceneNode.lookAt(self.location, ogre.SceneNode.TransformSpace.TS_WORLD, ogre.Vector3().UNIT_Z)
+		if not self.drift:
+			sceneNode.lookAt(self.location, ogre.SceneNode.TransformSpace.TS_WORLD, ogre.Vector3().UNIT_Z)
 		self.distance = self.direction.normalise()
 
 class MoveFrameListener(ogre.FrameListener):
@@ -82,15 +86,46 @@ class MoveFrameListener(ogre.FrameListener):
 			if userObject.direction == ogre.Vector3().ZERO:
 				userObject.nextDest()
 			else:
+				parentNode = sceneNode.getParentSceneNode()
 				move = userObject.speed * evt.timeSinceLastFrame
 				userObject.distance -= move
 				if userObject.distance < 0.0:
-					parentNode = sceneNode.getParentSceneNode()
 					sceneNode.setPosition(parentNode._getDerivedOrientation().Inverse() * (userObject.location - parentNode._getDerivedPosition()))
 					userObject.direction = ogre.Vector3().ZERO
 				else:
 					sceneNode.translate(userObject.direction * move)
+				if not userObject.drift:
+					moving_sphere = entity.getWorldBoundingSphere(True)
+					position = parentNode._getDerivedPosition()
+					for (other, otherNode) in self.entities:
+						if other == entity:
+							continue
+						other_sphere = other.getWorldBoundingSphere(True)
+						if moving_sphere.intersects(other_sphere):
+							print "Collision"
+							self.bounce(entity, other)
+
 		return ogre.FrameListener.frameStarted(self, evt)
+
+	def bounce(self, e_mover, e_obstacle):
+		""" Bounces the two entities apart """
+		spheres = (e_mover.getWorldBoundingSphere(True), e_obstacle.getWorldBoundingSphere(True))
+		parent_nodes = (e_mover.getParentSceneNode(), e_obstacle.getParentSceneNode())
+		positions = (parent_nodes[0]._getDerivedPosition(), parent_nodes[1]._getDerivedPosition())
+		collision_distance = abs(spheres[0].radius+spheres[1].radius - positions[0].distance(positions[1]))
+		vector = positions[0] - positions[1]
+		vector = vector.reflect(positions[0])
+		vector.normalise()
+		print "%s" % str(vector)
+		# Mover moves
+		# Negative collision_distance, because the vector is pointing towards the obstacle
+#		parent_nodes[0].translate(collision_distance * vector)
+		# Obstacle moves
+		parent_nodes[1].translate(collision_distance * vector)
+		# Both move
+#		parent_nodes[0].translate(-collision_distance/2 * vector)
+#		parent_nodes[1].translate(collision_distance/2 * vector)
+		print "Distance collided: %s" % collision_distance
 
 class GUIFadeListener(ogre.FrameListener):
 	""" Fades GUI in/out """
