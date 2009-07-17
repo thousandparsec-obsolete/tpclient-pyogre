@@ -364,6 +364,7 @@ class BattleManager(framework.Application):
 		self.rounds = []
 		self.event_queue = []
 		self.post_event = None
+		self.event_lock = True
 
 		self.guiRenderer = 0
 		self.guiSystem = 0
@@ -513,6 +514,8 @@ class BattleManager(framework.Application):
 	def update(self, evt):
 		time = self.roundtimer.getMilliseconds()
 		if self.running and (abs(time-1100) <= 100) and len(self.rounds) > self.round:
+			if self.event_lock:
+				return True
 			if len(self.event_queue) == 0:
 				self.round += 1
 				if len(self.rounds) > self.round:
