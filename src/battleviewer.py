@@ -383,6 +383,7 @@ class BattleManager(framework.Application):
 		cegui.Logger.getSingleton().loggingLevel = cegui.Insane
 
 		# Load Cegui Scheme
+		cegui.ImagesetManager.getSingleton().createImageset("controls.imageset")
 		cegui.SchemeManager.getSingleton().loadScheme("SleekSpace.scheme")
 		self.guiSystem.setDefaultMouseCursor("SleekSpace", "MouseArrow")
 
@@ -394,12 +395,12 @@ class BattleManager(framework.Application):
 		self.gfl = GUIFadeListener()
 		ogre_root = ogre.Root.getSingleton()
 		ogre_root.addFrameListener(self.gfl)
-		helpers.bindEvent("Controls/Next", self, "next_round", cegui.PushButton.EventClicked)
-		helpers.bindEvent("Controls/Prev", self, "prev_round", cegui.PushButton.EventClicked)
-		helpers.bindEvent("Controls/Beginning", self, "beginning_round", cegui.PushButton.EventClicked)
-		helpers.bindEvent("Controls/End", self, "end_round", cegui.PushButton.EventClicked)
-		helpers.bindEvent("Controls/Stop", self, "stop_prog", cegui.PushButton.EventClicked)
-		helpers.bindEvent("Controls/Play", self, "start_prog", cegui.PushButton.EventClicked)
+		helpers.bindEvent("Controls/Next", self, "next_round", cegui.Window.EventMouseButtonDown)
+		helpers.bindEvent("Controls/Prev", self, "prev_round", cegui.Window.EventMouseButtonDown)
+		helpers.bindEvent("Controls/Beginning", self, "beginning_round", cegui.Window.EventMouseButtonDown)
+		helpers.bindEvent("Controls/End", self, "end_round", cegui.Window.EventMouseButtonDown)
+		helpers.bindEvent("Controls/Stop", self, "stop_prog", cegui.Window.EventMouseButtonDown)
+		helpers.bindEvent("Controls/Play", self, "start_prog", cegui.Window.EventMouseButtonDown)
 		self.gfl.registerElement("Controls")
 		self.gfl.registerElement("Logs", 0.01, 3)
 

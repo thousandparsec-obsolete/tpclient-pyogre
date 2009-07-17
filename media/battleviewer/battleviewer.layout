@@ -26,39 +26,33 @@
             <Property Name="DragThreshold" Value="8" />
             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
             <Property Name="UnifiedAreaRect" Value="{{0.3,0},{0.85,0},{0.7,0},{0.9,0}}" />
-            <Window Type="SleekSpace/Button" Name="Controls/Beginning" >
-                <Property Name="Font" Value="BlueHighway-12" />
-                <Property Name="Text" Value="&lt;&lt;" />
+            <Window Type="SleekSpace/StaticImage" Name="Controls/Beginning" >
+                <Property Name="Image" Value="set:Controls image:Beginning" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.05,0},{0.15,0},{0.2,0},{1,0}}" />
             </Window>
-            <Window Type="SleekSpace/Button" Name="Controls/Prev" >
-                <Property Name="Font" Value="BlueHighway-12" />
-                <Property Name="Text" Value="&lt;" />
+            <Window Type="SleekSpace/StaticImage" Name="Controls/Prev" >
+                <Property Name="Image" Value="set:Controls image:Rewind" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.2,0},{0.15,0},{0.35,0},{1,0}}" />
             </Window>
-            <Window Type="SleekSpace/Button" Name="Controls/Stop" >
-                <Property Name="Font" Value="BlueHighway-12" />
-                <Property Name="Text" Value="[ ]" />
+            <Window Type="SleekSpace/StaticImage" Name="Controls/Stop" >
+                <Property Name="Image" Value="set:Controls image:Pause" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.35,0},{0.15,0},{0.5,0},{1,0}}" />
             </Window>
-            <Window Type="SleekSpace/Button" Name="Controls/Play" >
-                <Property Name="Font" Value="BlueHighway-12" />
-                <Property Name="Text" Value="\&gt;" />
+            <Window Type="SleekSpace/StaticImage" Name="Controls/Play" >
+                <Property Name="Image" Value="set:Controls image:Play" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.5,0},{0.15,0},{0.65,0},{1,0}}" />
             </Window>
-            <Window Type="SleekSpace/Button" Name="Controls/Next" >
-                <Property Name="Font" Value="BlueHighway-12" />
-                <Property Name="Text" Value="&gt;" />
+            <Window Type="SleekSpace/StaticImage" Name="Controls/Next" >
+                <Property Name="Image" Value="set:Controls image:Fastforward" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.65,0},{0.15,0},{0.8,0},{1,0}}" />
             </Window>
-            <Window Type="SleekSpace/Button" Name="Controls/End" >
-                <Property Name="Font" Value="BlueHighway-12" />
-                <Property Name="Text" Value="&gt;&gt;" />
+            <Window Type="SleekSpace/StaticImage" Name="Controls/End" >
+                <Property Name="Image" Value="set:Controls image:End" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0.8,0},{0.15,0},{0.95,0},{1,0}}" />
             </Window>
