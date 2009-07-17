@@ -364,7 +364,7 @@ class BattleManager(framework.Application):
 		self.rounds = []
 		self.event_queue = []
 		self.post_event = None
-		self.event_lock = True
+		self.event_lock = False
 
 		self.guiRenderer = 0
 		self.guiSystem = 0
