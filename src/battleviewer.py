@@ -271,6 +271,7 @@ class BattleScene(scene.Scene):
 		print "creating side", side.id
 		side_node = self.rootNode.createChildSceneNode("%s_node" % side.id)
 		i = 0
+		cur_pos = 0
 		for entity in side.entities:
 			i += 1
 			print "creating", entity.name, entity.type
@@ -284,7 +285,8 @@ class BattleScene(scene.Scene):
 				node.position = [-media[1] / 2 - media[1], 0, 0]
 				#node.yaw(ogre.Radian(1.57))
 			else:
-				node.position = [0, i * 100, 0]
+				cur_pos += media[1]*2
+				node.position = [0, cur_pos, 0]
 				node.yaw(ogre.Radian(1.57))
 				node.roll(ogre.Radian(1.57))
 
