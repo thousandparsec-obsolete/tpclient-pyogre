@@ -4,6 +4,7 @@ import os
 import sys
 import math
 import copy
+import optparse
 
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
@@ -653,6 +654,10 @@ class BattleManager(framework.Application):
 		self.frameListener.destroy()
 
 if __name__ == '__main__':
-	app = BattleManager("battlexml/example1.xml")
+	parser = optparse.OptionParser()
+	parser.add_option("-f", "--file", dest="filename", help="BattleXML file to read from",
+			metavar="FILE", default="battlexml/example1.xml")
+	(options, args) = parser.parse_args()
+	app = BattleManager(options.filename)
 	app.go()
 	app.Cleanup()
