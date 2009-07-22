@@ -3,6 +3,7 @@
 import os
 import sys
 import math
+import copy
 
 import ogre.renderer.OGRE as ogre
 import ogre.gui.CEGUI as cegui
@@ -38,7 +39,7 @@ class Participant(ogre.UserDefinedObject):
 		self.distance = 0.0
 		self.direction = ogre.Vector3().ZERO
 		self.location = None
-		self.drift = False
+		self.moving = False
 
 	def addDest(self, dest):
 		""" Takes in a tuple for dest """
@@ -51,21 +52,20 @@ class Participant(ogre.UserDefinedObject):
 			self.location = sceneNode._getDerivedPosition()
 		try:
 			self.location = self.movelist.pop()
-			self.drift = False
+			self.moving = True
 			self.setDest(self.location)
 			return True
 		except IndexError:
 			""" Check if perhaps the ship is away from its intended location, set that as a destination if so """
 			position = sceneNode._getDerivedPosition()
 			if position != self.location:
-				self.drift = True
 				self.setDest(self.location)
 			return False
 
 	def setDest(self, dest):
 		sceneNode = self.entity.getParentSceneNode()
 		self.direction = self.location - sceneNode._getDerivedPosition()
-		if not self.drift:
+		if self.moving:
 			sceneNode.lookAt(self.location, ogre.SceneNode.TransformSpace.TS_WORLD, ogre.Vector3().UNIT_Z)
 		self.distance = self.direction.normalise()
 
@@ -92,20 +92,28 @@ class MoveFrameListener(ogre.FrameListener):
 				if userObject.distance < 0.0:
 					sceneNode.setPosition(parentNode._getDerivedOrientation().Inverse() * (userObject.location - parentNode._getDerivedPosition()))
 					userObject.direction = ogre.Vector3().ZERO
+					userObject.moving = False
 				else:
 					sceneNode.translate(userObject.direction * move)
-				if not userObject.drift:
-					moving_sphere = entity.getWorldBoundingSphere(True)
-					position = parentNode._getDerivedPosition()
-					for (other, otherNode) in self.entities:
-						if other == entity:
-							continue
-						other_sphere = other.getWorldBoundingSphere(True)
-						if moving_sphere.intersects(other_sphere):
-							print "Collision"
-							self.bounce(entity, other)
 
+		collisions = self.get_collisions()
 		return ogre.FrameListener.frameStarted(self, evt)
+
+	def get_collisions(self):
+		""" Gets a list of collisions """
+		temp_entities = copy.copy(self.entities)
+		collisions = []
+		for (entity, entity_node) in self.entities:
+			temp_entities.pop(0)
+			sphere_one = entity.getWorldBoundingSphere(True)
+			position_one = entity_node._getDerivedPosition()
+			for (ent_two, ent_two_node) in temp_entities:
+				sphere_two = ent_two.getWorldBoundingSphere(True)
+				if sphere_one.intersects(sphere_two):
+					collisions.insert(0, (entity, ent_two))
+					entity_node.showBoundingBox(True)
+					ent_two_node.showBoundingBox(True)
+		return collisions
 
 	def bounce(self, e_mover, e_obstacle):
 		""" Bounces the two entities apart """
@@ -285,7 +293,7 @@ class BattleScene(scene.Scene):
 				node.position = [-media[1] / 2 - media[1], 0, 0]
 				#node.yaw(ogre.Radian(1.57))
 			else:
-				cur_pos += media[1]*2
+				cur_pos += media[1]*2+1
 				node.position = [0, cur_pos, 0]
 				node.yaw(ogre.Radian(1.57))
 				node.roll(ogre.Radian(1.57))
