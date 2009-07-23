@@ -244,7 +244,7 @@ class BattleManager(framework.Application):
 	# GUI stuff follows
 	def next_round(self, evt):
 		if len(self.rounds) > self.round:
-			self.log_event("Going forward one round")
+			self.log_event("Going forward one round to round %d" % (self.round+1))
 			self.single = True
 			self.running = True
 		else:
@@ -252,7 +252,7 @@ class BattleManager(framework.Application):
 
 	def prev_round(self, evt):
 		if self.round != 0:
-			self.log_event("Going back one round")
+			self.log_event("Going back one round to round %d" % (self.round-1))
 			self.resurrect(self.round-1)
 			self.round -= 1
 		else:
@@ -264,7 +264,7 @@ class BattleManager(framework.Application):
 		self.round = 0
 
 	def end_round(self, evt):
-		self.log_event("Jumping to the end round")
+		self.log_event("Jumping to the end round (round %d)" % (len(self.rounds)-1))
 		self.resurrect(len(self.rounds)-1)
 		self.round = len(self.rounds)-1
 
