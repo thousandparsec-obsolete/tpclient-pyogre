@@ -184,7 +184,7 @@ class BattleManager(framework.Application):
 
 	def update(self, evt):
 		time = self.roundtimer.getMilliseconds()
-		if self.running and (abs(time-1100) <= 100) and len(self.rounds) > self.round:
+		if self.running and (abs(time-1100) <= 100) and len(self.rounds) > self.round and not self.single:
 			if self.event_lock:
 				return True
 			if len(self.event_queue) == 0:
@@ -200,10 +200,13 @@ class BattleManager(framework.Application):
 
 		if self.single:
 			# Run through them all quick
+			if len(self.event_queue) == 0:
+				self.queue_round(self.round)
 			for event in self.event_queue:
 				self.execute(event)
 				if self.post_event:
 					self.post_event()
+			self.event_queue = []
 			self.running = False
 			self.single = False
 			self.round += 1
@@ -234,9 +237,9 @@ class BattleManager(framework.Application):
 		""" Resurrects the dead and generally returns the round state to that of $round """
 		for entity in self.battlescene.nodes:
 			if entity not in self.battle.states[round+1]['dead']:
-				app.battlescene.nodes[entity].setVisible(True)
+				self.battlescene.nodes[entity].setVisible(True)
 			else:
-				app.battlescene.nodes[entity].setVisible(False)
+				self.battlescene.nodes[entity].setVisible(False)
 
 	# GUI stuff follows
 	def next_round(self, evt):
