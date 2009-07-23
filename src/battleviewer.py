@@ -478,7 +478,6 @@ class BattleManager(framework.Application):
 		This is needed to ensure the correct order of deletion.
 
 		"""
-		del self.laser
 		del self.camera
 		del self.sceneManager
 		del self.frameListener
