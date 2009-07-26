@@ -14,6 +14,7 @@ class Participant(ogre.UserDefinedObject):
 		self.direction = ogre.Vector3().ZERO
 		self.location = None
 		self.moving = False
+		self.drift = False
 
 	def addDest(self, dest):
 		""" Takes in a tuple for dest """
@@ -34,6 +35,7 @@ class Participant(ogre.UserDefinedObject):
 			position = sceneNode._getDerivedPosition()
 			if position != self.location:
 				self.setDest(self.location)
+				self.drift = True
 			return False
 
 	def setDest(self, dest):
@@ -67,10 +69,14 @@ class MoveFrameListener(ogre.FrameListener):
 					sceneNode.setPosition(parentNode._getDerivedOrientation().Inverse() * (userObject.location - parentNode._getDerivedPosition()))
 					userObject.direction = ogre.Vector3().ZERO
 					userObject.moving = False
+					userObject.drift = False
 				else:
 					sceneNode.translate(userObject.direction * move)
 
 		collisions = self.get_collisions()
+		for (ent_one, ent_two) in collisions:
+			ent_one_object = ent_one.getUserObject()
+			self.bounce(ent_one, ent_two)
 		return ogre.FrameListener.frameStarted(self, evt)
 
 	def get_collisions(self):
@@ -84,29 +90,63 @@ class MoveFrameListener(ogre.FrameListener):
 			for (ent_two, ent_two_node) in temp_entities:
 				sphere_two = ent_two.getWorldBoundingSphere(True)
 				if sphere_one.intersects(sphere_two):
-					collisions.insert(0, (entity, ent_two))
+					ent_one_object = entity.getUserObject()
+					ent_two_object = ent_two.getUserObject()
+					# Put the highest priority object first in the order:
+					# Moving, non-drifting
+					# Moving, drifting
+					# Not moving
+					# Actually, just moving -> not moving
+					if ent_two_object.moving:
+						collisions.insert(0, (ent_two, entity))
+					else:
+						collisions.insert(0, (entity, ent_two))
 					entity_node.showBoundingBox(True)
 					ent_two_node.showBoundingBox(True)
 		return collisions
 
-	def bounce(self, e_mover, e_obstacle):
+	def bounce(self, e_one, e_two):
 		""" Bounces the two entities apart """
 		# Be sure to reset distance if the item is already drifting/otherwise moving and it's bounced
-		spheres = (e_mover.getWorldBoundingSphere(True), e_obstacle.getWorldBoundingSphere(True))
-		parent_nodes = (e_mover.getParentSceneNode(), e_obstacle.getParentSceneNode())
+		spheres = (e_one.getWorldBoundingSphere(True), e_two.getWorldBoundingSphere(True))
+		parent_nodes = (e_one.getParentSceneNode(), e_two.getParentSceneNode())
 		positions = (parent_nodes[0]._getDerivedPosition(), parent_nodes[1]._getDerivedPosition())
 		collision_distance = abs(spheres[0].radius+spheres[1].radius - positions[0].distance(positions[1]))
+		user_objects = (e_one.getUserObject(), e_two.getUserObject())
 		vector = positions[0] - positions[1]
 		vector = vector.reflect(positions[0])
 		vector.normalise()
 		print "%s" % str(vector)
-		# Mover moves
-		# Negative collision_distance, because the vector is pointing towards the obstacle
-#		parent_nodes[0].translate(collision_distance * vector)
-		# Obstacle moves
-		parent_nodes[1].translate(collision_distance * vector)
-		# Both move
-#		parent_nodes[0].translate(-collision_distance/2 * vector)
-#		parent_nodes[1].translate(collision_distance/2 * vector)
+		if user_objects[0].moving and user_objects[1].moving:
+			if user_objects[0].drifting and user_objects[1].drifting:
+				# Both repel a bit
+				parent_nodes[0].translate(-collision_distance/2 * vector)
+				parent_nodes[1].translate(collision_distance/2 * vector)
+			elif user_objects[0].drifting and not user_objects[1].drifting:
+				# Second pushes the first out of the way
+				parent_nodes[0].translate(-collision_distance * vector)
+			elif not user_objects[0].drifting and user_objects[1].drifting:
+				# First pushes the second out of the way
+				parent_nodes[1].translate(collision_distance * vector)
+
+			# If neither are drifting then both are moving by direct move event and nothing should happen
+		if user_objects[0].moving and not user_objects[1].moving:
+			# The first pushes the second out of the way
+			parent_nodes[1].translate(collision_distance * vector)
+		else:
+			# Neither are moving if e_one isn't
+			# In this case we bump both a little
+			parent_nodes[0].translate(-collision_distance/2 * vector)
+			parent_nodes[1].translate(collision_distance/2 * vector)
+
+		self.reset_dist(e_one)
+		self.reset_dist(e_two)
 		print "Distance collided: %s" % collision_distance
+
+	def reset_dist(self, entity):
+		sceneNode = entity.getParentSceneNode()
+		user_object = entity.getUserObject()
+		location = user_object.location
+		user_object.direction = location - sceneNode._getDerivedPosition()
+		user_object.distance = user_object.direction.normalise()
 
