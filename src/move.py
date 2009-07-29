@@ -2,49 +2,6 @@ import copy
 
 import ogre.renderer.OGRE as ogre
 
-class Participant(ogre.UserDefinedObject):
-	""" Basic information is stored here for moving """
-
-	def __init__(self, entity, speed=50.0):
-		ogre.UserDefinedObject.__init__(self)
-		self.speed = float(speed)
-		self.movelist = []
-		self.entity = entity
-		self.distance = 0.0
-		self.direction = ogre.Vector3().ZERO
-		self.location = None
-		self.moving = False
-		self.drift = False
-
-	def addDest(self, dest):
-		""" Takes in a tuple for dest """
-		destination = ogre.Vector3(dest[0], dest[1], dest[2])
-		self.movelist.insert(0, destination)
-
-	def nextDest(self):
-		sceneNode = self.entity.getParentSceneNode()
-		if not self.location:
-			self.location = sceneNode._getDerivedPosition()
-		try:
-			self.location = self.movelist.pop()
-			self.moving = True
-			self.setDest(self.location)
-			return True
-		except IndexError:
-			""" Check if perhaps the ship is away from its intended location, set that as a destination if so """
-			position = sceneNode._getDerivedPosition()
-			if position != self.location:
-				self.setDest(self.location)
-				self.drift = True
-			return False
-
-	def setDest(self, dest):
-		sceneNode = self.entity.getParentSceneNode()
-		self.direction = self.location - sceneNode._getDerivedPosition()
-		if self.moving:
-			sceneNode.lookAt(self.location, ogre.SceneNode.TransformSpace.TS_WORLD, ogre.Vector3().UNIT_Z)
-		self.distance = self.direction.normalise()
-
 class MoveFrameListener(ogre.FrameListener):
 	""" Takes care of moving the ships """
 
@@ -101,8 +58,6 @@ class MoveFrameListener(ogre.FrameListener):
 						collisions.insert(0, (ent_two, entity))
 					else:
 						collisions.insert(0, (entity, ent_two))
-					entity_node.showBoundingBox(True)
-					ent_two_node.showBoundingBox(True)
 		return collisions
 
 	def bounce(self, e_one, e_two):
@@ -116,7 +71,6 @@ class MoveFrameListener(ogre.FrameListener):
 		vector = positions[0] - positions[1]
 		vector = vector.reflect(positions[0])
 		vector.normalise()
-		print "%s" % str(vector)
 		if user_objects[0].moving and user_objects[1].moving:
 			if user_objects[0].drifting and user_objects[1].drifting:
 				# Both repel a bit
@@ -141,7 +95,6 @@ class MoveFrameListener(ogre.FrameListener):
 
 		self.reset_dist(e_one)
 		self.reset_dist(e_two)
-		print "Distance collided: %s" % collision_distance
 
 	def reset_dist(self, entity):
 		sceneNode = entity.getParentSceneNode()
