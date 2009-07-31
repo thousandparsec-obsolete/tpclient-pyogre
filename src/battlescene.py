@@ -5,13 +5,14 @@ import ogre.io.OIS as ois
 
 import scene
 
-from move import MoveFrameListener, Participant
+from move import MoveFrameListener
+from participant import Participant
 
 class BattleScene(scene.Scene):
 	media = {
 			'battleship':('plowshare', 75),
 			'planet':('sphere_lod', 1500),
-			'frigate':('frigate', 75),
+			'frigate':('gawain', 50),
 			'scout':('scout', 50),
 		}
 
@@ -89,7 +90,7 @@ class BattleScene(scene.Scene):
 				node.yaw(ogre.Radian(3.13 * len(self.sides)))
 				#node.pitch(ogre.Radian(3.14))
 			obj_scale = media[1] / entity_object.mesh.boundingSphereRadius
-			userObject = Participant(entity_object)
+			userObject = Participant(entity_object, entity)
 			entity_object.setUserObject(userObject)
 			self.mfl.registerEntity(entity_object, node)
 			node.attachObject(entity_object)

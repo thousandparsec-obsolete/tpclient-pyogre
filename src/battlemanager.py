@@ -147,7 +147,6 @@ class BattleManager(framework.Application):
 		if not self.laser:
 			self.laser = laser.LaserManager(self.sceneManager, "Laser/Laser/Solid") # Laser/Laser/PNG exists too, but I haven't been able to get it to work
 		self.laser.fire(self.battlescene.nodes[attacker], self.battlescene.nodes[victim])
-		#TODO: Add timer check to remove laser after a set amount of time or next laser fire (from the same side?)
 		#TODO: Move ships out of the way if they would inadvertantly be hit
 		#TODO: Shield and hit animations
 		#TODO: Taper laser for planets
