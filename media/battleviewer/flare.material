@@ -1,0 +1,18 @@
+// Light effects
+material Battleviewer/Flare
+{
+  technique
+  {
+    pass
+    {
+      lighting off
+      scene_blend alpha_blend
+      depth_write off
+	  depth_check on
+      texture_unit
+      {
+        texture flare.png
+      }
+    }
+  }
+}

@@ -2,7 +2,7 @@ particle_system generic/Engine
 {
 	quota	200
 	emit_emitter_quota	3
-	material	Billboards/Flares/flare
+	material	Battleviewer/Flare
 	particle_width	25
 	particle_height	25
 	cull_each	false
@@ -50,9 +50,9 @@ particle_system generic/Engine
 
 particle_system battleship/Engine
 {
-	quota	200
+	quota	2000
 	emit_emitter_quota	3
-	material	Billboards/Flares/flare
+	material	Battleviewer/Flare
 	particle_width	25
 	particle_height	25
 	cull_each	false
@@ -87,6 +87,55 @@ particle_system battleship/Engine
 		emit_emitter
 	}
 
+    emitter Point
+	{
+		angle	5
+		colour	1 1 0.5 1
+		colour_range_start	1 1 0.5 1
+		colour_range_end	1 0.8 0.3 1
+		direction	0 0 -1
+		emission_rate	100
+		position	10 10 0
+		velocity	250
+		velocity_min	250
+		velocity_max	300
+		time_to_live	1
+		time_to_live_min	1
+		time_to_live_max	1
+		duration	0
+		duration_min	0
+		duration_max	0
+		repeat_delay	0
+		repeat_delay_min	0
+		repeat_delay_max	0
+		name
+		emit_emitter
+	}
+
+	emitter Point
+	{
+		angle	5
+		colour	1 1 0.5 1
+		colour_range_start	1 1 0.5 1
+		colour_range_end	1 0.8 0.3 1
+		direction	0 0 -1
+		emission_rate	100
+		position	10 0 0
+		velocity	250
+		velocity_min	250
+		velocity_max	300
+		time_to_live	1
+		time_to_live_min	1
+		time_to_live_max	1
+		duration	0
+		duration_min	0
+		duration_max	0
+		repeat_delay	0
+		repeat_delay_min	0
+		repeat_delay_max	0
+		name
+		emit_emitter
+	}
 
 	affector ColourFader
 	{
@@ -102,7 +151,7 @@ particle_system frigate/Engine
 {
 	quota	200
 	emit_emitter_quota	3
-	material	Billboards/Flares/flare
+	material	Battleviewer/Flare
 	particle_width	25
 	particle_height	25
 	cull_each	false
@@ -120,7 +169,7 @@ particle_system frigate/Engine
 		colour_range_end	1 0.8 0.3 1
 		direction	0 0 -1
 		emission_rate	100
-		position	0 0 0
+		position	 0 -1 -10
 		velocity	250
 		velocity_min	250
 		velocity_max	300
@@ -152,7 +201,7 @@ particle_system scout/Engine
 {
 	quota	200
 	emit_emitter_quota	3
-	material	Billboards/Flares/flare
+	material	Battleviewer/Flare
 	particle_width	25
 	particle_height	25
 	cull_each	false
@@ -197,54 +246,3 @@ particle_system scout/Engine
 	}
 
 }
-
-particle_system planet/Engine
-{
-	quota	200
-	emit_emitter_quota	3
-	material	Billboards/Flares/flare
-	particle_width	25
-	particle_height	25
-	cull_each	false
-	renderer	billboard
-	sorted	true
-	local_space	false
-	iteration_interval	0
-	nonvisible_update_timeout	0
-
-	emitter Point
-	{
-		angle	5
-		colour	1 1 0.5 1
-		colour_range_start	1 1 0.5 1
-		colour_range_end	1 0.8 0.3 1
-		direction	0 0 -1
-		emission_rate	100
-		position	0 0 0
-		velocity	250
-		velocity_min	250
-		velocity_max	300
-		time_to_live	1
-		time_to_live_min	1
-		time_to_live_max	1
-		duration	0
-		duration_min	0
-		duration_max	0
-		repeat_delay	0
-		repeat_delay_min	0
-		repeat_delay_max	0
-		name
-		emit_emitter
-	}
-
-
-	affector ColourFader
-	{
-		red	-0.25
-		green	-1
-		blue	-1
-		alpha	0
-	}
-
-}
-
