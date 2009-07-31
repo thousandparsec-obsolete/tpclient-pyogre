@@ -158,7 +158,7 @@ class BattleManager(framework.Application):
 			victim = ref.id
 		self.log_event("%s was damaged for %d" % (victim, amount))
 		camera = self.sceneManager.getCamera("PlayerCam")
-		entity = self.battlescene.nodes[victim].getAttachedObject(0)
+		entity = self.battlescene.nodes[victim].getAttachedObject(victim)
 		#TODO: Progress through damage animations
 
 	def death_event(self, ref):
@@ -178,7 +178,7 @@ class BattleManager(framework.Application):
 		else:
 			mover = ref.id
 		self.log_event("%s moving to %r" % (mover, dest))
-		userObject = self.battlescene.nodes[mover].getAttachedObject(0).getUserObject()
+		userObject = self.battlescene.nodes[mover].getAttachedObject(mover).getUserObject()
 		userObject.addDest(dest)
 
 	def update(self, evt):

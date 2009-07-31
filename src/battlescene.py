@@ -90,10 +90,13 @@ class BattleScene(scene.Scene):
 				node.yaw(ogre.Radian(3.13 * len(self.sides)))
 				#node.pitch(ogre.Radian(3.14))
 			obj_scale = media[1] / entity_object.mesh.boundingSphereRadius
-			userObject = Participant(entity_object, entity)
+			engine = self.sceneManager.createParticleSystem(entity.name + "/Engine", "%s/Engine" % "generic")
+			engine.setVisible(False)
+			userObject = Participant(entity_object, entity, engine)
 			entity_object.setUserObject(userObject)
 			self.mfl.registerEntity(entity_object, node)
 			node.attachObject(entity_object)
+			node.attachObject(engine)
 			node.setScale(ogre.Vector3(obj_scale, obj_scale, obj_scale))
 			self.userobjects[entity.id] = userObject
 			self.nodes[entity.id] = node

@@ -5,7 +5,7 @@ from overlay import ObjectOverlay
 class Participant(ogre.UserDefinedObject):
 	""" Basic information is stored here for moving """
 
-	def __init__(self, entity, battle_entity, speed=50.0):
+	def __init__(self, entity, battle_entity, engine, speed=50.0):
 		ogre.UserDefinedObject.__init__(self)
 		self.speed = float(speed)
 		self.movelist = []
@@ -16,6 +16,7 @@ class Participant(ogre.UserDefinedObject):
 		self.location = None
 		self.moving = False
 		self.drift = False
+		self.engine_particles = engine
 
 	def addDest(self, dest):
 		""" Takes in a tuple for dest """
