@@ -70,7 +70,7 @@ particle_system battleship/Engine
 		colour_range_end	1 0.8 0.3 1
 		direction	0 0 -1
 		emission_rate	100
-		position	0 0 0
+		position	6 8 -12
 		velocity	250
 		velocity_min	250
 		velocity_max	300
@@ -95,7 +95,7 @@ particle_system battleship/Engine
 		colour_range_end	1 0.8 0.3 1
 		direction	0 0 -1
 		emission_rate	100
-		position	10 10 0
+		position	-6 8 -12
 		velocity	250
 		velocity_min	250
 		velocity_max	300
@@ -112,7 +112,7 @@ particle_system battleship/Engine
 		emit_emitter
 	}
 
-	emitter Point
+    emitter Point
 	{
 		angle	5
 		colour	1 1 0.5 1
@@ -120,7 +120,82 @@ particle_system battleship/Engine
 		colour_range_end	1 0.8 0.3 1
 		direction	0 0 -1
 		emission_rate	100
-		position	10 0 0
+		position	12 -3 -12
+		velocity	250
+		velocity_min	250
+		velocity_max	300
+		time_to_live	1
+		time_to_live_min	1
+		time_to_live_max	1
+		duration	0
+		duration_min	0
+		duration_max	0
+		repeat_delay	0
+		repeat_delay_min	0
+		repeat_delay_max	0
+		name
+		emit_emitter
+	}
+
+    emitter Point
+	{
+		angle	5
+		colour	1 1 0.5 1
+		colour_range_start	1 1 0.5 1
+		colour_range_end	1 0.8 0.3 1
+		direction	0 0 -1
+		emission_rate	100
+		position	-12 -3 -12
+		velocity	250
+		velocity_min	250
+		velocity_max	300
+		time_to_live	1
+		time_to_live_min	1
+		time_to_live_max	1
+		duration	0
+		duration_min	0
+		duration_max	0
+		repeat_delay	0
+		repeat_delay_min	0
+		repeat_delay_max	0
+		name
+		emit_emitter
+	}
+
+    emitter Point
+	{
+		angle	5
+		colour	1 1 0.5 1
+		colour_range_start	1 1 0.5 1
+		colour_range_end	1 0.8 0.3 1
+		direction	0 0 -1
+		emission_rate	100
+		position	12 -9 -12
+		velocity	250
+		velocity_min	250
+		velocity_max	300
+		time_to_live	1
+		time_to_live_min	1
+		time_to_live_max	1
+		duration	0
+		duration_min	0
+		duration_max	0
+		repeat_delay	0
+		repeat_delay_min	0
+		repeat_delay_max	0
+		name
+		emit_emitter
+	}
+
+    emitter Point
+	{
+		angle	5
+		colour	1 1 0.5 1
+		colour_range_start	1 1 0.5 1
+		colour_range_end	1 0.8 0.3 1
+		direction	0 0 -1
+		emission_rate	100
+		position	-12 -9 -12
 		velocity	250
 		velocity_min	250
 		velocity_max	300
