@@ -80,6 +80,7 @@ class BattleScene(scene.Scene):
 				entity_object.setMaterialName("Starmap/Planet/Terran")
 				node.position = [-media[1] / 2 - media[1], 0, 0]
 				#node.yaw(ogre.Radian(1.57))
+				userObject = Participant(entity_object, entity)
 			else:
 				cur_pos += media[1]*2+1
 				node.position = [0, cur_pos, 0]
@@ -89,14 +90,15 @@ class BattleScene(scene.Scene):
 				# orient ships to face each other
 				node.yaw(ogre.Radian(3.13 * len(self.sides)))
 				#node.pitch(ogre.Radian(3.14))
+				# Create the engine particle system
+				engine = self.sceneManager.createParticleSystem(entity.name + "/Engine", "%s/Engine" % entity.type)
+				userObject = Participant(entity_object, entity, engine=engine)
+				engine_node = node.createChildSceneNode("%s_engine_node" % entity.id)
+				engine_node.attachObject(engine)
 			obj_scale = media[1] / entity_object.mesh.boundingSphereRadius
-			engine = self.sceneManager.createParticleSystem(entity.name + "/Engine", "%s/Engine" % "generic")
-			engine.setVisible(False)
-			userObject = Participant(entity_object, entity, engine)
 			entity_object.setUserObject(userObject)
 			self.mfl.registerEntity(entity_object, node)
 			node.attachObject(entity_object)
-			node.attachObject(engine)
 			node.setScale(ogre.Vector3(obj_scale, obj_scale, obj_scale))
 			self.userobjects[entity.id] = userObject
 			self.nodes[entity.id] = node
