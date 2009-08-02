@@ -184,7 +184,8 @@ class BattleManager(framework.Application):
 	def update(self, evt):
 		time = self.roundtimer.getMilliseconds()
 		if self.running and (abs(time-1100) <= 100) and len(self.rounds) > self.round and not self.single:
-			if self.event_lock:
+			# If an event is still in progress or everyone's still warping in, don't go on
+			if self.event_lock or self.battlescene.wfl.warp_lock:
 				return True
 			if len(self.event_queue) == 0:
 				self.round += 1

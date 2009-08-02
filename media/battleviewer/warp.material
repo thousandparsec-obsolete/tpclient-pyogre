@@ -1,0 +1,102 @@
+particle_system Warp
+{
+	quota	300
+	emit_emitter_quota	3
+	material	Battleviewer/Flare
+	particle_width	12
+	particle_height	24
+	cull_each	true
+	renderer	billboard
+	sorted	true
+	local_space	false
+	iteration_interval	0
+	nonvisible_update_timeout	0
+
+	emitter Ellipsoid
+	{
+		angle	10
+		colour	1 1 1 1
+		colour_range_start	1 1 1 1
+		colour_range_end	1 1 1 0
+		direction	0 1 0
+		emission_rate	30
+		position	0 0 0
+		velocity	50
+		velocity_min	50
+		velocity_max	1
+		time_to_live	20
+		time_to_live_min	20
+		time_to_live_max	20
+		duration	0
+		duration_min	0
+		duration_max	0
+		repeat_delay	0
+		repeat_delay_min	0
+		repeat_delay_max	0
+		name
+		emit_emitter
+		width	80
+		height	80
+		depth	80
+	}
+
+
+	affector ColourFader
+	{
+		red	-0.1
+		green	0.2
+		blue	0.2
+		alpha	-.1
+	}
+
+	affector DeflectorPlane
+	{
+		plane_point	0 -50 0
+		plane_normal	0 1 0
+		bounce	1
+	}
+
+	affector DeflectorPlane
+	{
+		plane_point	0 50 0
+		plane_normal	0 -1 0
+		bounce	1
+	}
+
+	affector DeflectorPlane
+	{
+		plane_point	50 0 0
+		plane_normal	-1 0 0
+		bounce	1
+	}
+
+	affector DeflectorPlane
+	{
+		plane_point	-50 0 0
+		plane_normal	1 0 0
+		bounce	1
+	}
+
+	affector DeflectorPlane
+	{
+		plane_point	0 0 50
+		plane_normal	0 0 -1
+		bounce	1
+	}
+
+	affector DeflectorPlane
+	{
+		plane_point	0 0 -50
+		plane_normal	0 0 1
+		bounce	1
+	}
+
+	affector DirectionRandomiser
+	{
+		randomness	60
+		scope	1
+		keep_velocity	false
+	}
+
+}
+

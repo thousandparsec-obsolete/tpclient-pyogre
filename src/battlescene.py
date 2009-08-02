@@ -6,6 +6,7 @@ import ogre.io.OIS as ois
 import scene
 
 from move import MoveFrameListener
+from warp import WarpFrameListener
 from participant import Participant
 
 class BattleScene(scene.Scene):
@@ -35,7 +36,9 @@ class BattleScene(scene.Scene):
 
 		root = ogre.Root.getSingleton()
 		self.mfl = MoveFrameListener()
+		self.wfl = WarpFrameListener(self.sceneManager)
 		root.addFrameListener(self.mfl)
+		root.addFrameListener(self.wfl)
 
 		self.zoomtimer = ogre.Timer()
 		self.zoomstart = 0
@@ -97,9 +100,11 @@ class BattleScene(scene.Scene):
 				engine_node.attachObject(engine)
 			obj_scale = media[1] / entity_object.mesh.boundingSphereRadius
 			entity_object.setUserObject(userObject)
+			self.wfl.registerEntity(entity_object, node)
 			self.mfl.registerEntity(entity_object, node)
 			node.attachObject(entity_object)
 			node.setScale(ogre.Vector3(obj_scale, obj_scale, obj_scale))
+			entity_object.setVisible(False)
 			self.userobjects[entity.id] = userObject
 			self.nodes[entity.id] = node
 
