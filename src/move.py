@@ -16,7 +16,7 @@ class MoveFrameListener(ogre.FrameListener):
 	def frameStarted(self, evt):
 		for (entity, sceneNode) in self.entities:
 			userObject = entity.getUserObject()
-			if userObject.direction == ogre.Vector3().ZERO:
+			if userObject.direction == ogre.Vector3().ZERO or userObject.drift:
 				userObject.nextDest()
 			else:
 				parentNode = sceneNode.getParentSceneNode()
@@ -73,14 +73,14 @@ class MoveFrameListener(ogre.FrameListener):
 		vector = vector.reflect(positions[0])
 		vector.normalise()
 		if user_objects[0].moving and user_objects[1].moving:
-			if user_objects[0].drifting and user_objects[1].drifting:
+			if user_objects[0].drift and user_objects[1].drift:
 				# Both repel a bit
 				parent_nodes[0].translate(-collision_distance/2 * vector)
 				parent_nodes[1].translate(collision_distance/2 * vector)
-			elif user_objects[0].drifting and not user_objects[1].drifting:
+			elif user_objects[0].drift and not user_objects[1].drift:
 				# Second pushes the first out of the way
 				parent_nodes[0].translate(-collision_distance * vector)
-			elif not user_objects[0].drifting and user_objects[1].drifting:
+			elif not user_objects[0].drift and user_objects[1].drift:
 				# First pushes the second out of the way
 				parent_nodes[1].translate(collision_distance * vector)
 
@@ -91,8 +91,8 @@ class MoveFrameListener(ogre.FrameListener):
 		else:
 			# Neither are moving if e_one isn't
 			# In this case we bump both a little
-			parent_nodes[0].translate(-collision_distance/2 * vector)
-			parent_nodes[1].translate(collision_distance/2 * vector)
+			parent_nodes[0].translate(-collision_distance/3 * vector)
+			parent_nodes[1].translate(collision_distance*2/3 * vector)
 
 		self.reset_dist(e_one)
 		self.reset_dist(e_two)

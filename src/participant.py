@@ -34,9 +34,12 @@ class Participant(ogre.UserDefinedObject):
 
 	def nextDest(self):
 		sceneNode = self.entity.getParentSceneNode()
+		if not self.location:
+			self.location = sceneNode._getDerivedPosition()
 		try:
 			self.location = self.movelist.pop()
 			self.moving = True
+			self.drift = False
 			self.setDest(self.location)
 			self.engine_particles.setVisible(True)
 			return True
@@ -47,8 +50,6 @@ class Participant(ogre.UserDefinedObject):
 				self.setDest(self.location)
 				self.drift = True
 			return False
-		if not self.location:
-			self.location = sceneNode._getDerivedPosition()
 
 	def setDest(self, dest):
 		sceneNode = self.entity.getParentSceneNode()
