@@ -19,7 +19,7 @@ particle_system Warp
 		colour_range_start	1 1 1 1
 		colour_range_end	1 1 1 0
 		direction	0 1 0
-		emission_rate	30
+		emission_rate	80
 		position	0 0 0
 		velocity	50
 		velocity_min	50
