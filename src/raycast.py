@@ -11,7 +11,7 @@ def raycastFromPoint(point, normal, ray_scene_query):
 	# create a query object
 	ray_scene_query.setRay(ray)
 	# execute the query, returns a vector of hits
-	if (ray_scene_query.execute().size() <= 0):
+	if (len(ray_scene_query.execute()) <= 0):
 		# raycast didn't hit any bounding boxes
 		return False
 
@@ -23,13 +23,14 @@ def raycastFromPoint(point, normal, ray_scene_query):
 	closest_distance = -1.0
 	closest_result = ogre.Vector3()
 	query_result = ray_scene_query.getLastResults()
-	for i in range(0, query_result.size()):
+	len(query_result)
+	for i in range(0, len(query_result)):
 		# stop checking if we have found a raycast hit that is closer
 		# than all remaining entities
-		if closest_distances >= 0.0 and closest_distance < query_result[i].distance:
+		if closest_distance >= 0.0 and closest_distance < query_result[i].distance:
 			break
 		# only check this result if its a hit against an entity
-		if query_result[i].movable != None and query_result[i].movable.getMovableType().compare("Entity") == 0:
+		if query_result[i].movable != None and query_result[i].movable.getMovableType() == "Entity" == 0:
 			# get the entity to check
 			entity = query_result[i].movable
 			parent_node = entity.getParentNode()
