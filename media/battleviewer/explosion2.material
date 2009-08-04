@@ -1,0 +1,58 @@
+particle_system Explosion2
+{
+	quota	200
+	emit_emitter_quota	3
+	material	Battleviewer/Flare
+	particle_width	25
+	particle_height	25
+	cull_each	false
+	renderer	billboard
+	sorted	true
+	local_space	false
+	iteration_interval	0
+	nonvisible_update_timeout	0
+
+	emitter Ellipsoid
+	{
+		angle	0
+		colour	1 1 1 1
+		colour_range_start	1 1 1 1
+		colour_range_end	1 0 0 0
+		direction	0 0 0
+		emission_rate	50
+		position	0 0 0
+		velocity	0
+		velocity_min	0
+		velocity_max	0
+		time_to_live	1
+		time_to_live_min	1
+		time_to_live_max	1
+		duration	0.5
+		duration_min	0.5
+		duration_max	0.5
+		repeat_delay	0
+		repeat_delay_min	0
+		repeat_delay_max	0
+		name
+		emit_emitter
+		width	10
+		height	10
+		depth	10
+	}
+
+
+	affector Scaler
+	{
+		rate	500
+	}
+
+	affector ColourFader
+	{
+		red	-1
+		green	-1
+		blue	-1
+		alpha	-1
+	}
+
+}
+

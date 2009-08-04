@@ -4,6 +4,7 @@ import ogre.gui.CEGUI as cegui
 import framework
 import helpers
 import laser
+import random
 
 import battlexml.battle as battle
 
@@ -168,9 +169,22 @@ class BattleManager(framework.Application):
 		else:
 			victim = ref.id
 		self.log_event("Death of %s" % victim)
-		self.battlescene.nodes[victim].setVisible(False)
+		explosion = "Explosion%d" % random.choice((1,2))
+		self.death_particles = self.sceneManager.createParticleSystem("death_particles",explosion)
+		print "Using %s" % explosion
+		self.victim = self.battlescene.nodes[victim].getAttachedObject(0)
+		self.victim.setVisible(False)
+		self.battlescene.nodes[victim].attachObject(self.death_particles)
 		#TODO: Explosion or burst of some sort before disappearance
 		#TODO: Debris field
+		self.post_event = self.post_death
+
+	def post_death(self):
+		self.victim.setVisible(True)
+		self.victim.getParentSceneNode().setVisible(False)
+		self.victim = None
+		self.death_particles.detatchFromParent()
+		self.sceneManager.destroyParticleSystem("death_particles")
 
 	def move_event(self, ref, dest):
 		if isinstance(ref, str):
@@ -203,9 +217,9 @@ class BattleManager(framework.Application):
 			if len(self.event_queue) == 0:
 				self.queue_round(self.round)
 			for event in self.event_queue:
-				self.execute(event)
 				if self.post_event:
 					self.post_event()
+				self.execute(event)
 			self.event_queue = []
 			self.running = False
 			self.single = False

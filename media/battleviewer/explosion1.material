@@ -1,0 +1,42 @@
+particle_system Explosion1
+{
+	quota	10000
+	emit_emitter_quota	3
+	material	Battleviewer/Flare
+	particle_width	20
+	particle_height	40
+	cull_each	false
+	renderer	billboard
+	sorted	false
+	local_space	false
+	iteration_interval	0
+	nonvisible_update_timeout	0
+
+	emitter Point
+	{
+		angle	180
+		colour	0.5 1 0 1
+		colour_range_start	0.5 1 0 1
+		colour_range_end	1 0 0 0.5
+		direction	0 1 0
+		emission_rate	1000
+		position	0 0 0
+		velocity	100
+		velocity_min	100
+		velocity_max	300
+		time_to_live	0.2
+		time_to_live_min	0.2
+		time_to_live_max	1
+		duration	0.2
+		duration_min	0.2
+		duration_max	0.2
+		repeat_delay	0
+		repeat_delay_min	0
+		repeat_delay_max	0
+		name
+		emit_emitter
+	}
+
+
+}
+
