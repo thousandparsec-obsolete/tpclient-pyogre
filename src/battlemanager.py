@@ -148,6 +148,7 @@ class BattleManager(framework.Application):
 		if not self.laser:
 			self.laser = laser.LaserManager(self.sceneManager, "Laser/Laser/Solid") # Laser/Laser/PNG exists too, but I haven't been able to get it to work
 		self.laser.fire(self.battlescene.nodes[attacker], self.battlescene.nodes[victim])
+		self.post_event = self.laser.clear
 		#TODO: Move ships out of the way if they would inadvertantly be hit
 		#TODO: Shield and hit animations
 		#TODO: Taper laser for planets
@@ -235,7 +236,6 @@ class BattleManager(framework.Application):
 			self.log_event(event.content)
 		elif isinstance(event, battle.Fire):
 			self.fire_event(event.source, event.destination)
-			self.post_event = self.laser.clear
 		elif isinstance(event, battle.Damage):
 			self.damage_event(event.reference, event.amount)
 		elif isinstance(event, battle.Death):
