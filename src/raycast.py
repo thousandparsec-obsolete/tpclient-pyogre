@@ -30,13 +30,13 @@ def raycastFromPoint(point, normal, ray_scene_query):
 		if closest_distance >= 0.0 and closest_distance < query_result[i].distance:
 			break
 		# only check this result if its a hit against an entity
-		if query_result[i].movable != None and query_result[i].movable.getMovableType() == "Entity" == 0:
+		if query_result[i].movable != None and query_result[i].movable.getMovableType() == "Entity":
 			# get the entity to check
 			entity = query_result[i].movable
 			parent_node = entity.getParentNode()
 			# mesh data to retrieve
 			(vertex_count, vertices, index_count, indices) = getMeshInformation(entity.getMesh(), \
-					parent_node.getWorldPosition(), parent_node.getWorldOrientation(), \
+					parent_node._getDerivedPosition(), parent_node._getDerivedOrientation(), \
 					parent_node._getDerivedScale())
 			# test for hitting individual triangles on the mesh
 			new_closest_found = False
@@ -91,9 +91,10 @@ def getMeshInformation(mesh, position, orient, scale):
 
 			posElem = vertex_data.vertexDeclaration.findElementBySemantic(ogre.VES_POSITION)
 
-			vbuf = vertex+data.vertexBufferBinding.getBuffer(posElem.getSource())
+			vbuf = vertex_data.vertexBufferBinding.getBuffer(posElem.getSource())
 
 			vertex = vbuf.lock(ogre.HardwareBuffer.HBL_READ_ONLY)
+
 			real = 0.0
 			for j in range(0, vertex_data.vertexCount):
 				posElem.baseVertexPointerToElement(vertex, real)
