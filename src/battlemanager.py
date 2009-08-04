@@ -196,11 +196,13 @@ class BattleManager(framework.Application):
 		userObject.addDest(dest)
 
 	def update(self, evt):
+		# If everyone is still warping in from deep space, don't go on
+		if self.battlescene.wfl.warp_lock:
+			return True
+
 		time = self.roundtimer.getMilliseconds()
 		if self.running and (abs(time-1100) <= 100) and len(self.rounds) > self.round and not self.single:
-			# If an event is still in progress or everyone's still warping in, don't go on
-			if self.event_lock or self.battlescene.wfl.warp_lock:
-				return True
+			# If an event is still in progress don't go on
 			if len(self.event_queue) == 0:
 				self.round += 1
 				if len(self.rounds) > self.round:
