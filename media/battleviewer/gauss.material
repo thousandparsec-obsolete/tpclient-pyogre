@@ -1,0 +1,74 @@
+particle_system Gun
+{
+	quota	1000
+	emit_emitter_quota	10
+	material	Battleviewer/Flare
+	particle_width	10
+	particle_height	10
+	cull_each	false
+	renderer	billboard
+	sorted	false
+	local_space	false
+	iteration_interval	0
+	nonvisible_update_timeout	0
+
+	emitter Point
+	{
+		angle	0
+		colour	1 1 1 1
+		colour_range_start	1 1 1 1
+		colour_range_end	1 1 1 1
+		direction	0 0 1
+		emission_rate	1
+		position	0 0 0
+		velocity	100
+		velocity_min	100
+		velocity_max	100
+		time_to_live	100
+		time_to_live_min	100
+		time_to_live_max	100
+		duration	100
+		duration_min	100
+		duration_max	100
+		repeat_delay	0
+		repeat_delay_min	0
+		repeat_delay_max	0
+		name
+		emit_emitter	bullet
+	}
+
+	emitter Point
+	{
+		angle	15
+		colour	1 1 1 1
+		colour_range_start	1 1 1 1
+		colour_range_end	1 1 1 1
+		direction	0 0 -1
+		emission_rate	100
+		position	0 0 0
+		velocity	10
+		velocity_min	10
+		velocity_max	10
+		time_to_live	1
+		time_to_live_min	1
+		time_to_live_max	1
+		duration	0
+		duration_min	0
+		duration_max	0
+		repeat_delay	0
+		repeat_delay_min	0
+		repeat_delay_max	0
+		name	bullet
+		emit_emitter
+	}
+
+
+    affector DeflectorPlane
+    {
+        plane_point 10 10 10
+        plane_normal 0 1 0
+        bounce = 100
+    }
+
+}
+
