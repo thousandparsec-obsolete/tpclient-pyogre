@@ -41,10 +41,13 @@ class Participant(ogre.UserDefinedObject):
 			self.moving = True
 			self.drift = False
 			self.setDest(self.location)
-			self.engine_particles.setVisible(True)
 			return True
 		except IndexError:
-			""" Check if perhaps the ship is away from its intended location, set that as a destination if so """
+			# Check if perhaps the ship is away from its intended location, set that as a destination if so
+			# Also turn the engines off
+			if self.engine_particles:
+				for i in range(0, self.engine_particles.getNumEmitters()):
+					self.engine_particles.getEmitter(i).setEnabled(False)
 			position = sceneNode._getDerivedPosition()
 			if position != self.location:
 				self.setDest(self.location)
@@ -52,6 +55,9 @@ class Participant(ogre.UserDefinedObject):
 			return False
 
 	def setDest(self, dest):
+		if self.engine_particles:
+			for i in range(0, self.engine_particles.getNumEmitters()):
+				self.engine_particles.getEmitter(i).setEnabled(True)
 		sceneNode = self.entity.getParentSceneNode()
 		self.direction = self.location - sceneNode._getDerivedPosition()
 		if self.moving:

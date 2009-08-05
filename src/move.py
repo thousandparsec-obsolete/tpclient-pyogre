@@ -27,7 +27,9 @@ class MoveFrameListener(ogre.FrameListener):
 					userObject.direction = ogre.Vector3().ZERO
 					userObject.moving = False
 					userObject.drift = False
-					userObject.engine_particles.setVisible(False)
+					if userObject.engine_particles:
+						for i in range(0, userObject.engine_particles.getNumEmitters()):
+							userObject.engine_particles.getEmitter(i).setEnabled(False)
 				else:
 					sceneNode.translate(userObject.direction * move)
 
