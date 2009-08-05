@@ -202,7 +202,7 @@ class BattleManager(framework.Application):
 			return True
 
 		time = self.roundtimer.getMilliseconds()
-		if self.running and (abs(time-1100) <= 100) and len(self.rounds) > self.round and not self.single:
+		if self.running and time > 1000 and len(self.rounds) > self.round and not self.single:
 			# If an event is still in progress don't go on
 			if len(self.event_queue) == 0:
 				self.round += 1
