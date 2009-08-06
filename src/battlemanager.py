@@ -247,7 +247,7 @@ class BattleManager(framework.Application):
 	def queue_round(self, num=0):
 		round = self.rounds[num]
 		for event in round.events:
-			self.event_queue.insert(0, event)
+			self.event_queue.append(event)
 		return True
 
 	def resurrect(self, round):
