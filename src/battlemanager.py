@@ -125,9 +125,11 @@ class BattleManager(framework.Application):
 		self.currentScene = scene
 		self.currentScene.show()
 
-	def log_event(self, text):
+	def log_event(self, text, event=True):
 		"""Displays the contents of the Log event in the log box"""
-		prefix = "Round %d: " % int(self.rounds[self.round].number)
+		prefix = ""
+		if event:
+			prefix = "Round %d: " % int(self.rounds[self.round].number)
 		wm = cegui.WindowManager.getSingleton()
 		window = wm.getWindow("Logs")
 		oldtext = window.getText().c_str()
@@ -172,7 +174,6 @@ class BattleManager(framework.Application):
 		self.log_event("Death of %s" % victim)
 		explosion = "Explosion%d" % random.choice((1,2))
 		self.death_particles = self.sceneManager.createParticleSystem("death_particles",explosion)
-		print "Using %s" % explosion
 		self.victim = self.battlescene.nodes[victim].getAttachedObject(0)
 		self.victim.setVisible(False)
 		self.battlescene.nodes[victim].attachObject(self.death_particles)
@@ -204,7 +205,6 @@ class BattleManager(framework.Application):
 		time = self.roundtimer.getMilliseconds()
 		if self.running and time > 1000 and len(self.rounds) > self.round and not self.single:
 			# If an event is still in progress don't go on
-			print self.round
 			if len(self.event_queue) == 0:
 				self.round += 1
 				if len(self.rounds) > self.round:
@@ -261,36 +261,36 @@ class BattleManager(framework.Application):
 	# GUI stuff follows
 	def next_round(self, evt):
 		if len(self.rounds) > self.round:
-			self.log_event("Going forward one round to round %d" % (self.round+1))
+			self.log_event("Going forward one round to round %d" % (self.round+1), False)
 			self.single = True
 			self.running = True
 		else:
-			self.log_event("At the last round")
+			self.log_event("At the last round", False)
 
 	def prev_round(self, evt):
 		if self.round != 0:
-			self.log_event("Going back one round to round %d" % (self.round-1))
+			self.log_event("Going back one round to round %d" % (self.round-1), False)
 			self.resurrect(self.round-1)
 			self.round -= 1
 		else:
-			self.log_event("At the first round")
+			self.log_event("At the first round", False)
 
 	def beginning_round(self, evt):
-		self.log_event("Jumping to the beginning round")
+		self.log_event("Jumping to the beginning round", False)
 		self.resurrect(0)
 		self.round = 0
 
 	def end_round(self, evt):
-		self.log_event("Jumping to the end round (round %d)" % (len(self.rounds)-1))
+		self.log_event("Jumping to the end round (round %d)" % (len(self.rounds)-1), False)
 		self.resurrect(len(self.rounds)-1)
 		self.round = len(self.rounds)-1
 
 	def stop_prog(self, evt):
-		self.log_event("Stopping round progression")
+		self.log_event("Stopping round progression", False)
 		self.running = False
 
 	def start_prog(self, evt):
-		self.log_event("Starting round progression")
+		self.log_event("Starting round progression", False)
 		self.running = True
 		self.roundtimer.reset()
 
