@@ -281,7 +281,7 @@ class BattleManager(framework.Application):
 		self.round = 0
 
 	def end_round(self, evt):
-		self.log_event("Jumping to the end round (round %d)" % (len(self.rounds)-1), False)
+		self.log_event("Jumping to the end round (round %d)" % (len(self.rounds)), False)
 		self.resurrect(len(self.rounds)-1)
 		self.round = len(self.rounds)-1
 
