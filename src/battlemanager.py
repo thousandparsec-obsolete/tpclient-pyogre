@@ -127,7 +127,7 @@ class BattleManager(framework.Application):
 
 	def log_event(self, text):
 		"""Displays the contents of the Log event in the log box"""
-		prefix = "Round %d: " % int(self.round+1)
+		prefix = "Round %d: " % int(self.rounds[self.round].number)
 		wm = cegui.WindowManager.getSingleton()
 		window = wm.getWindow("Logs")
 		oldtext = window.getText().c_str()
@@ -204,6 +204,7 @@ class BattleManager(framework.Application):
 		time = self.roundtimer.getMilliseconds()
 		if self.running and time > 1000 and len(self.rounds) > self.round and not self.single:
 			# If an event is still in progress don't go on
+			print self.round
 			if len(self.event_queue) == 0:
 				self.round += 1
 				if len(self.rounds) > self.round:
@@ -243,7 +244,7 @@ class BattleManager(framework.Application):
 		else:
 			print "Unknown event type %s" % type(event)
 
-	def queue_round(self, num=1):
+	def queue_round(self, num=0):
 		round = self.rounds[num]
 		for event in round.events:
 			self.event_queue.insert(0, event)
