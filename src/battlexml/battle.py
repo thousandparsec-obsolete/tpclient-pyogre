@@ -11,6 +11,20 @@ class Battle:
 		self.rounds = []
 		self.states = [{'dead':[]}]
 
+# Progression
+
+class Round:
+	def __init__(self, number):
+		self.number = int(number)
+		self.events = []
+		self.logs = []
+		self.fire = []
+		self.damage = []
+		self.death = []
+		self.move = []
+
+# Structure
+
 class Side:
 	def __init__(self, id):
 		self.id = id
@@ -21,15 +35,7 @@ class Entity:
 		self.id = id
 		self.name = ""
 		self.type = ""
-
-class Round:
-	def __init__(self, number):
-		self.number = int(number)
-		self.events = []
-		self.logs = []
-		self.fire = []
-		self.damage = []
-		self.death = []
+# Events
 
 class Fire:
 	def __init__(self):
@@ -48,6 +54,14 @@ class Death:
 class Log:
 	def __init__(self, content):
 		self.content = content
+
+class Move:
+	def __init__(self):
+		self.x = 0
+		self.y = 0
+		self.z = 0
+		self.reference = None
+
 
 class BattleXMLHandler(ContentHandler):
 	def __init__(self):
@@ -92,6 +106,9 @@ class BattleXMLHandler(ContentHandler):
 		if name == "death":
 			self.status = Death()
 
+		if name == "move":
+			self.status = Move()
+
 		if name == "reference":
 			ref = attrs['ref']
 			setattr(self.status, name, self.findEntity(ref))
@@ -132,6 +149,11 @@ class BattleXMLHandler(ContentHandler):
 			self.round.death.append(self.status)
 			self.status = None
 
+		if name == "move":
+			self.round.events.append(self.status)
+			self.round.move.append(self.status)
+			self.status = None
+
 	def characters(self, content):
 		tag = self.tags[len(self.tags) - 1]
 		if tag == "log":
@@ -147,6 +169,12 @@ class BattleXMLHandler(ContentHandler):
 
 		if tag == "amount" and content.isdigit():
 			self.status.amount = int(content)
+
+		if tag == "position":
+			pos = content.split(",")
+			self.status.x = pos[0]
+			self.status.y = pos[1]
+			self.status.z = pos[2]
 
 	def findEntity(self, id):
 		for sides in self.battle.sides:
@@ -178,7 +206,7 @@ if __name__ == "__main__":
 	battle = parse_file(filename)
 	for round in battle.rounds:
 		for event in round.events:
-			print event
+			print str(event)
 		for content in (event.content for event in round.events if isinstance(event, Log)):
 			print content
 
