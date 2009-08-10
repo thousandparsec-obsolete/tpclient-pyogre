@@ -35,6 +35,8 @@ class Entity:
 		self.id = id
 		self.name = ""
 		self.type = ""
+		self.weapontype = None
+
 # Events
 
 class Fire:
@@ -166,6 +168,9 @@ class BattleXMLHandler(ContentHandler):
 
 		if tag == "type":
 			self.entity.type = content
+
+		if tag == "weapontype":
+			self.entity.weapontype = content
 
 		if tag == "amount" and content.isdigit():
 			self.status.amount = int(content)
