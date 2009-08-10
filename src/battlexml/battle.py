@@ -9,7 +9,7 @@ class Battle:
 		self.media = media
 		self.sides = []
 		self.rounds = []
-		self.states = [{'dead':[]}]
+		self.states = [{'dead':[], 'pos':[]}]
 
 # Progression
 
@@ -186,8 +186,11 @@ def parse_states(battle):
 	""" Gathers the final states for each round off battle """
 	for round in battle.rounds:
 		battle.states.append(copy.deepcopy(battle.states[round.number-1]))
-		# Do moves first so they can be overwritten by deaths
-		# After move parsing is implemented of course
+		# This is a pain, because the battleviewer sets initial positions, so when you're
+		# playing with the resurrect function on there you need to remember that if the move
+		# state doesn't exist to consult the viewers tables
+		for move in round.move:
+			battle.states[round.number]['pos'].append((move.reference.id, move))
 		for death in round.death:
 			battle.states[round.number]['dead'].append(death.reference.id)
 	return battle
@@ -216,4 +219,3 @@ if __name__ == "__main__":
 		print "Round %d" % i
 		for state in battle.states[i]:
 			print state + " - " + str(battle.states[i][state])
-			print repr(battle.states[i][state])
