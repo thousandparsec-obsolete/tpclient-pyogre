@@ -7,20 +7,20 @@
 <!ELEMENT side (entity+) >
 <!ATTLIST side id ID #REQUIRED >
 
-<!ELEMENT entity (name, type?, description?, note*) >
+<!ELEMENT entity (name, weapontype?, type?, description?, note*) >
 <!ATTLIST entity id ID #REQUIRED >
-<!-- 
+<!--
 <!ELEMENT model (#PCDATA) >
 <!ELEMENT deathmedia (#PCDATA) >
 <!ELEMENT firing (#PCDATA) >
-<!ELEMENT weapontype (#PCDATA) >
 <!ELEMENT weaponpoints (pixel+)>
 <!ELEMENT pixel (#PCDATA) >
 <!ELEMENT weapon (#PCDATA) >
-<!ELEMENT entity (name, model, deathmedia?, firing?, weaponpoints?, weapontype?, weapon?) > 
+<!ELEMENT entity (name, model, deathmedia?, firing?, weaponpoints?, weapontype?, weapon?) >
 -->
 <!ELEMENT name (#PCDATA) >
 <!ELEMENT type (#PCDATA) >
+<!ELEMENT weapontype (#PCDATA) >
 <!ELEMENT description (#PCDATA) >
 <!ELEMENT note (#PCDATA) >
 
