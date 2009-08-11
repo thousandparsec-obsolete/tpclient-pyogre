@@ -92,7 +92,7 @@
 			<destination ref="frigate-59-3" />
 		</fire>
         <move>
-            <reference ref="frigate-59-3" />
+            <reference ref="scout-59-1" />
             <position>0,0,0</position>
         </move>
 		<damage>

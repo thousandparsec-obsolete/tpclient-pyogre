@@ -252,6 +252,12 @@ class BattleManager(framework.Application):
 
 	def resurrect(self, round):
 		""" Resurrects the dead and generally returns the round state to that of $round """
+		# For moving
+		for (entity, pos) in self.battlescene.initial_positions:
+			self.battlescene.nodes[entity].setPosition(ogre.Vector3(pos[0], pos[1], pos[2]))
+		for (entity, pos) in self.battle.states[round+1]['pos']:
+			self.battlescene.nodes[entity].setPosition(ogre.Vector3(pos.x, pos.y, pos.z))
+		# For death
 		for entity in self.battlescene.nodes:
 			if entity not in self.battle.states[round+1]['dead']:
 				self.battlescene.nodes[entity].setVisible(True)

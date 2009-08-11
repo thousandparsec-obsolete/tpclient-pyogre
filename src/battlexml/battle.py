@@ -177,9 +177,9 @@ class BattleXMLHandler(ContentHandler):
 
 		if tag == "position":
 			pos = content.split(",")
-			self.status.x = pos[0]
-			self.status.y = pos[1]
-			self.status.z = pos[2]
+			self.status.x = int(pos[0].strip())
+			self.status.y = int(pos[1].strip())
+			self.status.z = int(pos[2].strip())
 
 	def findEntity(self, id):
 		for sides in self.battle.sides:

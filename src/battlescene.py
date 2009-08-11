@@ -25,6 +25,7 @@ class BattleScene(scene.Scene):
 		self.nodes = {}
 		self.userobjects = {}
 		self.listeners = {}
+		self.initial_positions = []
 
 		self.camera_focus_node = self.rootNode.createChildSceneNode("CameraFocus")
 		self.camera_node = self.camera_focus_node.createChildSceneNode("CameraNode")
@@ -98,6 +99,7 @@ class BattleScene(scene.Scene):
 				userObject = Participant(entity_object, entity, engine=engine)
 				engine_node = node.createChildSceneNode("%s_engine_node" % entity.id)
 				engine_node.attachObject(engine)
+			self.initial_positions.append((entity.id, node.position))
 			obj_scale = media[1] / entity_object.mesh.boundingSphereRadius
 			entity_object.setUserObject(userObject)
 			self.wfl.registerEntity(entity_object, node)
