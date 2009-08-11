@@ -266,30 +266,39 @@ class BattleManager(framework.Application):
 
 	# GUI stuff follows
 	def next_round(self, evt):
-		if len(self.rounds) > self.round:
-			self.log_event("Going forward one round to round %d" % (self.round+1), False)
-			self.single = True
-			self.running = True
-		else:
-			self.log_event("At the last round", False)
+		if not self.battlescene.wfl.warp_lock:
+			if len(self.rounds) > self.round:
+				self.log_event("Going forward one round to round %d" % (self.round+1), False)
+				self.single = True
+				self.event_queue = []
+			else:
+				self.log_event("At the last round", False)
 
 	def prev_round(self, evt):
-		if self.round != 0:
-			self.log_event("Going back one round to round %d" % (self.round-1), False)
-			self.resurrect(self.round-1)
-			self.round -= 1
-		else:
-			self.log_event("At the first round", False)
+		if not self.battlescene.wfl.warp_lock:
+			if self.round != 0:
+				self.log_event("Going back one round to round %d" % (self.round-1), False)
+				self.resurrect(self.round-1)
+				self.round -= 1
+				self.event_queue = []
+			else:
+				self.log_event("At the first round", False)
 
 	def beginning_round(self, evt):
-		self.log_event("Jumping to the beginning round", False)
-		self.resurrect(0)
-		self.round = 0
+		if not self.battlescene.wfl.warp_lock:
+			self.log_event("Jumping to the beginning round", False)
+			self.resurrect(0)
+			self.round = 0
+			self.event_queue = []
+			self.running = False
 
 	def end_round(self, evt):
-		self.log_event("Jumping to the end round (round %d)" % (len(self.rounds)), False)
-		self.resurrect(len(self.rounds)-1)
-		self.round = len(self.rounds)-1
+		if not self.battlescene.wfl.warp_lock:
+			self.log_event("Jumping to the end round (round %d)" % (len(self.rounds)), False)
+			self.resurrect(len(self.rounds)-1)
+			self.round = len(self.rounds)-1
+			self.event_queue = []
+			self.running = False
 
 	def stop_prog(self, evt):
 		self.log_event("Stopping round progression", False)
