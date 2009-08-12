@@ -271,6 +271,8 @@ class BattleManager(framework.Application):
 				self.log_event("Going forward one round to round %d" % (self.round+1), False)
 				self.single = True
 				self.event_queue = []
+				if self.post_event:
+					self.post_event()
 			else:
 				self.log_event("At the last round", False)
 
@@ -281,6 +283,8 @@ class BattleManager(framework.Application):
 				self.resurrect(self.round-1)
 				self.round -= 1
 				self.event_queue = []
+				if self.post_event:
+					self.post_event()
 			else:
 				self.log_event("At the first round", False)
 
@@ -291,6 +295,8 @@ class BattleManager(framework.Application):
 			self.round = 0
 			self.event_queue = []
 			self.running = False
+			if self.post_event:
+				self.post_event()
 
 	def end_round(self, evt):
 		if not self.battlescene.wfl.warp_lock:
@@ -299,6 +305,8 @@ class BattleManager(framework.Application):
 			self.round = len(self.rounds)-1
 			self.event_queue = []
 			self.running = False
+			if self.post_event:
+				self.post_event()
 
 	def stop_prog(self, evt):
 		self.log_event("Stopping round progression", False)
