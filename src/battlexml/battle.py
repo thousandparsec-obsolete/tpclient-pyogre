@@ -213,6 +213,7 @@ if __name__ == "__main__":
 	filename = raw_input("Filename: ")
 	battle = parse_file(filename)
 	for round in battle.rounds:
+		print "Round %d" % round.number
 		for event in round.events:
 			print str(event)
 		for content in (event.content for event in round.events if isinstance(event, Log)):
