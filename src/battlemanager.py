@@ -241,6 +241,8 @@ class BattleManager(framework.Application):
 			self.damage_event(event.reference, event.amount)
 		elif isinstance(event, battle.Death):
 			self.death_event(event.reference)
+		elif isinstance(event, battle.Move):
+			self.move_event(event.reference, (event.x, event.y, event.z))
 		else:
 			print "Unknown event type %s" % type(event)
 
