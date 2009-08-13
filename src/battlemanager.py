@@ -37,7 +37,6 @@ class BattleManager(framework.Application):
 		self.rounds = []
 		self.event_queue = []
 		self.post_event = None
-		self.event_lock = False
 
 		self.guiRenderer = 0
 		self.guiSystem = 0
@@ -203,9 +202,14 @@ class BattleManager(framework.Application):
 		userObject = self.battlescene.nodes[mover].getAttachedObject(mover).getUserObject()
 		userObject.addDest(dest)
 
+	def event_lock(self):
+		""" If any locks are active, this should return true """
+		return self.battlescene.wfl.warp_lock
+			# or self.battlescene.mfl.move_lock
+
 	def update(self, evt):
 		# If everyone is still warping in from deep space, don't go on
-		if self.battlescene.wfl.warp_lock:
+		if self.event_lock():
 			return True
 
 		time = self.roundtimer.getMilliseconds()

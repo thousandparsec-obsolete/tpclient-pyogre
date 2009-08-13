@@ -4,7 +4,7 @@ from overlay import ObjectOverlay
 
 class Participant(ogre.UserDefinedObject):
 	""" Basic information is stored here for moving """
-
+	# TODO: replace this with the entity stuff from battle.py instead of just having that as a property
 	def __init__(self, entity, battle_entity, **kwargs):
 		ogre.UserDefinedObject.__init__(self)
 		if kwargs.has_key('speed'):
