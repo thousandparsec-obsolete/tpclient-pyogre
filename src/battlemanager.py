@@ -44,7 +44,7 @@ class BattleManager(framework.Application):
 		self.application = DummyApplication()
 		self.application.cache = DummyCache()
 
-		self.running = False
+		self.running = True
 		self.single = False
 		self.round = 0
 
@@ -146,11 +146,17 @@ class BattleManager(framework.Application):
 		else:
 			attacker = ref_att.id
 			victim = ref_vic.id
+		att_node = self.battlescene.nodes[attacker]
+		vic_node = self.battlescene.nodes[victim]
+		weapontype = att_node.getAttachedObject(attacker).getUserObject().battle_entity.weapontype
 		self.log_event("%s fired at %s" % (attacker, victim))
-		if not self.laser:
-			self.laser = laser.LaserManager(self.sceneManager, "Laser/Laser/Solid") # Laser/Laser/PNG exists too, but I haven't been able to get it to work
-		self.laser.fire(self.battlescene.nodes[attacker], self.battlescene.nodes[victim])
-		self.post_event = self.laser.clear
+		if weapontype == "torpedo":
+			print "Not functional yet"
+		else:
+			if not self.laser:
+				self.laser = laser.LaserManager(self.sceneManager, "Laser/Laser/Solid") # Laser/Laser/PNG exists too, but I haven't been able to get it to work
+			self.laser.fire(self.battlescene.nodes[attacker], self.battlescene.nodes[victim])
+			self.post_event = self.laser.clear
 		#TODO: Move ships out of the way if they would inadvertantly be hit
 		#TODO: Shield and hit animations
 		#TODO: Taper laser for planets
