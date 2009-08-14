@@ -204,8 +204,8 @@ class BattleManager(framework.Application):
 
 	def event_lock(self):
 		""" If any locks are active, this should return true """
-		return self.battlescene.wfl.warp_lock
-			# or self.battlescene.mfl.move_lock
+		return self.battlescene.wfl.warp_lock \
+			 or self.battlescene.mfl.move_lock()
 
 	def update(self, evt):
 		# If everyone is still warping in from deep space, don't go on

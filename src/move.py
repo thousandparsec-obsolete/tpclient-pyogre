@@ -13,6 +13,15 @@ class MoveFrameListener(ogre.FrameListener):
 		if not (entity, sceneNode) in self.entities:
 			self.entities.append((entity, sceneNode))
 
+	def move_lock(self):
+		""" Checks if any entity is moving, if so, returns True """
+		# remember to execute this when checking for locks
+		lock = False
+		for (entity, sceneNode) in self.entities:
+			userObject = entity.getUserObject()
+			lock = lock or (userObject.moving and not userObject.drift)
+		return lock
+
 	def frameStarted(self, evt):
 		for (entity, sceneNode) in self.entities:
 			userObject = entity.getUserObject()
