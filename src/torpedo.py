@@ -28,13 +28,6 @@ class Torpedo(object):
 #		planeDeflector.setParameter("plane_point", " %d %d %d" % (target.x, target.y, target.z))
 		emitter.setEnabled(True)
 		emitted_emitter = self.torpedo.getEmitter(1)
-		print "%s target" % target
-		print "%s source" % source
-		print "%s system" % self.sceneNode._getDerivedPosition()
-		print "%s pos" % emitter.getPosition()
-		print "%s dir" % emitter.getDirection()
-		print "%s pos" % emitted_emitter.getPosition()
-		print "%s dir" % emitted_emitter.getDirection()
 
 		emitted_emitter.setEnabled(True)
 
