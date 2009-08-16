@@ -7,10 +7,13 @@ class Torpedo(object):
 		self.sceneNode = sceneManager.getRootSceneNode().createChildSceneNode("Torpedo")
 		self.torpedo = sceneManager.createParticleSystem("Torpedo_Particle", "Gun")
 		self.sceneNode.attachObject(self.torpedo)
+		self.torpedo.setKeepParticlesInLocalSpace(True)
 
 	def fire(self, source, target):
+		source = source._getDerivedPosition()
+		target = target._getDerivedPosition()
 		self.sceneNode.setVisible(True)
-		self.sceneNode.translate(source, ogre.SceneNode.TransformSpace.TS_WORLD)
+		self.sceneNode.setPosition(source)
 		self.sceneNode.lookAt(target, ogre.SceneNode.TransformSpace.TS_WORLD, ogre.Vector3().UNIT_Z)
 		normal = target - source
 		normal.normalise()
@@ -20,11 +23,19 @@ class Torpedo(object):
 		time = distance/velocity
 		emitter.setTimeToLive(time)
 		emitter.setTimeToLive(time, time)
-		planeDeflector = self.torpedo.getAffector(0)
-		planeDeflector.setParameter("plane_normal", "%d %d %d" % (normal.x, normal.y, normal.z))
-		planeDeflector.setParameter("plane_point", " %d %d %d" % (target.x, target.y, target.z))
+#		planeDeflector = self.torpedo.getAffector(0)
+#		planeDeflector.setParameter("plane_normal", "%d %d %d" % (normal.x, normal.y, normal.z))
+#		planeDeflector.setParameter("plane_point", " %d %d %d" % (target.x, target.y, target.z))
 		emitter.setEnabled(True)
 		emitted_emitter = self.torpedo.getEmitter(1)
+		print "%s target" % target
+		print "%s source" % source
+		print "%s system" % self.sceneNode._getDerivedPosition()
+		print "%s pos" % emitter.getPosition()
+		print "%s dir" % emitter.getDirection()
+		print "%s pos" % emitted_emitter.getPosition()
+		print "%s dir" % emitted_emitter.getDirection()
+
 		emitted_emitter.setEnabled(True)
 
 	def clear(self):

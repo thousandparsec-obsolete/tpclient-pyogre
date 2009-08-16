@@ -33,13 +33,13 @@ particle_system Gun
 		repeat_delay	0
 		repeat_delay_min	0
 		repeat_delay_max	0
-		name
+		name gun
 		emit_emitter	bullet
 	}
 
 	emitter Point
 	{
-		angle	15
+		angle	80
 		colour	1 1 1 1
 		colour_range_start	1 1 1 1
 		colour_range_end	1 1 1 1
@@ -61,14 +61,6 @@ particle_system Gun
 		name	bullet
 		emit_emitter
 	}
-
-
-    affector DeflectorPlane
-    {
-        plane_point 10 10 10
-        plane_normal 0 1 0
-        bounce = 100
-    }
 
 }
 

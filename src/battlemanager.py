@@ -5,6 +5,7 @@ import framework
 import helpers
 import laser
 import random
+import torpedo
 
 import battlexml.battle as battle
 
@@ -29,6 +30,7 @@ class BattleManager(framework.Application):
 
 	logTextArea = None
 	laser = False
+	torpedo = False
 
 	def __init__(self, battle_file):
 		framework.Application.__init__(self)
@@ -151,6 +153,10 @@ class BattleManager(framework.Application):
 		self.log_event("%s fired at %s" % (attacker, victim))
 		if weapontype == "torpedo":
 			print "Not functional yet"
+			if not self.torpedo:
+				self.torpedo = torpedo.Torpedo(self.sceneManager)
+			self.torpedo.fire(self.battlescene.nodes[attacker], self.battlescene.nodes[victim])
+			self.post_event = self.torpedo.clear
 		else:
 			if not self.laser:
 				self.laser = laser.LaserManager(self.sceneManager, "Laser/Laser/Solid") # Laser/Laser/PNG exists too, but I haven't been able to get it to work

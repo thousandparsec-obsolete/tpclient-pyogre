@@ -6,10 +6,12 @@
 		<entity id="battleship-54-1">
 			<name>Mithro's Super Fleet, Battleship 1</name>
 			<type>battleship</type>
+            <weapontype>torpedo</weapontype>
 		</entity>
 		<entity id="battleship-54-2">
 			<name>Mithro's Super Fleet, Battleship 2</name>
 			<type>battleship</type>
+            <weapontype>torpedo</weapontype>
 		</entity>
 		<entity id="planet-23">
 			<name>Mithro's Colony on Omega 1</name>
@@ -24,10 +26,12 @@
 		<entity id="battleship-59-2">
 			<name>Lee's Super Fleet, Battleship 1</name>
 			<type>battleship</type>
+            <weapontype>laser</weapontype>
 		</entity>
 		<entity id="frigate-59-3">
 			<name>Lee's Super Fleet, Frigate 1</name>
 			<type>frigate</type>
+            <weapontype>laser</weapontype>
 		</entity>
 	</side>
 </sides>
