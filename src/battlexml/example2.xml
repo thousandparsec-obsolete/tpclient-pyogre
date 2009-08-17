@@ -64,7 +64,11 @@
 		<log>Lee's fleet chooses rock.</log>
 		<log>Mithro's fleet chooses scissors.</log>
 		<log>Mithro's fleet wins.</log>
-		<fire>
+        <move>
+            <reference ref="scout-59-1" />
+            <position>0,0,0</position>
+        </move>
+    	<fire>
 			<source      ref="battleship-54-1" />
 			<destination ref="battleship-59-2" />
 		</fire>
@@ -95,10 +99,6 @@
 			<source      ref="planet-23" />
 			<destination ref="frigate-59-3" />
 		</fire>
-        <move>
-            <reference ref="scout-59-1" />
-            <position>0,0,0</position>
-        </move>
 		<damage>
 			<reference ref="frigate-59-3" />
 			<amount>3</amount>
