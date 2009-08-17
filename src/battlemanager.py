@@ -152,7 +152,6 @@ class BattleManager(framework.Application):
 		weapontype = att_node.getAttachedObject(attacker).getUserObject().battle_entity.weapontype
 		self.log_event("%s fired at %s" % (attacker, victim))
 		if weapontype == "torpedo":
-			print "Not functional yet"
 			if not self.torpedo:
 				self.torpedo = torpedo.Torpedo(self.sceneManager)
 			self.torpedo.fire(self.battlescene.nodes[attacker], self.battlescene.nodes[victim])
