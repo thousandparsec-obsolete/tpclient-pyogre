@@ -1,5 +1,6 @@
 import ogre.renderer.OGRE as ogre
 
+
 class Torpedo(object):
 	""" Creates the torpedo weapon """
 
@@ -9,6 +10,9 @@ class Torpedo(object):
 		self.torpedo = sceneManager.createParticleSystem("Torpedo_Particle", "Gun")
 		self.sceneNode.attachObject(self.torpedo)
 		self.torpedo.setKeepParticlesInLocalSpace(True)
+		self.bulletTimer = ogre.Timer()
+		self.fired = False
+		self.eta = 0
 
 	def fire(self, source, target):
 		source = source._getDerivedPosition()
@@ -21,7 +25,8 @@ class Torpedo(object):
 		distance = abs(target.distance(source))
 		emitter = self.torpedo.getEmitter(0)
 		velocity = emitter.getParticleVelocity()
-		time = distance/velocity
+		# +1 is for the extra time it might take to get to the center of the scene node, for some reason the torpedo stops at the AABB of the model :\
+		time = distance/velocity+1
 		emitter.setTimeToLive(time)
 		emitter.setTimeToLive(time, time)
 #		planeDeflector = self.torpedo.getAffector(0)
@@ -29,10 +34,19 @@ class Torpedo(object):
 #		planeDeflector.setParameter("plane_point", " %d %d %d" % (target.x, target.y, target.z))
 		emitter.setEnabled(True)
 		emitted_emitter = self.torpedo.getEmitter(1)
-
 		emitted_emitter.setEnabled(True)
+		self.fired = True
+		self.eta = time
+		self.bulletTimer.reset()
+
+	def torpedo_lock(self):
+		if self.bulletTimer.getMilliseconds() < 1000*self.eta:
+			return True
+		return False
 
 	def clear(self):
+		self.eta = 0
+		self.fired = False
 		emitter = self.torpedo.getEmitter(0)
 		emitted_emitter = self.torpedo.getEmitter(1)
-#		self.sceneNode.setVisible(False)
+		self.sceneNode.setVisible(False)
