@@ -1,7 +1,7 @@
 particle_system Gun
 {
-	quota	1000
-	emit_emitter_quota	10
+	quota	100
+	emit_emitter_quota	1
 	material	Battleviewer/Flare
 	particle_width	10
 	particle_height	10

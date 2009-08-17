@@ -5,6 +5,7 @@ class Torpedo(object):
 
 	def __init__(self, sceneManager):
 		self.sceneNode = sceneManager.getRootSceneNode().createChildSceneNode("Torpedo")
+		self.sceneNode.setVisible(False)
 		self.torpedo = sceneManager.createParticleSystem("Torpedo_Particle", "Gun")
 		self.sceneNode.attachObject(self.torpedo)
 		self.torpedo.setKeepParticlesInLocalSpace(True)
@@ -32,4 +33,6 @@ class Torpedo(object):
 		emitted_emitter.setEnabled(True)
 
 	def clear(self):
-		self.sceneNode.setVisible(False)
+		emitter = self.torpedo.getEmitter(0)
+		emitted_emitter = self.torpedo.getEmitter(1)
+#		self.sceneNode.setVisible(False)
