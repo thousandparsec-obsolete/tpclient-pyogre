@@ -39,6 +39,8 @@ def nt_config():
 
 		path = os.path.join(".", "plugins")
 		if not os.path.exists(path):
+			path = os.path.join("..", "plugins")
+		if not os.path.exists(path):
 			drive = default_windows_drive
 			path = os.path.join(drive, "PythonOgre", "plugins")
 		if not os.path.exists(path):

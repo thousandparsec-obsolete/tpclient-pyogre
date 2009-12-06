@@ -87,10 +87,10 @@ try:
 	import ogre.renderer.OGRE as ogre
 	print "Installed in ", ogre.__file__
 	if hasattr(ogre, "Version__"):
-		if ogre.Version__ != ogre_version:
+		if ogre.Version__ < ogre_version:
 			notfound.append("python-ogre/ogre == " + ogre_version)
 	else:
-		if ogre.ogre_version != ogre_version:
+		if ogre.ogre_version < ogre_version:
 			notfound.append("python-ogre/ogre == " + ogre_version)
 except ImportError, e:
 	print e
@@ -103,11 +103,11 @@ except ImportError, e:
 	notfound.append("python-ogre/cegui")
 
 try:
-	import ogre.sound.OgreAL as ogreal
+	import pyglet
 except ImportError, e:
 	print e
-	reason = "The OgreAL addon, which is required for audio, does not seem to be installed"
-	recommended.append(("python-ogre/ogreal", reason))
+	reason = "Pyglet, which is required for audio, does not seem to be installed"
+	notfound.append(("pyglet", reason))
 
 netlib_version = (0, 2, 4)
 try:
