@@ -109,7 +109,7 @@ except ImportError, e:
 	reason = "Pyglet, which is required for audio, does not seem to be installed"
 	notfound.append(("pyglet", reason))
 
-netlib_version = (0, 2, 4)
+netlib_version = (0, 2, 99)
 try:
 	import tp.netlib
 
@@ -125,14 +125,14 @@ try:
 	except ImportError:
 		print
 
-	if cmp(netlib_version, tp.netlib.__version__) < 0:
+	if cmp(netlib_version, tp.netlib.__version__) > 0:
 		raise ImportError("Thousand Parsec Network Library (libtpproto-py) is too old")
 
 except (ImportError, KeyError, AttributeError), e:
 	print e
 	notfound.append("tp.netlib >= " + tostr(netlib_version))
 
-client_version = (0, 3, 1)
+client_version = (0, 3, 99)
 try:
 	import tp.client
 
@@ -148,7 +148,7 @@ try:
 	except ImportError:
 		print
 
-	if cmp(client_version, tp.client.__version__) < 0:
+	if cmp(client_version, tp.client.__version__) > 0:
 		raise ImportError("Thousand Parsec Client Library (libtpclient-py) is too old")
 except (ImportError, KeyError, AttributeError), e:
 	print e
