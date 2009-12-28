@@ -5,11 +5,31 @@ import random
 import ogre.gui.CEGUI as cegui
 import ogre.renderer.OGRE as ogre
 from tp.netlib.objects import OrderDescs
-from tp.netlib.objects.constants import *
+from tp.netlib.objects import parameters
 
 import helpers
 import scene
 import settings
+import tp_helpers
+from extra import objectutils
+
+ARG_ABS_COORD = 0
+ARG_TIME = 1
+ARG_OBJECT = 2
+ARG_PLAYER = 3
+ARG_RANGE = 5
+ARG_LIST = 6
+ARG_STRING = 7
+
+ARG_PARAM_MAP = {
+	parameters.OrderParamAbsSpaceCoords: 0,
+	parameters.OrderParamTime: 1,
+	parameters.OrderParamObject: 2,
+	parameters.OrderParamPlayer: 3,
+	parameters.OrderParamString: 7,
+	parameters.OrderParamList: 6,
+	parameters.OrderParamRange: 5
+	}
 
 ARG_GUI_MAP = {
 		ARG_ABS_COORD:'Position',
@@ -632,28 +652,31 @@ class InformationWindow(Window):
 		cache = self.parent.getCache()
 		text = ""
 		text += "Name: %s (%s)\n" % (str(object.name), str(object.id))
-		text += "Position: %s\n" % str(object.pos)
-		text += "Velocity: %s\n" % str(object.vel)
+		text += "Position: %s\n" % str(tp_helpers.getAbsPosition(object))
+		text += "Velocity: %s\n" % str(tp_helpers.getVelocity(object))
 		text += "Size: %s\n" % str(object.size)
-		if hasattr(object, "owner"):
-			if object.owner != -1:
-				owner_name = cache.players[object.owner].name
-				race_name = cache.players[object.owner].race_name
+		if hasattr(object, "Ownership"):
+			owner = tp_helpers.getOwner(object)
+			if owner != -1:
+				owner_name = cache.players[owner].name
+				race_name = cache.players[owner].race_name
 				text += "Owner: %s(%s)\n" % (owner_name, race_name)
 			else:
 				text += "Neutral\n"
-		if hasattr(object, "ships"):
+		if hasattr(object, "Ships"):
 			text += "-- Ships --\n"
 			ships = []
 			total = 0
-			for group in object.ships:
-				design_name = cache.designs[group[0]].name
-				text += "    %s: %i\n" % (design_name, group[1])
-		if hasattr(object, "resources"):
+			for group in object.Ships[0]:
+				group = group[0]
+				design_name = cache.designs[group[1]].name
+				text += "    %s: %i\n" % (design_name, group[2])
+		if hasattr(object, "Resources"):
 			text += "-- Resources --\n"
 			resources = []
-			print object.resources
-			for resource in object.resources:
+			print object.Resources
+			for resource in object.Resources:
+				resource = resource[0][0]
 				info = cache.resources[resource[0]]
 				resource_string = "    %s: %s available, %s minable, %s inaccessable" % \
 					(info.name_plural, resource[1], resource[2], resource[3])

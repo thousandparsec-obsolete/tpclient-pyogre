@@ -189,8 +189,9 @@ class Starmap(object):
 		entity_node = self.sceneManager.getSceneNode("Object%i_EntityNode" % object.id)
 
 		colour = None
-		if object.owner != -1:
-			random.seed(object.owner)
+		owner = object.Ownership[0][1]
+		if owner != -1:
+			random.seed(owner)
 			r = random.random
 			colour = ogre.ColourValue(r(), r(), r(), 1)
 
@@ -222,7 +223,7 @@ class Starmap(object):
 		target_node = node.createChildSceneNode("Object%i_Target" % object.id, pos)
 
 		# create a copy of the entity material so we can change it's colour
-		owner = object.owner
+		owner = object.Ownership[0][1]
 		random.seed(owner)
 		entity = self.sceneManager.getEntity("Object%i" % object.id)
 		if query_flag:
@@ -340,7 +341,7 @@ class Starmap(object):
 	def mode(self, modes):
 		if self.OWNERS in modes:
 			for id, object in self.objects.items():
-				if object.owner in (0, -1):
+				if object.Ownership[0][1] in (0, -1):
 					self.overlays[id].colour = ogre.ColorValue.Blue
 				else:
 					self.overlays[id].colour = ogre.ColorValue.Yellow

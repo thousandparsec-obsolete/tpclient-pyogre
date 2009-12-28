@@ -8,6 +8,8 @@ import ogre.io.OIS as ois
 
 from tp.netlib.objects import OrderDescs
 from tp.netlib.objects.constants import *
+from tp.netlib.objects import parameters
+from tp.netlib import objects
 
 import overlay
 import starmap
@@ -15,6 +17,8 @@ import helpers
 import gui
 import settings
 import sound
+import tp_helpers
+from extra import objectutils
 
 UNIVERSE = 1
 STAR = 2
@@ -392,7 +396,7 @@ class StarmapScene(MenuScene):
 		for obj in objects:
 			if obj._subtype is not STAR:
 				continue
-			x, y, z = obj.pos
+			x, y, z = tp_helpers.getAbsPosition(obj)
 
 			if lower_left[0] > x:
 				lower_left[0] = x
@@ -437,7 +441,7 @@ class StarmapScene(MenuScene):
 		self.distance_units = settings.distance_units
 
 		for object in self.objects.values():
-			pos = self.getScaledPosition(object.pos)
+			pos = self.getScaledPosition(tp_helpers.getAbsPosition(object))
 
 			#print "creating", object.id, object.name, "\ttype:", object._subtype, "at", pos
 
@@ -458,8 +462,8 @@ class StarmapScene(MenuScene):
 				# Get parent system and the number of other fleets
 				parent = self.updateObjectIndex(object, "fleets", FLEET)
 				# Assign fleet type according to how many designs player has
-				fleet_type = (object.ships[0][0] - 1) % designs[object.owner]
-				#print "ship_design: %i designs: %i fleet type: %i" % (object.ships[0][0], designs[object.owner], fleet_type)
+				fleet_type = (object.Ships[0][0][0][0] - 1) % designs[tp_helpers.getOwner(object)]
+				#print "ship_design: %i designs: %i fleet type: %i" % (object.Ships[0][0][0][0], designs[tp_helpers.getOwner(object), fleet_type)
 				if object.parent != 1 and self.starmap.hasObject(object.parent):
 					pos = self.starmap.nodes[object.parent].position
 				node = self.starmap.addFleet(object, pos, parent, fleet_type, self.SELECTABLE)
@@ -521,7 +525,7 @@ class StarmapScene(MenuScene):
 		designs = self.getDesigns(cache)
 
 		for object in cache.objects.values():
-			pos = self.getScaledPosition(object.pos)
+			pos = self.getScaledPosition(tp_helpers.getAbsPosition(object))
 			#print "updating", object.id, object.name, object._subtype, "at", pos
 
 			if object._subtype is FLEET:
@@ -534,7 +538,7 @@ class StarmapScene(MenuScene):
 				if self.starmap.hasObject(object.id):
 					self.starmap.setFleet(object, pos, parent)
 				else:
-					fleet_type = (object.ships[0][0] - 1) % designs[object.owner]
+					fleet_type = (object.Ships[0][0][0][0] - 1) % designs[tp_helpers.getOwner(object)]
 					self.starmap.addFleet(object, pos, parent, fleet_type)
 
 		if hasattr(self.objects[0], "turn"):
@@ -784,11 +788,12 @@ class StarmapScene(MenuScene):
 
 		id = self.getIDFromMovable(self.current_object)
 		object = self.objects[id]
-		if object.order_number > 0 or len(object.order_types) > 0:
+		order_types = objectutils.getOrderTypes(self.getCache(), id)
+		if len(order_types) > 0:
 			self.orders_menu.entity = self.current_object
 			if self.orders_menu.toggle():
 				descs = OrderDescs()
-				for order_type in object.order_types:
+				for order_type in order_types.popitem()[1]:
 					if not descs.has_key(order_type):
 						continue
 					description = descs[order_type]
@@ -820,9 +825,10 @@ class StarmapScene(MenuScene):
 		"""
 		cache = self.getCache()
 		network = self.parent.application.network
+		queue = objectutils.getOrderQueueList(cache, id)
 		if not node:
-			node = cache.orders[id].last
-		evt = cache.apply("orders", action, id, node, order)
+			node = cache.orders[queue[0][1]].last
+		evt = cache.apply("orders", action, queue[0][1], node, order)
 		self.parent.application.Post(evt, source=self)
 
 	def keyPressed(self, evt):
@@ -878,18 +884,21 @@ class StarmapScene(MenuScene):
 		if object.subtype is FLEET:
 			target = self.objects[destination]
 			descs = OrderDescs()
-			for order_type in object.order_types:
+			order_types = objectutils.getOrderTypes(self.getCache(), source)
+			for order_type in order_types.popitem()[1]:
 				if not descs.has_key(order_type):
 					continue
 				descclass = descs[order_type]
 				if descclass._name in ['Move', 'Move To', 'Intercept']:
 					orderargs = [0, source, -1, descclass.subtype, 0, []]
-					for name, t in descclass.names:
-						if t is ARG_ABS_COORD:
-							orderargs.append(target.pos)
-						if t is ARG_OBJECT:
+					for prop in descclass.properties:
+						if isinstance(prop, parameters.OrderParamAbsSpaceCoords):
+							pos = [x for x in tp_helpers.getAbsPosition(target)]
+							orderargs.append([pos])
+						if isinstance(prop, parameters.OrderParamObject):
 							orderargs.append(destination)
-					order = descclass(*orderargs)
+					order = objects.Order(*orderargs)
+					order._dirty = True
 					self.sendOrder(source, order)
 					self.starmap.connectObjects(source, destination)
 					break
