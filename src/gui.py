@@ -278,7 +278,7 @@ class ArgumentsWindow(object):
 			elif base == "Turns":
 				elem_widget = wm.getWindow("%s/Editbox" % name)
 				# FIXME using hardcoded values
-				value = [(long(elem_widget.text.c_str()), 100)]
+				value = (long(elem_widget.text.c_str()), 100)
 			elif base == "List":
 				elem_widget = wm.getWindow("%s/Listbox" % name)
 				update_list = self.update_list[name]
@@ -310,7 +310,7 @@ class ArgumentsWindow(object):
 			else:
 				self.hide()
 				return None
-			arguments += value
+			arguments += [value]
 
 		return arguments
 
@@ -517,7 +517,9 @@ class ArgumentsWindow(object):
 		"""Updates any lists in the arguments window upon receiving from the server"""
 		#print "Updating list items"
 		if self.id != None and self.order_subtype != None:
-			order = self.parent.getCache().orders[self.id].last.CurrentOrder
+			cache = self.parent.getCache()
+			queue_id = objectutils.getOrderQueueList(cache, self.id)[0][1]
+			order = cache.orders[queue_id].last.CurrentOrder
 			for triplet in self.arguments_pending_update:
 				#print triplet
 				arg_type = triplet[0]
@@ -748,13 +750,13 @@ class OrdersWindow(Window):
 	toggle_button = "Windows/Orders"
 
 	defaults = {
-		ARG_ABS_COORD: [0,0,0],
-		ARG_TIME: [0, 0],
-		ARG_OBJECT: [0],
-		ARG_PLAYER: [0,0],
-		ARG_STRING: [0, ""],
-		ARG_LIST: [[], []],
-		ARG_RANGE: [-1, -1, -1, -1],
+		parameters.OrderParamAbsSpaceCoords: [[0,0,0]],
+		parameters.OrderParamTime: [[0, 0]],
+		parameters.OrderParamObject: [[0, []]],
+		parameters.OrderParamPlayer: [[0, 0]],
+		parameters.OrderParamString: [[0, ""]],
+		parameters.OrderParamList: [[[], []]],
+		parameters.OrderParamRange: [[-1, -1, -1, -1]],
 	}
 
 	def __init__(self, parent):
@@ -772,6 +774,8 @@ class OrdersWindow(Window):
 		order_queue.setSelectionMode(cegui.MultiColumnList.RowSingle)
 
 		self.arguments_window = ArgumentsWindow(parent)
+		self.update_order = None
+		self.update_id = None
 
 	def clear(self):
 		wm = cegui.WindowManager.getSingleton()
@@ -785,6 +789,10 @@ class OrdersWindow(Window):
 
 	def update(self):
 		self.arguments_window.update()
+		if self.update_id != None and self.update_order != None:
+			# remove the empty order
+			self.parent.sendOrder(self.update_id, self.update_order, "remove")
+			self.update_id = self.update_order = None
 
 	def hideArguments(self):
 		self.arguments_window.hide()
@@ -805,12 +813,14 @@ class OrdersWindow(Window):
 		self.order_queue_items = []
 		self.order_queue_list = []
 
-		if not cache.orders.has_key(id):
+		order_types = objectutils.getOrderTypes(cache, id)
+		if len(order_types) <= 0:
 			return False
 
 		object = cache.objects[id]
 
-		for o_node in cache.orders[id]:
+		queuelist = cache.orders[objectutils.getOrderQueueList(cache, id)[0][1]]
+		for o_node in queuelist:
 			index = order_queue.addRow()
 			order = o_node.CurrentOrder
 			self.order_queue_list.append(o_node)
@@ -825,10 +835,10 @@ class OrdersWindow(Window):
 			order_queue.setItem(item, 1, index)
 			self.order_queue_items.append(item)
 
-		if object.order_number > 0 or len(object.order_types) > 0:
+		if len(order_types) > 0:
 			self.orders = {}
 			descs = OrderDescs()
-			for order_type in object.order_types:
+			for order_type in order_types.popitem()[1]:
 				if not descs.has_key(order_type):
 					continue
 				description = descs[order_type]
@@ -862,10 +872,11 @@ class OrdersWindow(Window):
 			print "no valid index"
 			return None
 		id = self.parent.getIDFromMovable(self.parent.current_object)
-		object = self.parent.getCache().objects[id]
+		cache = self.parent.getCache()
+		object = cache.objects[id]
 		descs = OrderDescs()
 		orders = []
-		for order_type in object.order_types:
+		for order_type in objectutils.getOrderTypes(cache, id).popitem()[1]:
 			if not descs.has_key(order_type):
 				continue
 			orders.append(descs[order_type])
@@ -873,24 +884,22 @@ class OrdersWindow(Window):
 
 		self.arguments = []
 		orderargs = [0, id, -1, order_description.subtype, 0, []]
-		for name, t in order_description.names:
-			#print name, ARG_NAMEMAP[t]
-			orderargs += self.defaults[t]
+		for prop in order_description.properties:
+			orderargs += self.defaults[type(prop)]
 
 		order = order_description(*orderargs)
 
 		# need to send an empty order to get allowable choices e.g. production
 		self.parent.sendOrder(id, order)
 
-		for name, argument_type in order_description.names:
-			print "adding argument", name, argument_type
-			self.arguments_window.addArgument(name, argument_type)
+		for prop in order_description.properties:
+			print "adding argument", prop
+			self.arguments_window.addArgument(prop.name, ARG_PARAM_MAP[type(prop)])
 
 		self.arguments_window.show(order_description._name)
 		self.arguments_window.setCurrentOrder(id, order_description.subtype)
-
-		# remove the empty order
-		self.parent.sendOrder(id, order, "remove")
+		self.update_order = order
+		self.update_id = id
 
 	def getCurrentOrder(self):
 		"""Return the order node selected in the order queue list"""
