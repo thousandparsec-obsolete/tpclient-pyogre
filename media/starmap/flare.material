@@ -11,7 +11,7 @@ material Billboards/Flares/flare
 	  depth_check off
       texture_unit
       {
-        texture flare.png
+        texture starflare.png
       }
     }
   }
