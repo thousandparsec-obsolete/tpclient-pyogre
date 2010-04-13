@@ -160,7 +160,6 @@ class GUI(framework.Application):
 		self.tocall.append((method, args, kw))
 
 	def ConfigLoad(self, config):
-		print "Config", config
 		try:
 			settings.icon_zoom_switch_level = config["icon_zoom_switch_level"]
 			settings.show_stars_during_icon_view = config["show_stars_during_icon_view"]
@@ -177,7 +176,8 @@ class GUI(framework.Application):
 			if config.has_key("previous_game"):
 				settings.previous_game = config["previous_game"]
 		except KeyError:
-			print "keyerror"
+			sys.stderr.write("Failed to load default config file\n")
+
 		return
 	
 	def Post(self, event):
@@ -302,10 +302,14 @@ if __name__ == '__main__':
 		app = TPApplication(url)
 		app.Run()
 		app.ConfigSave()
-	finally:
+
+	except:
+		# don't traceback in the finally block, the exception won't
+		# be caught by sys.exc_info()
 		traceback()
+
+	finally:
 		import threading
 		while len(threading.enumerate()) != 1:
 			time.sleep(0.1)
 		sys.exit()
-
