@@ -11,7 +11,7 @@ import helpers
 import scene
 import settings
 import tp_helpers
-from extra import objectutils
+from tp.client import objectutils
 
 ARG_ABS_COORD = 0
 ARG_TIME = 1

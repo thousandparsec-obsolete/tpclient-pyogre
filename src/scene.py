@@ -18,7 +18,7 @@ import gui
 import settings
 import sound
 import tp_helpers
-from extra import objectutils
+from tp.client import objectutils
 
 UNIVERSE = 1
 STAR = 2
