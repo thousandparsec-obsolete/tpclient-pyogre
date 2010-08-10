@@ -678,11 +678,12 @@ class InformationWindow(Window):
 			resources = []
 			print object.Resources
 			for resource in object.Resources:
-				resource = resource[0][0]
-				info = cache.resources[resource[0]]
-				resource_string = "    %s: %s available, %s minable, %s inaccessable" % \
-					(info.name_plural, resource[1], resource[2], resource[3])
-				text += resource_string
+				if len(resource[0]) > 0:
+					resource = resource[0][0]
+					info = cache.resources[resource[0]]
+					resource_string = "    %s: %s available, %s minable, %s inaccessable" % \
+						(info.name_plural, resource[1], resource[2], resource[3])
+					text += resource_string
 		helpers.setWidgetText("Information/Text", text)
 
 class SystemWindow(Window):
