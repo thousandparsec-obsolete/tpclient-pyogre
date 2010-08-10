@@ -462,7 +462,7 @@ class StarmapScene(MenuScene):
 				# Get parent system and the number of other fleets
 				parent = self.updateObjectIndex(object, "fleets", FLEET)
 				# Assign fleet type according to how many designs player has
-				fleet_type = (object.Ships[0][0][0][0] - 1) % designs[tp_helpers.getOwner(object)]
+				fleet_type = (object.Ships[0][0][0][1] - 1) % designs[tp_helpers.getOwner(object)]
 				#print "ship_design: %i designs: %i fleet type: %i" % (object.Ships[0][0][0][0], designs[tp_helpers.getOwner(object), fleet_type)
 				if object.parent != 1 and self.starmap.hasObject(object.parent):
 					pos = self.starmap.nodes[object.parent].position
