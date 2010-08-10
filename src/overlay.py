@@ -22,9 +22,9 @@ class IconOverlay(object):
 		panel.height = height
 		self.panel = panel
 
-		if colour and hasattr(object, "owner"):
+		if colour and hasattr(object, "Ownership"):
 			material_manager = ogre.MaterialManager.getSingleton()
-			new_material_name = "%s_%i" % (material_name, object.owner)
+			new_material_name = "%s_%i" % (material_name, object.Ownership[0][1])
 			if not material_manager.resourceExists(new_material_name):
 				print new_material_name, colour
 				new_material = material_manager.getByName(material_name).clone(new_material_name)
