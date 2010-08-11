@@ -424,7 +424,7 @@ class ArgumentsWindow(object):
 					if self.listbox_queue.has_key(current_selection):
 						queue = self.listbox_queue[current_selection]
 						for item in queue:
-							if item.text.c_str() == selection_name:
+							if item.text.c_str() == selection_name and listbox.isListboxItemInList(item):
 								#print "Existing queue item found"
 								grid = listbox.getItemGridReference(item)
 								grid.column = 0
